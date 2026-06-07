@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { VISA_TYPES } from '../data/config'
+import NavFooter from '../components/NavFooter'
 
 // ── Visa display metadata (supplements config.js data) ──────────────────────
 const VISA_DISPLAY = {
@@ -274,7 +275,7 @@ export default function D3Results() {
 
       {/* Bottom CTA */}
       <div
-        className="mx-4 mb-6 rounded-2xl px-5 py-5 flex flex-col gap-3"
+        className="mx-4 mb-28 rounded-2xl px-5 py-5 flex flex-col gap-3"
         style={{ backgroundColor: '#0D2B4E' }}
       >
         <p className="text-sm font-bold leading-snug" style={{ color: '#FFFFFF' }}>
@@ -292,6 +293,7 @@ export default function D3Results() {
         </button>
       </div>
 
+      <NavFooter backPath="/d2" nextPath="/d4" nextLabel="See Cost Breakdown →" />
     </div>
   )
 }

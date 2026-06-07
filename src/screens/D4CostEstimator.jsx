@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import NavFooter from '../components/NavFooter'
 
 const COST_SECTIONS = [
   {
@@ -167,24 +168,10 @@ export default function D4CostEstimator() {
         </button>
       </div>
 
-      {/* Bottom action buttons */}
-      <div className="flex flex-col gap-3 px-4 mt-4 mb-8">
-        <button
-          onClick={() => navigate('/d5')}
-          className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
-        >
-          Save my estimate →
-        </button>
-        <button
-          onClick={() => navigate('/d5')}
-          className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #1B5FA8' }}
-        >
-          Start tracking my spending →
-        </button>
-      </div>
+      {/* Spacer for fixed footer */}
+      <div className="h-28" />
 
+      <NavFooter backPath="/d3" nextPath="/d5" nextLabel="Start Tracking →" />
     </div>
   )
 }

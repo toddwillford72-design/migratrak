@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom'
 import { VISA_TYPES, DESTINATION } from '../data/config'
+import NavFooter from '../components/NavFooter'
 
 const quotes = [
   {
@@ -20,11 +20,9 @@ const quotes = [
 const visaNames = VISA_TYPES.map((v) => v.name).join(', ')
 
 export default function D1Landing() {
-  const navigate = useNavigate()
-
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-6 py-12"
+      className="min-h-screen flex flex-col items-center justify-center px-6 pt-12 pb-28"
       style={{
         background: 'linear-gradient(160deg, #0D2B4E 0%, #1B5FA8 100%)',
       }}
@@ -65,15 +63,6 @@ export default function D1Landing() {
           </p>
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={() => navigate('/d2')}
-          className="w-full py-4 rounded-2xl text-lg font-bold tracking-wide transition-transform active:scale-95"
-          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
-        >
-          Start — it's free
-        </button>
-
         {/* Testimonials */}
         <div className="flex flex-col gap-4 w-full pt-2">
           {quotes.map((q, i) => (
@@ -104,6 +93,7 @@ export default function D1Landing() {
         </p>
 
       </div>
+      <NavFooter nextPath="/d2" nextLabel="Start — it's free →" />
     </div>
   )
 }
