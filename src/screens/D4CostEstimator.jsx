@@ -451,7 +451,7 @@ export default function D4CostEstimator() {
         </button>
       </div>
 
-      <NavFooter backPath="/d3" nextPath="/d5" nextLabel="See Timeline →" />
+      <NavFooter onBack={() => navigate(-1)} nextPath="/d5" nextLabel="See Timeline →" />
     </div>
   )
 }

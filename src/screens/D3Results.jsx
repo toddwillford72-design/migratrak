@@ -82,7 +82,8 @@ function buildCards(answers) {
     warning: 'Does not by itself lead to permanent residency or citizenship',
     dependentNote,
     expandLabel: 'Learn more about E-2',
-    ctaLabel: 'Speak with an E-2 specialist',
+    ctaLabel: 'Get my cost estimate',
+    ctaVisa: 'e2',
     expandContent: [
       'The E-2 requires you to invest a "substantial" amount in a US business — USCIS does not specify a minimum, but $100,000–$500,000 is typical in practice.',
       'You must own at least 50% of the business and be actively managing it.',
@@ -112,7 +113,8 @@ function buildCards(answers) {
       'Higher investment threshold and longer wait — but leads directly to permanent residency. Processing times have improved significantly since 2023.',
     dependentNote,
     expandLabel: 'Learn more about EB-5',
-    ctaLabel: 'Speak with an EB-5 specialist',
+    ctaLabel: 'Get my cost estimate',
+    ctaVisa: 'eb5',
     expandContent: [
       'The $800,000 threshold applies to investments in Targeted Employment Areas (TEA). Non-TEA investments require $1,050,000.',
       'The investment must create at least 10 full-time US jobs.',
@@ -141,7 +143,8 @@ function buildCards(answers) {
       'Only available to Canadian and Mexican citizens. Requires a job offer from a US employer in a qualifying occupation. Does not lead to permanent residency.',
     dependentNote,
     expandLabel: 'Check qualifying occupations',
-    ctaLabel: 'Speak with a TN specialist',
+    ctaLabel: 'Get my cost estimate',
+    ctaVisa: 'tn',
     expandContent: [
       'TN qualifying occupations include: accountants, engineers, lawyers, pharmacists, scientists, teachers, and many more — over 60 categories.',
       'You apply at the port of entry (land border or airport) or via DS-160 at a US consulate.',
@@ -170,7 +173,8 @@ function buildCards(answers) {
       "Tied to your employer — if you leave the company your status is affected. Confirm details with your employer's immigration counsel.",
     dependentNote,
     expandLabel: 'Learn more about L-1',
-    ctaLabel: 'Speak with an L-1 specialist',
+    ctaLabel: 'Get my cost estimate',
+    ctaVisa: 'l1',
     expandContent: [
       'L-1A is for managers and executives; L-1B is for employees with specialized knowledge.',
       'You must have worked for the company for at least 1 continuous year within the past 3 years.',
@@ -299,7 +303,7 @@ function DetailRow({ label, value, highlight }) {
   )
 }
 
-function VisaCard({ card, onCta }) {
+function VisaCard({ card, onCta, onCostEstimate }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -443,14 +447,11 @@ function VisaCard({ card, onCta }) {
           </div>
         )}
 
-        {/* CTA */}
+        {/* CTA — always amber, routes to D4 with visa pre-selected */}
         <button
-          onClick={() => onCta()}
+          onClick={() => onCostEstimate(card.ctaVisa)}
           className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-          style={{
-            backgroundColor: card.lead ? '#F0A500' : '#EBF4FB',
-            color: card.lead ? '#0D2B4E' : '#1B5FA8',
-          }}
+          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
         >
           {card.ctaLabel} →
         </button>
@@ -476,8 +477,8 @@ export default function D3Results() {
     navigate('/j5', { state: { filter: 'attorneys' } })
   }
 
-  function goToD4() {
-    navigate('/d4', { state: { visa: leadVisa, answers } })
+  function goToD4(visa) {
+    navigate('/d4', { state: { visa: visa ?? leadVisa, answers } })
   }
 
   return (
@@ -510,7 +511,7 @@ export default function D3Results() {
       {/* Visa cards */}
       <div className="flex flex-col gap-4 px-4 pb-4">
         {cards.map((card) => (
-          <VisaCard key={card.id} card={card} onCta={goToJ5} />
+          <VisaCard key={card.id} card={card} onCta={goToJ5} onCostEstimate={goToD4} />
         ))}
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 /**
  * Fixed footer with optional Back (ghost) and Next (amber) buttons.
  * backPath  — omit for first screen (D1)
+ * onBack    — optional override; called instead of navigate(backPath)
  * nextPath  — omit for last screen (A2)
  * nextLabel — defaults to "Next →"
  * backLabel — defaults to "← Back"
@@ -10,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
  */
 export default function NavFooter({
   backPath,
+  onBack,
   nextPath,
   nextLabel = 'Next →',
   backLabel = '← Back',
@@ -28,9 +30,9 @@ export default function NavFooter({
       }}
     >
       {/* Back */}
-      {backPath ? (
+      {backPath || onBack ? (
         <button
-          onClick={() => navigate(backPath)}
+          onClick={onBack ?? (() => navigate(backPath))}
           className="flex-shrink-0 px-5 py-3 rounded-xl text-sm font-semibold transition-opacity active:opacity-60"
           style={{ color: '#1B5FA8', backgroundColor: '#EBF4FB' }}
         >
