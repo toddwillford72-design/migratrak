@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom'
+import { VISA_TYPES, DESTINATION } from '../data/config'
 
 const quotes = [
   {
-    text: 'Finally — someone explained the E-2 visa in plain English.',
+    text: 'The timeline reality check alone changed how we planned our entire move.',
     author: 'Sarah M., Toronto',
   },
   {
-    text: 'The cost estimator alone saved me from making a $50,000 mistake.',
+    text: 'Our attorney said we were the most prepared clients she\'d ever seen.',
     author: 'David K., Vancouver',
   },
   {
@@ -14,6 +15,9 @@ const quotes = [
     author: 'The Chen Family, Punta Gorda FL',
   },
 ]
+
+// Derived from config — not hardcoded
+const visaNames = VISA_TYPES.map((v) => v.name).join(', ')
 
 export default function D1Landing() {
   const navigate = useNavigate()
@@ -47,7 +51,7 @@ export default function D1Landing() {
             className="text-[2.1rem] font-bold leading-tight"
             style={{ color: '#FFFFFF' }}
           >
-            Thinking about moving to the USA?
+            Thinking about moving to the {DESTINATION}?
           </h1>
           <p
             className="text-base leading-relaxed"
@@ -55,6 +59,9 @@ export default function D1Landing() {
           >
             Answer 5 questions. See your realistic visa options, true costs,
             and timeline — before you call anyone.
+          </p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            Covers {visaNames}
           </p>
         </div>
 
