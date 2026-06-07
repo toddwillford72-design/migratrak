@@ -1,94 +1,295 @@
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
-const COST_SECTIONS = [
-  {
-    title: 'Investment Requirement',
-    accent: '#1A7A4A',
-    accentBg: '#D1FAE5',
-    items: [
+// ── Cost data per visa ────────────────────────────────────────────────────────
+
+const VISA_DATA = {
+  e2: {
+    id: 'e2',
+    label: 'E-2',
+    title: 'E-2 Investor Visa',
+    totalLabel: 'Realistic All-In Range',
+    totalNote: 'Excluding your business investment',
+    totalRange: '$30,000 – $75,000',
+    sections: [
       {
-        label: 'EB-5 minimum investment',
-        value: '$800,000',
-        note: 'Held in a qualifying project — not spent',
-        bold: true,
+        title: 'Investment Requirement',
+        accent: '#1A7A4A',
+        accentBg: '#D1FAE5',
+        items: [
+          {
+            label: 'Minimum investment in business',
+            value: '$100,000 – $500,000',
+            bold: true,
+            note: 'Must be substantial relative to total business cost — typically 51%+ of business value. This is capital at risk in the business, not a fee.',
+          },
+        ],
+      },
+      {
+        title: 'Legal & Professional Fees',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Immigration attorney', value: '$5,000 – $15,000' },
+          { label: 'Business plan (E-2 compliant)', value: '$2,000 – $5,000' },
+          { label: 'Business valuation', value: '$1,500 – $3,500' },
+          { label: 'Accountant/CPA (cross-border)', value: '$2,000 – $4,000' },
+        ],
+      },
+      {
+        title: 'Government Filing Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'DS-160 application', value: '$205' },
+          { label: 'Consular processing fee', value: '$315' },
+          { label: 'USCIS (if change of status)', value: '$1,765' },
+        ],
+      },
+      {
+        title: 'Business Acquisition Costs',
+        accent: '#F0A500',
+        accentBg: '#FFFBEB',
+        items: [
+          { label: 'Business broker fee (if applicable)', value: '8–12% of sale price' },
+          { label: 'Due diligence / legal review', value: '$2,000 – $5,000' },
+          { label: 'Lease assignment / transfer', value: '$500 – $2,000' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$5,000 – $15,000' },
+          { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
+          { label: 'Vehicle import or purchase', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare (before coverage)', value: '$8,000 – $18,000' },
+        ],
       },
     ],
   },
-  {
-    title: 'Legal & Professional Fees',
-    accent: '#1B5FA8',
-    accentBg: '#EBF4FB',
-    items: [
-      { label: 'Immigration attorney', value: '$20,000 – $35,000' },
-      { label: 'Business plan preparation', value: '$3,000 – $8,000' },
-      { label: 'Regional center fees', value: '$5,000 – $10,000' },
-      { label: 'Financial advisor', value: '$2,000 – $5,000' },
-    ],
-  },
-  {
-    title: 'Government Filing Fees',
-    accent: '#4A5568',
-    accentBg: '#F7F9FC',
-    items: [
-      { label: 'I-526 petition', value: '$11,160' },
-      { label: 'I-485 per person × 4', value: '$4,440' },
-      { label: 'I-765 and I-131 per person', value: '$2,820' },
-    ],
-  },
-  {
-    title: 'Medical & Relocation',
-    accent: '#F0A500',
-    accentBg: '#FFFBEB',
-    items: [
-      { label: 'Medical examinations × 4', value: '$2,000 – $4,800' },
-      { label: 'Moving costs', value: '$5,000 – $15,000' },
-      { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
-      { label: 'Vehicle import', value: '$1,500 – $3,500' },
-    ],
-  },
-  {
-    title: 'First Year in the US',
-    accent: '#4A9FD4',
-    accentBg: '#EBF4FB',
-    items: [
-      { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
-      { label: 'Healthcare before coverage', value: '$8,000 – $18,000' },
-    ],
-  },
-]
 
+  eb5: {
+    id: 'eb5',
+    label: 'EB-5',
+    title: 'EB-5 Investor Green Card',
+    totalLabel: 'Realistic All-In Range',
+    totalNote: 'Excluding the $800,000 investment',
+    totalRange: '$60,000 – $115,000',
+    sections: [
+      {
+        title: 'Investment Requirement',
+        accent: '#1A7A4A',
+        accentBg: '#D1FAE5',
+        items: [
+          {
+            label: 'EB-5 minimum investment',
+            value: '$800,000',
+            bold: true,
+            note: 'Held in a qualifying USCIS-approved project — not spent. Capital is at risk and typically returned after 5–7 years.',
+          },
+        ],
+      },
+      {
+        title: 'Legal & Professional Fees',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Immigration attorney', value: '$20,000 – $35,000' },
+          { label: 'Business plan preparation', value: '$3,000 – $8,000' },
+          { label: 'Regional center fees', value: '$5,000 – $10,000' },
+          { label: 'Financial advisor', value: '$2,000 – $5,000' },
+          { label: 'Source of funds documentation', value: '$1,000 – $3,000' },
+        ],
+      },
+      {
+        title: 'Government Filing Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'I-526E petition', value: '$11,160' },
+          { label: 'I-485 (per person)', value: '$1,440 × family size' },
+          { label: 'I-765 / I-131 (per person)', value: '$1,410 × family size' },
+          { label: 'I-829 (remove conditions)', value: '$3,750' },
+        ],
+      },
+      {
+        title: 'Medical & Biometrics',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Medical examinations', value: '$500 – $1,200 per person' },
+          { label: 'Biometrics fees', value: '$85 per person' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$5,000 – $15,000' },
+          { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
+          { label: 'Vehicle import', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#F0A500',
+        accentBg: '#FFFBEB',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare (before coverage)', value: '$8,000 – $18,000' },
+        ],
+      },
+    ],
+  },
+
+  tn: {
+    id: 'tn',
+    label: 'TN',
+    title: 'TN Visa — USMCA Professional',
+    totalLabel: 'Realistic All-In Range',
+    totalNote: 'Excluding relocation',
+    totalRange: '$8,000 – $30,000',
+    successNote: 'The TN is one of the most cost-effective US work authorization options available to Canadians — if your profession qualifies.',
+    sections: [
+      {
+        title: 'Legal & Professional Fees',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Immigration attorney (recommended)', value: '$1,500 – $4,000' },
+          { label: 'TN application preparation', value: '$500 – $1,500' },
+        ],
+      },
+      {
+        title: 'Government Filing Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'TN border application', value: '$50 USD' },
+          { label: 'USCIS change of status (if in US)', value: '$370' },
+        ],
+      },
+      {
+        title: 'Documentation',
+        accent: '#F0A500',
+        accentBg: '#FFFBEB',
+        items: [
+          { label: 'Credential evaluation (if required)', value: '$200 – $400' },
+          { label: 'Employer letter preparation', value: '$0 – $500' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$5,000 – $15,000' },
+          { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
+          { label: 'Vehicle import', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare (before coverage)', value: '$8,000 – $18,000' },
+        ],
+      },
+    ],
+  },
+
+  l1: {
+    id: 'l1',
+    label: 'L-1',
+    title: 'L-1 Intracompany Transfer Visa',
+    totalLabel: 'Your Estimated Out-of-Pocket',
+    totalNote: 'Employer typically covers filing fees',
+    totalRange: '$5,000 – $15,000',
+    employerNote: 'Most L-1 costs are covered by your employer. Confirm with your HR or immigration counsel what is included in your transfer package.',
+    closingNote: 'Your actual costs depend heavily on your employer\'s relocation package. Get a full breakdown from your HR team before making any assumptions.',
+    sections: [
+      {
+        title: 'Typical Employer-Paid Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'USCIS I-129 petition', value: '$460 – $4,460' },
+          { label: 'Premium processing (optional)', value: '$2,805' },
+          { label: 'Attorney fees (employer\'s counsel)', value: '$3,000 – $8,000' },
+        ],
+      },
+      {
+        title: 'Your Out-of-Pocket Costs',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Medical examinations', value: '$500 – $1,200 per person' },
+          { label: 'DS-160 / consular fee', value: '$315 per person' },
+          { label: 'Credential / document prep', value: '$200 – $500' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: 'Often employer-covered — confirm' },
+          { label: 'Temporary accommodation', value: 'Often employer-covered' },
+          { label: 'Vehicle (if not covered)', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare', value: 'Often employer-covered — confirm' },
+        ],
+      },
+    ],
+  },
+}
+
+const TOGGLE_ORDER = ['e2', 'eb5', 'tn', 'l1']
+
+// ── Section card ──────────────────────────────────────────────────────────────
 function CostSection({ section }) {
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
-      {/* Section header */}
-      <div
-        className="px-4 py-2.5 flex items-center gap-2"
-        style={{ backgroundColor: section.accentBg }}
-      >
+      <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: section.accentBg }}>
         <div className="w-1 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: section.accent }} />
         <span className="text-xs font-extrabold uppercase tracking-wider" style={{ color: section.accent }}>
           {section.title}
         </span>
       </div>
-
-      {/* Items */}
       <div className="px-4 pb-2">
         {section.items.map((item, i) => (
           <div
             key={i}
-            className="py-3 flex items-start justify-between gap-3"
+            className="py-2.5 flex items-start justify-between gap-3"
             style={{ borderBottom: i < section.items.length - 1 ? '1px solid #F1F5F9' : 'none' }}
           >
             <div className="flex flex-col gap-0.5">
-              <span
-                className="text-sm"
-                style={{ color: '#0D2B4E', fontWeight: item.bold ? '700' : '400' }}
-              >
+              <span className="text-sm" style={{ color: '#0D2B4E', fontWeight: item.bold ? '700' : '400' }}>
                 {item.label}
               </span>
               {item.note && (
-                <span className="text-xs italic" style={{ color: '#4A9FD4' }}>
+                <span className="text-xs italic leading-snug" style={{ color: '#4A9FD4' }}>
                   {item.note}
                 </span>
               )}
@@ -106,50 +307,114 @@ function CostSection({ section }) {
   )
 }
 
+// ── Info box ──────────────────────────────────────────────────────────────────
+function InfoBox({ text, color = '#EBF4FB', borderColor = '#4A9FD4', textColor = '#0D2B4E' }) {
+  return (
+    <div className="rounded-xl px-4 py-3" style={{ backgroundColor: color, border: `1px solid ${borderColor}` }}>
+      <p className="text-sm leading-relaxed" style={{ color: textColor }}>
+        {text}
+      </p>
+    </div>
+  )
+}
+
+// ── Main screen ───────────────────────────────────────────────────────────────
 export default function D4CostEstimator() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const { state } = useLocation()
+
+  const initialVisa = state?.visa ?? 'e2'
+  const [activeVisa, setActiveVisa] = useState(
+    TOGGLE_ORDER.includes(initialVisa) ? initialVisa : 'e2'
+  )
+
+  const data = VISA_DATA[activeVisa]
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-4" style={{ backgroundColor: '#0D2B4E' }}>
+      <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          EB-5 · Family of 4
+          True Cost Estimator
         </p>
-        <h1 className="text-2xl font-extrabold leading-tight" style={{ color: '#FFFFFF' }}>
-          What will this actually cost?
+        <h1 className="text-xl font-extrabold leading-tight" style={{ color: '#FFFFFF' }}>
+          What will {data.title} actually cost you?
         </h1>
-        <p className="text-sm mt-2 leading-relaxed" style={{ color: '#EBF4FB' }}>
-          Most people underestimate by 40%. Here is a realistic breakdown.
+        <p className="text-sm mt-1 leading-relaxed" style={{ color: '#EBF4FB' }}>
+          Most people underestimate by 40%. Here's a realistic breakdown for your situation.
         </p>
+      </div>
+
+      {/* Visa toggle */}
+      <div className="px-4 py-3 sticky top-0 z-30" style={{ backgroundColor: '#F7F9FC', borderBottom: '1px solid #E2E8F0' }}>
+        <div className="flex gap-2">
+          {TOGGLE_ORDER.map((id) => {
+            const isActive = id === activeVisa
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveVisa(id)}
+                className="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all active:scale-95"
+                style={{
+                  backgroundColor: isActive ? '#0D2B4E' : '#FFFFFF',
+                  color: isActive ? '#F0A500' : '#4A5568',
+                  border: isActive ? '2px solid #0D2B4E' : '2px solid #E2E8F0',
+                }}
+              >
+                {VISA_DATA[id].label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Cost sections */}
       <div className="flex flex-col gap-3 px-4 pt-4">
-        {COST_SECTIONS.map((section) => (
+
+        {/* L-1 employer note */}
+        {data.employerNote && (
+          <InfoBox text={data.employerNote} color="#EBF4FB" borderColor="#1B5FA8" />
+        )}
+
+        {data.sections.map((section) => (
           <CostSection key={section.title} section={section} />
         ))}
       </div>
 
       {/* Total */}
-      <div
-        className="mx-4 mt-4 rounded-2xl px-5 py-5"
-        style={{ backgroundColor: '#0D2B4E' }}
-      >
+      <div className="mx-4 mt-4 rounded-2xl px-5 py-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-extrabold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          Realistic All-In Range
+          {data.totalLabel}
         </p>
         <p className="text-4xl font-extrabold" style={{ color: '#F0A500' }}>
-          $60,000
+          {data.totalRange.split('–')[0].trim()}
         </p>
-        <p className="text-lg font-bold" style={{ color: '#FFFFFF' }}>
-          to $115,000
+        <p className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
+          to {data.totalRange.split('–')[1]?.trim()}
         </p>
         <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
-          Excluding the $800,000 investment
+          {data.totalNote}
         </p>
       </div>
+
+      {/* TN success note */}
+      {data.successNote && (
+        <div className="mx-4 mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#D1FAE5', border: '1px solid #1A7A4A' }}>
+          <p className="text-sm leading-relaxed" style={{ color: '#1A7A4A' }}>
+            ✓ {data.successNote}
+          </p>
+        </div>
+      )}
+
+      {/* L-1 closing note */}
+      {data.closingNote && (
+        <div className="mx-4 mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#EBF4FB', border: '1px solid #1B5FA8' }}>
+          <p className="text-sm leading-relaxed" style={{ color: '#0D2B4E' }}>
+            {data.closingNote}
+          </p>
+        </div>
+      )}
 
       {/* Advisory box */}
       <div
@@ -157,21 +422,36 @@ export default function D4CostEstimator() {
         style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}
       >
         <p className="text-sm leading-relaxed" style={{ color: '#0D2B4E' }}>
-          This range varies significantly based on your specific situation. An experienced immigration attorney can often identify structuring options that reduce costs meaningfully.
+          These ranges are realistic starting points. An immigration attorney can identify structuring options that may reduce your costs meaningfully.
         </p>
         <button
           onClick={() => navigate('/j5', { state: { filter: 'attorneys' } })}
           className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#1B5FA8', color: '#FFFFFF' }}
         >
-          Talk to a specialist — free intro call →
+          Speak with an immigration specialist — find one near you →
         </button>
       </div>
 
-      {/* Spacer for fixed footer */}
-      <div className="h-28" />
+      {/* Secondary action buttons */}
+      <div className="flex gap-3 px-4 mt-3 mb-28">
+        <button
+          onClick={() => navigate('/j2')}
+          className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #E2E8F0' }}
+        >
+          Save my estimate
+        </button>
+        <button
+          onClick={() => navigate('/d5')}
+          className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #E2E8F0' }}
+        >
+          See my timeline →
+        </button>
+      </div>
 
-      <NavFooter backPath="/d3" nextPath="/d5" nextLabel="Start Tracking →" />
+      <NavFooter backPath="/d3" nextPath="/d5" nextLabel="See Timeline →" />
     </div>
   )
 }

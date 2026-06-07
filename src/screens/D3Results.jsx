@@ -470,9 +470,14 @@ export default function D3Results() {
   const showLifestyleBox = isLifestyleOrFamily(answers)
   const cards = buildCards(answers)
   const headerText = buildHeader(answers)
+  const leadVisa = cards[0]?.id ?? 'e2'
 
   function goToJ5() {
     navigate('/j5', { state: { filter: 'attorneys' } })
+  }
+
+  function goToD4() {
+    navigate('/d4', { state: { visa: leadVisa, answers } })
   }
 
   return (
@@ -534,7 +539,7 @@ export default function D3Results() {
         MigraTrak provides general information only — not legal advice. Visa eligibility depends on your specific circumstances. Always confirm your pathway with a licensed immigration attorney.
       </p>
 
-      <NavFooter backPath="/d2" nextPath="/d4" nextLabel="See Cost Breakdown →" />
+      <NavFooter backPath="/d2" onNext={goToD4} nextLabel="See Cost Breakdown →" />
     </div>
   )
 }
