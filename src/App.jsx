@@ -4,7 +4,7 @@ import D2Assessment from './screens/D2Assessment'
 import D3Results from './screens/D3Results'
 import D4CostEstimator from './screens/D4CostEstimator'
 import D5Timeline from './screens/D5Timeline'
-import D6Coming from './screens/D6Coming'
+import D6Save from './screens/D6Save'
 import J1Coming from './screens/J1Coming'
 import J2Coming from './screens/J2Coming'
 import J3Coming from './screens/J3Coming'
@@ -30,7 +30,7 @@ function Layout() {
         <Route path="/d3" element={<D3Results />} />
         <Route path="/d4" element={<D4CostEstimator />} />
         <Route path="/d5" element={<D5Timeline />} />
-        <Route path="/d6" element={<D6Coming />} />
+        <Route path="/d6" element={<D6Save />} />
         <Route path="/j1" element={<J1Coming />} />
         <Route path="/j2" element={<J2Coming />} />
         <Route path="/j3" element={<J3Coming />} />
