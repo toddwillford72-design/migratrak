@@ -239,7 +239,7 @@ export default function D3Results() {
   const visaIds = selectVisas(answers.motivation, answers.budget)
 
   function goToJ5() {
-    navigate('/j5')
+    navigate('/j5', { state: { filter: 'attorneys' } })
   }
 
   function handleVisaCta() {
@@ -288,7 +288,7 @@ export default function D3Results() {
           className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
         >
-          Book a free intro call →
+          Speak with an immigration specialist — find one near you →
         </button>
       </div>
 
