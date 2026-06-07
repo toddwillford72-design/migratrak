@@ -23,6 +23,10 @@ function isLifestyleOrFamily(answers) {
   )
 }
 
+function isLowBudget(answers) {
+  return answers.budget === 'Under $100,000'
+}
+
 function isNotSure(answers) {
   return answers.motivation === 'Not sure yet'
 }
@@ -184,7 +188,27 @@ function buildCards(answers) {
     ],
   }
 
-  // Build ordered list based on rules
+  // ── Under $100K: special handling ──────────────────────────────────────────
+  if (isLowBudget(answers)) {
+    // E-2 shown as caution card only — not lead, amber tone
+    const e2Caution = {
+      ...e2Card,
+      lead: false,
+      caution: true,
+      opener:
+        'The E-2 typically requires a minimum investment of $100,000 or more to demonstrate it is "substantial" under USCIS guidelines. Your current budget may make this pathway difficult without additional capital planning.',
+      warning:
+        'An attorney may identify creative structuring options — but be cautious of anyone who guarantees E-2 approval at under $100,000.',
+    }
+    if (canada) {
+      // TN is lead; E-2 is caution secondary
+      return [{ ...tnCard, lead: true }, e2Caution]
+    }
+    // Non-Canadian: E-2 caution only
+    return [e2Caution]
+  }
+
+  // ── Normal routing ───────────────────────────────────────────────────────────
   if (isEmployerTransfer(answers)) {
     const cards = [{ ...l1Card, lead: true }]
     if (canada) cards.push(tnCard)
@@ -192,7 +216,6 @@ function buildCards(answers) {
   }
 
   if (isLifestyleOrFamily(answers) || isNotSure(answers)) {
-    // All cards, no lead badge
     const cards = [e2Card, eb5Card]
     if (canada) cards.push(tnCard)
     return cards
@@ -210,7 +233,7 @@ function buildCards(answers) {
       if (canada) cards.push(tnCard)
       return cards
     }
-    // Under $100K or $100K-$300K
+    // $100K–$300K
     const cards = [{ ...e2Card, lead: true }]
     if (canada) cards.push(tnCard)
     return cards
@@ -268,6 +291,22 @@ function AgeOutBanner({ onFindAttorney }) {
   )
 }
 
+function LowBudgetInfoBox() {
+  return (
+    <div
+      className="mx-4 mb-2 rounded-2xl px-4 py-4"
+      style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}
+    >
+      <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#92400E' }}>
+        Budget Consideration
+      </p>
+      <p className="text-sm leading-relaxed" style={{ color: '#78350F' }}>
+        Based on your budget range, your visa options are more limited than higher investment tiers. This is worth discussing with an immigration attorney — some pathways have more flexibility than published minimums suggest, and your situation may have options not immediately obvious.
+      </p>
+    </div>
+  )
+}
+
 function LifestyleInfoBox() {
   return (
     <div
@@ -306,30 +345,36 @@ function DetailRow({ label, value, highlight }) {
 function VisaCard({ card, onCta, onCostEstimate }) {
   const [expanded, setExpanded] = useState(false)
 
+  const borderColor = card.caution ? '#FCD34D' : card.lead ? '#1B5FA8' : '#E2E8F0'
+  const headerBg    = card.caution ? '#FFFBEB' : card.lead ? '#0D2B4E' : '#F7F9FC'
+  const titleColor  = card.caution ? '#92400E' : card.lead ? '#FFFFFF' : '#0D2B4E'
+
   return (
     <div
       className="rounded-2xl overflow-hidden shadow-sm"
-      style={{
-        backgroundColor: '#FFFFFF',
-        border: card.lead ? '2px solid #1B5FA8' : '2px solid #E2E8F0',
-      }}
+      style={{ backgroundColor: '#FFFFFF', border: `2px solid ${borderColor}` }}
     >
       {/* Header */}
-      <div
-        className="px-5 py-4"
-        style={{ backgroundColor: card.lead ? '#0D2B4E' : '#F7F9FC' }}
-      >
+      <div className="px-5 py-4" style={{ backgroundColor: headerBg }}>
         <div className="flex items-start justify-between gap-2">
           <div>
             <p
               className="text-lg font-extrabold leading-tight"
-              style={{ color: card.lead ? '#FFFFFF' : '#0D2B4E' }}
+              style={{ color: titleColor }}
             >
               {card.title}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
-            {card.lead && (
+            {card.caution && (
+              <span
+                className="text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap"
+                style={{ backgroundColor: '#FCD34D', color: '#92400E' }}
+              >
+                Budget may be a limiting factor
+              </span>
+            )}
+            {card.lead && !card.caution && (
               <span
                 className="text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap"
                 style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
@@ -337,7 +382,7 @@ function VisaCard({ card, onCta, onCostEstimate }) {
                 Most likely fit
               </span>
             )}
-            {card.greenCardPath && !card.lead && (
+            {card.greenCardPath && !card.lead && !card.caution && (
               <span
                 className="text-xs font-bold px-2 py-1 rounded-full"
                 style={{ backgroundColor: '#D1FAE5', color: '#1A7A4A' }}
@@ -469,6 +514,7 @@ export default function D3Results() {
 
   const ageOut = hasAgeOutRisk(answers)
   const showLifestyleBox = isLifestyleOrFamily(answers)
+  const showLowBudgetBox = isLowBudget(answers)
   const cards = buildCards(answers)
   const headerText = buildHeader(answers)
   const leadVisa = cards[0]?.id ?? 'e2'
@@ -506,6 +552,7 @@ export default function D3Results() {
       </div>
 
       {/* Lifestyle/family info box */}
+      {showLowBudgetBox && <LowBudgetInfoBox />}
       {showLifestyleBox && <LifestyleInfoBox />}
 
       {/* Visa cards */}
