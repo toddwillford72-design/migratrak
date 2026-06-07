@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import D1Landing from './screens/D1Landing'
 import D2Assessment from './screens/D2Assessment'
@@ -16,6 +17,12 @@ import A2Coming from './screens/A2Coming'
 import NavBar from './components/NavBar'
 import './index.css'
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
 function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -23,6 +30,7 @@ function Layout() {
 
   return (
     <>
+      <ScrollToTop />
       {!isLanding && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
         <Route path="/" element={<D1Landing />} />
