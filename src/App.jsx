@@ -11,7 +11,7 @@ import J2Expenses from './screens/J2Expenses'
 import J3Documents from './screens/J3Documents'
 import J4Coach from './screens/J4Coach'
 import J5Directory from './screens/J5Directory'
-import J6Coming from './screens/J6Coming'
+import J6Essentials from './screens/J6Essentials'
 import A1Coming from './screens/A1Coming'
 import A2Coming from './screens/A2Coming'
 import NavBar from './components/NavBar'
@@ -44,7 +44,7 @@ function Layout() {
         <Route path="/j3" element={<J3Documents />} />
         <Route path="/j4" element={<J4Coach />} />
         <Route path="/j5" element={<J5Directory />} />
-        <Route path="/j6" element={<J6Coming />} />
+        <Route path="/j6" element={<J6Essentials />} />
         <Route path="/a1" element={<A1Coming />} />
         <Route path="/a2" element={<A2Coming />} />
       </Routes>
