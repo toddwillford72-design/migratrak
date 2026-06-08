@@ -3,12 +3,12 @@ import NavFooter from '../components/NavFooter'
 
 const quotes = [
   {
-    text: 'Finally — someone explained the E-2 visa in plain English.',
-    author: 'Sarah M., Toronto',
+    text: 'My attorney said she\'d never had a client walk in so prepared. MigraTrak made the difference.',
+    author: 'James R., London',
   },
   {
-    text: 'The cost estimator alone saved me from making a $50,000 mistake.',
-    author: 'James R., London',
+    text: 'I finally understood exactly what this move would cost and how long it would take. No more guessing.',
+    author: 'Sarah M., Toronto',
   },
 ]
 
