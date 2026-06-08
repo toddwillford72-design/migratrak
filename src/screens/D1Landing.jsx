@@ -3,16 +3,12 @@ import NavFooter from '../components/NavFooter'
 
 const quotes = [
   {
-    text: 'The timeline reality check alone changed how we planned our entire move.',
+    text: 'Finally — someone explained the E-2 visa in plain English.',
     author: 'Sarah M., Toronto',
   },
   {
-    text: 'Our attorney said we were the most prepared clients she\'d ever seen.',
-    author: 'David K., Vancouver',
-  },
-  {
-    text: 'I wish this existed when we started our EB-5 journey.',
-    author: 'The Chen Family, Punta Gorda FL',
+    text: 'The cost estimator alone saved me from making a $50,000 mistake.',
+    author: 'James R., London',
   },
 ]
 
@@ -22,12 +18,15 @@ const visaNames = VISA_TYPES.map((v) => v.name).join(', ')
 export default function D1Landing() {
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-6 pt-12 pb-28"
+      className="flex flex-col items-center justify-center px-6"
       style={{
+        minHeight: '100dvh',
         background: 'linear-gradient(160deg, #0D2B4E 0%, #1B5FA8 100%)',
+        paddingTop: '2rem',
+        paddingBottom: '5.5rem',
       }}
     >
-      <div className="w-full max-w-sm flex flex-col items-center gap-8">
+      <div className="w-full max-w-sm flex flex-col items-center gap-5">
 
         {/* Logo / wordmark */}
         <div className="flex flex-col items-center gap-1">
@@ -44,15 +43,15 @@ export default function D1Landing() {
         </div>
 
         {/* Headline */}
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex flex-col items-center gap-3 text-center">
           <h1
-            className="text-[2.1rem] font-bold leading-tight"
+            className="text-[1.75rem] font-bold leading-tight"
             style={{ color: '#FFFFFF' }}
           >
             Thinking about moving to the {DESTINATION}?
           </h1>
           <p
-            className="text-base leading-relaxed"
+            className="text-sm leading-relaxed"
             style={{ color: '#EBF4FB' }}
           >
             Answer 5 questions. See your realistic visa options, true costs,
@@ -64,7 +63,7 @@ export default function D1Landing() {
         </div>
 
         {/* Testimonials */}
-        <div className="flex flex-col gap-4 w-full pt-2">
+        <div className="flex flex-col gap-3 w-full">
           {quotes.map((q, i) => (
             <div
               key={i}
