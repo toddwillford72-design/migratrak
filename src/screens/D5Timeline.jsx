@@ -1,5 +1,23 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
+
+const DEADLINE = new Date('2026-09-30')
+
+function monthsRemaining() {
+  const now = new Date()
+  return Math.max(0, (DEADLINE.getFullYear() - now.getFullYear()) * 12 + (DEADLINE.getMonth() - now.getMonth()))
+}
+
+const EB5_DEADLINE_MILESTONE = {
+  marker: 'September 30, 2026',
+  markerStyle: 'deadline',
+  label: 'I-526E Grandfathering Deadline',
+  items: [
+    'File before this date to lock in current $800,000 investment threshold and program protections.',
+    'Missing this date may significantly change your options.',
+  ],
+  callout: null,
+}
 
 const TIMELINE = [
   {
@@ -36,6 +54,7 @@ const TIMELINE = [
       'Filing fee paid: $11,160',
     ],
   },
+  EB5_DEADLINE_MILESTONE,
   {
     marker: 'Months 4–24',
     markerStyle: 'warning',
@@ -89,10 +108,78 @@ const PRO_TIPS = [
 ]
 
 const DOT_STYLES = {
-  start:   { bg: '#0D2B4E', border: '#0D2B4E', size: 14 },
-  normal:  { bg: '#FFFFFF',  border: '#1B5FA8', size: 12 },
-  warning: { bg: '#F0A500',  border: '#F0A500', size: 14 },
-  green:   { bg: '#1A7A4A',  border: '#1A7A4A', size: 14 },
+  start:    { bg: '#0D2B4E', border: '#0D2B4E', size: 14 },
+  normal:   { bg: '#FFFFFF',  border: '#1B5FA8', size: 12 },
+  warning:  { bg: '#F0A500',  border: '#F0A500', size: 14 },
+  green:    { bg: '#1A7A4A',  border: '#1A7A4A', size: 14 },
+  deadline: { bg: '#DC2626',  border: '#DC2626', size: 16 },
+}
+
+function Eb5Alert({ onSpecialist }) {
+  const months = monthsRemaining()
+  const countColor = months < 6 ? '#DC2626' : months <= 12 ? '#F0A500' : '#1A7A4A'
+
+  return (
+    <div className="mx-0 mb-0" style={{ backgroundColor: '#DC2626' }}>
+      <div className="px-5 pt-5 pb-4 flex flex-col gap-3">
+        <div className="flex gap-2 items-start">
+          <span className="text-xl leading-none mt-0.5 flex-shrink-0">🚨</span>
+          <div>
+            <p className="text-sm font-extrabold uppercase tracking-wide mb-2" style={{ color: '#FFFFFF' }}>
+              Critical Deadline — EB-5 Investors
+            </p>
+            <p className="text-sm leading-relaxed" style={{ color: '#FEE2E2' }}>
+              The EB-5 Regional Center program's grandfathering deadline is{' '}
+              <span className="font-extrabold" style={{ color: '#FFFFFF' }}>September 30, 2026</span>.
+            </p>
+            <p className="text-sm leading-relaxed mt-2" style={{ color: '#FEE2E2' }}>
+              Investors who file their I-526E petition before this date are protected under current rules — including the $800,000 investment threshold — even if the program is later modified or replaced.
+            </p>
+            <p className="text-sm font-semibold mt-2" style={{ color: '#FFFFFF' }}>
+              If you are seriously considering EB-5, the clock is running.
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-xl px-4 py-3 flex flex-col gap-1.5"
+          style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}>
+          <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#FEE2E2' }}>
+            What this means for your timeline:
+          </p>
+          {[
+            'Filing before Sept 30, 2026 locks in current investment requirements',
+            'Missing this deadline may mean facing a $5,000,000 Gold Card threshold under proposed changes',
+            'Most attorneys recommend beginning the process at least 6 months before any hard deadline',
+          ].map((line, i) => (
+            <p key={i} className="text-xs leading-relaxed flex gap-2" style={{ color: '#FEE2E2' }}>
+              <span style={{ flexShrink: 0 }}>—</span>{line}
+            </p>
+          ))}
+        </div>
+
+        <div className="rounded-xl px-4 py-3 flex flex-col gap-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+          <p className="text-xs font-semibold" style={{ color: '#FEE2E2' }}>
+            Time remaining until Sept 30, 2026 grandfathering deadline:
+          </p>
+          <p className="text-3xl font-extrabold" style={{ color: countColor }}>
+            {months}
+          </p>
+          <p className="text-sm font-bold" style={{ color: '#FFFFFF' }}>
+            months remaining
+          </p>
+        </div>
+
+        <button
+          onClick={onSpecialist}
+          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#FFFFFF', color: '#DC2626' }}
+        >
+          Speak with an EB-5 specialist now →
+        </button>
+      </div>
+    </div>
+  )
 }
 
 function TimelineRow({ item, isLast }) {
@@ -121,23 +208,34 @@ function TimelineRow({ item, isLast }) {
       </div>
 
       {/* Content */}
-      <div className="pb-6 flex-1 min-w-0">
+      <div
+        className="pb-6 flex-1 min-w-0"
+        style={item.markerStyle === 'deadline' ? {
+          borderLeft: '3px solid #DC2626',
+          paddingLeft: 12,
+          marginLeft: -4,
+        } : {}}
+      >
         <div className="flex items-center gap-2 flex-wrap">
           <span
-            className="text-xs font-extrabold uppercase tracking-wider"
+            className="font-extrabold uppercase tracking-wider"
             style={{
-              color: item.markerStyle === 'warning' ? '#F0A500'
-                   : item.markerStyle === 'green'   ? '#1A7A4A'
-                   : item.markerStyle === 'start'   ? '#0D2B4E'
+              fontSize: item.markerStyle === 'deadline' ? '0.8rem' : '0.7rem',
+              color: item.markerStyle === 'deadline' ? '#DC2626'
+                   : item.markerStyle === 'warning'  ? '#F0A500'
+                   : item.markerStyle === 'green'    ? '#1A7A4A'
+                   : item.markerStyle === 'start'    ? '#0D2B4E'
                    : '#1B5FA8',
             }}
           >
-            {item.marker}
+            {item.markerStyle === 'deadline' ? '⚠️ ' : ''}{item.marker}
           </span>
           {item.label && (
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}
+              style={item.markerStyle === 'deadline'
+                ? { backgroundColor: '#FEE2E2', color: '#991B1B' }
+                : { backgroundColor: '#FEF3C7', color: '#92400E' }}
             >
               {item.label}
             </span>
@@ -145,7 +243,10 @@ function TimelineRow({ item, isLast }) {
         </div>
 
         {item.items.map((line, i) => (
-          <p key={i} className="text-sm mt-1 leading-snug" style={{ color: '#4A5568' }}>
+          <p key={i}
+            className="text-sm mt-1 leading-snug"
+            style={{ color: item.markerStyle === 'deadline' ? '#7F1D1D' : '#4A5568',
+                     fontWeight: item.markerStyle === 'deadline' ? 600 : 400 }}>
             {line}
           </p>
         ))}
@@ -167,9 +268,20 @@ function TimelineRow({ item, isLast }) {
 
 export default function D5Timeline() {
   const navigate = useNavigate()
+  const { state } = useLocation()
+  const visa = state?.visa ?? ''
+  const showEb5Alert = visa === 'eb5' || visa === 'EB-5'
+
+  const timeline = TIMELINE.filter(item =>
+    item !== EB5_DEADLINE_MILESTONE || showEb5Alert
+  )
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
+
+      {showEb5Alert && (
+        <Eb5Alert onSpecialist={() => navigate('/j5', { state: { filter: 'attorneys' } })} />
+      )}
 
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
@@ -186,8 +298,8 @@ export default function D5Timeline() {
 
       {/* Timeline */}
       <div className="px-5 pt-5">
-        {TIMELINE.map((item, i) => (
-          <TimelineRow key={i} item={item} isLast={i === TIMELINE.length - 1} />
+        {timeline.map((item, i) => (
+          <TimelineRow key={i} item={item} isLast={i === timeline.length - 1} />
         ))}
       </div>
 
