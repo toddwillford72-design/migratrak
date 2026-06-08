@@ -1,5 +1,5 @@
+import { useNavigate } from 'react-router-dom'
 import { VISA_TYPES, DESTINATION } from '../data/config'
-import NavFooter from '../components/NavFooter'
 
 const quotes = [
   {
@@ -16,6 +16,7 @@ const quotes = [
 const visaNames = VISA_TYPES.map((v) => v.name).join(', ')
 
 export default function D1Landing() {
+  const navigate = useNavigate()
   return (
     <div
       className="flex flex-col items-center justify-center px-6"
@@ -91,8 +92,26 @@ export default function D1Landing() {
           No account required · Takes under 2 minutes
         </p>
 
+        {/* CTAs */}
+        <div className="flex flex-col items-center gap-3 w-full">
+          <button
+            onClick={() => navigate('/d2')}
+            className="w-full py-4 rounded-2xl text-base font-extrabold transition-all active:scale-95"
+            style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+          >
+            Start — it's free →
+          </button>
+          <div className="w-full h-px" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
+          <button
+            onClick={() => navigate('/a1')}
+            className="text-xs transition-opacity active:opacity-60"
+            style={{ color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            Immigration specialist? Access your portal →
+          </button>
+        </div>
+
       </div>
-      <NavFooter nextPath="/d2" nextLabel="Start — it's free →" />
     </div>
   )
 }

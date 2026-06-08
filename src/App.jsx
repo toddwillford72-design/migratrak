@@ -27,38 +27,6 @@ function ScrollToTop() {
   return null
 }
 
-function DemoToggle() {
-  const { pathname } = useLocation()
-  const navigate = useNavigate()
-  const isAttorney = pathname.startsWith('/a')
-  return (
-    <button
-      onClick={() => navigate(isAttorney ? '/j1' : '/a1')}
-      style={{
-        position: 'fixed',
-        top: 10,
-        right: 10,
-        zIndex: 9999,
-        backgroundColor: 'rgba(0,0,0,0.42)',
-        color: '#FFFFFF',
-        fontSize: '0.6rem',
-        fontWeight: 700,
-        letterSpacing: '0.04em',
-        padding: '4px 9px',
-        borderRadius: 999,
-        border: '1px solid rgba(255,255,255,0.22)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        whiteSpace: 'nowrap',
-        cursor: 'pointer',
-        opacity: 0.85,
-      }}
-    >
-      {isAttorney ? '← Client View' : 'Attorney View →'}
-    </button>
-  )
-}
-
 function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -67,7 +35,6 @@ function Layout() {
   return (
     <>
       <ScrollToTop />
-      <DemoToggle />
       {!isLanding && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
         <Route path="/"   element={<D1Landing />} />
