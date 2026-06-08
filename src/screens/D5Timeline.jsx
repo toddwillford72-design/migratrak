@@ -352,22 +352,7 @@ export default function D5Timeline() {
         ))}
       </div>
 
-      {/* Bottom CTA */}
-      <div
-        className="mx-4 mb-28 rounded-2xl px-5 py-5 flex flex-col gap-3"
-        style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}
-      >
-        <p className="text-sm leading-relaxed" style={{ color: '#0D2B4E' }}>
-          The right attorney helps you prepare everything correctly the first time — avoiding costly delays.
-        </p>
-        <button
-          onClick={() => navigate('/j5', { state: { filter: 'attorneys' } })}
-          className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#1B5FA8', color: '#FFFFFF' }}
-        >
-          Find a specialist in my area →
-        </button>
-      </div>
+      <div className="mb-28" />
 
       <NavFooter backPath="/d5" nextPath="/d7" nextLabel="Next →" />
     </div>

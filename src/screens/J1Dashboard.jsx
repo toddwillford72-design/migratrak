@@ -360,8 +360,23 @@ export default function J1Dashboard() {
               </p>
             </div>
           </div>
-          <div className="px-3 py-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-            <span className="text-xs font-bold" style={{ color: '#F0A500' }}>Active</span>
+          <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+            <div className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+              <span className="text-xs font-bold" style={{ color: '#F0A500' }}>Active</span>
+            </div>
+            <a
+              href="https://egov.uscis.gov/casestatus/landing.do"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-opacity active:opacity-70"
+              style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: '#4A9FD4' }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" />
+                <path d="M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              USCIS Status
+            </a>
           </div>
         </div>
 
