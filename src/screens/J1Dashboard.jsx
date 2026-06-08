@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
@@ -233,10 +233,6 @@ function ResourcesView() {
 export default function J1Dashboard() {
   const navigate = useNavigate()
   const [view, setView] = useState('case')
-
-  useEffect(() => {
-    localStorage.setItem('migratrak_loggedin', 'true')
-  }, [])
 
   const isCanada = (() => {
     try {
