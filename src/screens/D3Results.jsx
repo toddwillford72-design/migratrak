@@ -374,12 +374,12 @@ export default function D3Results() {
       </div>
 
       <div className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col gap-3" style={{ backgroundColor: '#0D2B4E' }}>
-        <p className="text-sm font-bold leading-snug" style={{ color: '#FFFFFF' }}>Not sure which path is right for you?</p>
-        <p className="text-xs leading-relaxed" style={{ color: '#4A9FD4' }}>A 30-minute consultation with an immigration specialist costs nothing and clarifies everything.</p>
+        <p className="text-sm font-bold leading-snug" style={{ color: '#FFFFFF' }}>Speak with an immigration specialist — find one near you</p>
+        <p className="text-xs leading-relaxed" style={{ color: '#4A9FD4' }}>A 30-minute consultation costs nothing and clarifies everything.</p>
         <button onClick={goToJ5}
           className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
-          Speak with an immigration specialist — find one near you →
+          Find a specialist →
         </button>
       </div>
 
@@ -387,7 +387,7 @@ export default function D3Results() {
         MigraTrak provides general information only — not legal advice. Visa eligibility depends on your specific circumstances. Always confirm your pathway with a licensed immigration attorney.
       </p>
 
-      <NavFooter backPath="/d2" onNext={goToD4} nextLabel="See Cost Estimate →" />
+      <NavFooter backPath="/d2" onNext={() => navigate('/d4', { state: { answers } })} />
     </div>
   )
 }
