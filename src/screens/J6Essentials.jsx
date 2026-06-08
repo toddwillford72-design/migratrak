@@ -508,26 +508,28 @@ function SectionBlock({ section, onAction, onToggle }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3 gap-3 transition-opacity active:opacity-70"
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0 text-left">
+        <div className="flex flex-col gap-1 flex-1 min-w-0 text-left">
           <span className="text-sm font-extrabold leading-tight" style={{ color: '#0D2B4E' }}>
             {section.title}
           </span>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span
-            className="text-xs font-bold px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: section.badgeBg, color: section.badgeColor }}
-          >
-            {section.badge}
-          </span>
-          {hasAlert && (
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span
               className="text-xs font-bold px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: '#FEE2E2', color: '#DC2626' }}
+              style={{ backgroundColor: section.badgeBg, color: section.badgeColor }}
             >
-              {criticalCount + urgentCount} urgent
+              {section.badge}
             </span>
-          )}
+            {hasAlert && (
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: '#FEE2E2', color: '#DC2626' }}
+              >
+                {criticalCount + urgentCount} urgent
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-xs font-semibold" style={{ color: '#A0AEC0' }}>
             {doneCount}/{section.items.length}
           </span>
