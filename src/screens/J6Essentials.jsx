@@ -1,6 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
+
+// ─── Answer helpers ───────────────────────────────────────────────────────────
+
+function loadAnswers() {
+  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} }
+}
+
+function hasChildren(answers) {
+  return (
+    answers.household === 'Me, spouse, and children' ||
+    (typeof answers.children === 'string' && answers.children.startsWith('Yes'))
+  )
+}
+
+function hasAgeOutChildren(answers) {
+  return answers.children === 'Yes — aged 18, 19, or 20'
+}
 
 const TABS = [
   { id: 'dashboard',  label: 'Dashboard',  path: '/j1' },
@@ -311,12 +328,67 @@ function UrgentItem({ label, urgencyNote, actionLabel, onAction }) {
   )
 }
 
+function DetailedTodoItem({ label, note, actionLabel, onAction, last }) {
+  return (
+    <div className="py-3 flex flex-col gap-1.5"
+      style={{ borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
+      <div className="flex items-start gap-3">
+        <div className="w-6 h-6 rounded-full border-2 flex-shrink-0 mt-0.5" style={{ borderColor: '#CBD5E0' }} />
+        <p className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{label}</p>
+      </div>
+      {note && (
+        <p className="text-xs leading-relaxed pl-9" style={{ color: '#4A5568' }}>{note}</p>
+      )}
+      {actionLabel && (
+        <div className="pl-9">
+          <button
+            onClick={onAction}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}>
+            {actionLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AgeOutAwarenessItem({ onCoach }) {
+  return (
+    <div className="rounded-xl px-4 py-3 mb-2 flex flex-col gap-2"
+      style={{ backgroundColor: '#FFFBEB', border: '2px solid #F0A500' }}>
+      <div className="flex items-start gap-2">
+        <span className="text-base flex-shrink-0">⚠️</span>
+        <p className="text-sm font-extrabold leading-snug" style={{ color: '#92400E' }}>
+          Post-Secondary Education — Age-Out Awareness
+        </p>
+      </div>
+      <p className="text-xs leading-relaxed" style={{ color: '#78350F' }}>
+        If your child is 18–20 and dependent on your visa application, enrolling them in a US university as an F-1 student visa holder may be worth exploring as a parallel pathway to protect their status while your case processes.
+      </p>
+      <button
+        onClick={onCoach}
+        className="self-start px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+        style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
+        Ask our AI Coach →
+      </button>
+    </div>
+  )
+}
+
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function J6Essentials() {
   const navigate = useNavigate()
-  const [category, setCategory] = useState(null)
-  const [month1Open, setMonth1Open] = useState(false)
+  const [category,    setCategory]    = useState(null)
+  const [month1Open,  setMonth1Open]  = useState(false)
+  const [schoolOpen,  setSchoolOpen]  = useState(false)
+  const [answers,     setAnswers]     = useState(() => loadAnswers())
+
+  useEffect(() => { setAnswers(loadAnswers()) }, [])
+
+  const showSchool   = hasChildren(answers)
+  const showAgeOut   = hasAgeOutChildren(answers)
 
   if (category === 'auto-insurance') return <AutoInsuranceScreen onBack={() => setCategory(null)} />
   if (category === 'banking')        return <BankingScreen onBack={() => setCategory(null)} />
@@ -414,6 +486,82 @@ export default function J6Essentials() {
             </div>
           )}
         </div>
+
+        {/* School Enrollment — only when children present */}
+        {showSchool && (
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <button
+              onClick={() => setSchoolOpen(!schoolOpen)}
+              className="w-full flex items-center justify-between px-4 py-3.5 transition-opacity active:opacity-70"
+            >
+              <div className="flex flex-col gap-0.5 text-left">
+                <span className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>School Enrollment</span>
+                {!schoolOpen && (
+                  <span className="text-xs" style={{ color: '#A0AEC0' }}>
+                    Districts, records, transcripts, immunization
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {showAgeOut && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full"
+                    style={{ backgroundColor: '#FFFBEB', color: '#92400E', border: '1px solid #F0A500' }}>
+                    ⚠️ Action needed
+                  </span>
+                )}
+                <span className="text-xs font-semibold" style={{ color: '#A0AEC0' }}>0/5</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ transform: schoolOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
+            </button>
+
+            {schoolOpen && (
+              <div className="px-4 pb-3" style={{ borderTop: '1px solid #F1F5F9' }}>
+                {/* Age-out awareness — only for 18-20 dependents */}
+                {showAgeOut && (
+                  <div className="pt-3">
+                    <AgeOutAwarenessItem onCoach={() => navigate('/j4')} />
+                  </div>
+                )}
+
+                <DetailedTodoItem
+                  label="Research school districts in your destination area"
+                  note="School district quality varies significantly by neighborhood. Research this before finalizing your home purchase or rental — it directly affects where you live."
+                  actionLabel="Research school districts →"
+                  onAction={() => {}}
+                />
+                <DetailedTodoItem
+                  label="Understand school enrollment requirements"
+                  note="US public schools require proof of address, immunization records, and previous school transcripts. Requirements vary by state and district. Contact your destination district before arrival."
+                  actionLabel="Learn more →"
+                  onAction={() => {}}
+                />
+                <DetailedTodoItem
+                  label="Obtain immunization records from home country"
+                  note="US schools have specific immunization requirements that may differ from your home country. Get official records from your home country doctor before departure — significantly harder to obtain after you leave."
+                  actionLabel="Check requirements →"
+                  onAction={() => {}}
+                />
+                <DetailedTodoItem
+                  label="Request school transcripts from home country"
+                  note="Official transcripts from previous schools are required for enrollment. Request apostille-certified copies before leaving your home country."
+                  actionLabel="Learn how →"
+                  onAction={() => {}}
+                />
+                <DetailedTodoItem
+                  label="Enroll children in school"
+                  note="Contact your destination school district directly to begin enrollment. Most districts require 2–4 weeks lead time."
+                  actionLabel="Find your district →"
+                  onAction={() => {}}
+                  last
+                />
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
 
