@@ -24,274 +24,302 @@ const STATUS_ICON = {
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
-const SECTIONS = [
-  {
-    id: 'financial',
-    title: 'Financial & Legal',
-    badge: 'Do in first 30 days',
-    badgeColor: '#1B5FA8',
-    badgeBg: '#EBF4FB',
-    defaultOpen: true,
-    items: [
-      {
-        id: 'bank',
-        status: 'empty',
-        title: 'Open US bank account',
-        sub: 'TD Bank and RBC cross-border accounts do not require an SSN to open. Bring passport and visa approval notice.',
-        actions: [{ label: 'Find a bank →', category: 'banking' }],
-      },
-      {
-        id: 'cpa',
-        status: 'empty',
-        title: 'Engage cross-border accountant',
-        sub: 'Must be engaged BEFORE your Canadian departure date to handle CRA departure return, RRSP/TFSA decisions, and FBAR filing. Missing this window has real tax consequences.',
-        actions: [{ label: 'Find a cross-border CPA →', route: '/j5', routeState: { filter: 'cpas' } }],
-      },
-      {
-        id: 'advisor',
-        status: 'empty',
-        title: 'Engage financial advisor',
-        sub: 'Investment restructuring, TFSA wind-down strategy, and US portfolio setup. Ideally the same week as your accountant.',
-        actions: [{ label: 'Find a financial advisor →', route: '/j5' }],
-      },
-      {
-        id: 'cra',
-        status: 'empty',
-        title: 'File CRA departure return',
-        sub: 'Required in the year you leave Canada. Your cross-border accountant handles this but you need to initiate it.',
-        actions: [{ label: 'Learn more →' }],
-      },
-      {
-        id: 'credit',
-        status: 'empty',
-        title: 'Build US credit history',
-        sub: 'You arrive in the US with zero credit history. Every month you delay costs you later — higher deposits, worse rates. Use Nova Credit to transfer your Canadian score or open a secured credit card immediately.',
-        actions: [{ label: 'Learn how →' }],
-      },
-    ],
-  },
-  {
-    id: 'healthcare',
-    title: 'Healthcare',
-    badge: 'Do in first 30 days',
-    badgeColor: '#1B5FA8',
-    badgeBg: '#EBF4FB',
-    defaultOpen: false,
-    items: [
-      {
-        id: 'health-insurance',
-        status: 'critical',
-        title: 'Enroll in US health insurance',
-        sub: 'You are not covered by provincial healthcare once you establish US residency. Do not leave this open.',
-        actions: [{ label: 'Find health insurance options →' }],
-      },
-      {
-        id: 'pcp',
-        status: 'empty',
-        title: 'Find a primary care physician',
-        sub: 'Most practices have waitlists. Start this process before you need a doctor urgently.',
-        actions: [{ label: 'Find a doctor →' }],
-      },
-      {
-        id: 'dentist',
-        status: 'empty',
-        title: 'Find a dentist',
-        sub: 'Canadian dental coverage does not transfer. Confirm your US insurance includes dental or arrange separately.',
-        actions: [{ label: 'Find a dentist →' }],
-      },
-      {
-        id: 'rx',
-        status: 'empty',
-        title: 'Transfer prescription records',
-        sub: 'Contact your Canadian pharmacy and request full prescription history. US doctors will ask for this.',
-        actions: [{ label: 'Learn how →' }],
-      },
-      {
-        id: 'medical-records',
-        status: 'empty',
-        title: 'Obtain medical records from Canadian doctors',
-        sub: 'Request copies of all medical records before leaving Canada — much harder to obtain after departure.',
-        actions: [{ label: 'Learn how →' }],
-      },
-    ],
-  },
-  {
-    id: 'vehicle',
-    title: 'Vehicle & Transportation',
-    badge: 'Critical — time sensitive',
-    badgeColor: '#991B1B',
-    badgeBg: '#FEE2E2',
-    defaultOpen: true,
-    items: [
-      {
-        id: 'auto-insurance',
-        status: 'critical',
-        title: 'Arrange US auto insurance',
-        sub: 'Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles in the US. You may be driving uninsured without knowing it.',
-        actions: [{ label: 'Find insurance →', category: 'auto-insurance' }],
-      },
-      {
-        id: 'plates',
-        status: 'critical',
-        title: 'Check Canadian plate registration',
-        sub: 'Most provinces void vehicle registration after 6 months abroad. Driving on expired Canadian plates in Florida is a legal exposure most people discover only when pulled over.',
-        actions: [{ label: 'Check your province rules →' }],
-      },
-      {
-        id: 'import',
-        status: 'empty',
-        title: 'Contact vehicle import company',
-        sub: 'If importing your Canadian vehicle permanently, the RIV registration process takes 6–8 weeks. Start early.',
-        actions: [{ label: 'Find an import specialist →' }],
-      },
-      {
-        id: 'fl-licence',
-        status: 'empty',
-        title: "Get Florida driver's licence",
-        sub: "Florida requires you to obtain a state driver's licence within 30 days of establishing residency. Your Canadian licence is not sufficient long-term.",
-        actions: [{ label: 'Learn more →' }],
-      },
-      {
-        id: 'us-reg',
-        status: 'empty',
-        title: 'Understand US vehicle registration',
-        sub: "If purchasing a US vehicle, you'll need proof of insurance before registration. Do insurance first.",
-        actions: [{ label: 'Learn more →' }],
-      },
-    ],
-  },
-  {
-    id: 'government',
-    title: 'Government & Identity',
-    badge: 'Do in first 60 days',
-    badgeColor: '#4A5568',
-    badgeBg: '#F1F5F9',
-    defaultOpen: false,
-    items: [
-      {
-        id: 'ssn-apply',
-        status: 'empty',
-        title: 'Apply for SSN',
-        sub: 'Eligibility depends on your visa type and status. Apply as early as you are eligible — processing can take weeks and errors go undetected.',
-        actions: [{ label: "Check when you're eligible →" }],
-      },
-      {
-        id: 'ssn-followup',
-        status: 'urgent',
-        title: 'Follow up on SSN application',
-        sub: 'Call 3 weeks after applying to confirm no documentation issues. Errors are common and can affect healthcare, employment, and banking.',
-        actions: [{ label: 'Mark as done', dismiss: true }, { label: 'Call SSA now →' }],
-      },
-      {
-        id: 'i94',
-        status: 'empty',
-        title: 'Check I-94 for errors',
-        sub: 'I-94 errors affect your legal status, healthcare eligibility, and employment authorization. Check yours at i94.cbp.dhs.gov immediately after entry.',
-        actions: [{ label: 'Check your I-94 →' }],
-      },
-      {
-        id: 'fl-id',
-        status: 'empty',
-        title: "Apply for Florida ID or driver's licence",
-        sub: 'Required within 30 days of establishing Florida residency.',
-        actions: [{ label: 'Learn more →' }],
-      },
-      {
-        id: 'school',
-        status: 'empty',
-        title: 'Register children in school',
-        sub: 'Requires proof of address plus immunization records. Florida has specific immunization requirements that differ from Canadian provinces.',
-        actions: [{ label: 'Learn more →' }],
-      },
-    ],
-  },
-  {
-    id: 'comms',
-    title: 'Communications & Utilities',
-    badge: 'Do in first 2 weeks',
-    badgeColor: '#1A7A4A',
-    badgeBg: '#D1FAE5',
-    defaultOpen: false,
-    items: [
-      {
-        id: 'cell',
-        status: 'empty',
-        title: 'Set up US cell phone plan',
-        sub: 'Canadian roaming charges accumulate fast. Switch to a US plan immediately — T-Mobile and AT&T offer plans with no SSN required.',
-        actions: [{ label: 'Find options →' }],
-      },
-      {
-        id: 'utilities',
-        status: 'empty',
-        title: 'Set up utilities',
-        sub: 'Electric, internet, and water accounts typically require a deposit without a US credit history. Factor this into your first-month budget.',
-        actions: [{ label: 'Learn more →' }],
-      },
-      {
-        id: 'cra-address',
-        status: 'empty',
-        title: 'Update address with CRA',
-        sub: 'Notify CRA of your departure and new address. Required for your departure return and ongoing correspondence.',
-        actions: [{ label: 'Learn how →' }],
-      },
-      {
-        id: 'cdn-banks',
-        status: 'empty',
-        title: 'Update Canadian banks and pension providers',
-        sub: 'Update mailing address with all Canadian financial institutions. Some may restrict accounts for non-residents — confirm with each.',
-        actions: [{ label: 'Learn more →' }],
-      },
-    ],
-  },
-  {
-    id: 'immigration',
-    title: 'Immigration Milestones',
-    badge: 'Ongoing — never miss these',
-    badgeColor: '#92400E',
-    badgeBg: '#FEF3C7',
-    defaultOpen: false,
-    items: [
-      {
-        id: 'i485-track',
-        status: 'progress',
-        title: 'Track I-485 processing timeline',
-        sub: 'Current processing: 13 months. Normal range for your service center: 12–24 months.',
-        actions: [{ label: 'Check USCIS processing times →' }],
-      },
-      {
-        id: 'service-request',
-        status: 'empty',
-        title: 'File USCIS Service Request if delays exceed normal range',
-        sub: 'Free. Takes 10 minutes at uscis.gov. Worth doing once you exceed published processing times.',
-        actions: [{ label: 'Learn how →' }],
-      },
-      {
-        id: 'congressional',
-        status: 'empty',
-        title: 'Contact congressional office if delays persist',
-        sub: 'Free, takes 15 minutes, and can significantly accelerate processing. Most applicants never know this exists.',
-        actions: [{ label: 'Learn how →' }, { label: 'Ask AI Coach →', route: '/j4' }],
-      },
-      {
-        id: 'gc-interview',
-        status: 'empty',
-        title: 'Calendar conditional green card interview',
-        sub: 'Will be scheduled after I-485 approval. Prepare documentation in advance.',
-        actions: [{ label: 'Learn more →' }],
-      },
-      {
-        id: 'i829',
-        status: 'empty',
-        title: 'Calendar I-829 filing window',
-        sub: 'Remove conditions on green card. Must be filed in the 90-day window before your 2-year conditional green card expires. Missing this window is serious.',
-        actions: [{ label: 'Set reminder →' }],
-      },
-    ],
-  },
-]
-
-const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0)
-const COMPLETE_ITEMS = 12
+function buildSections(isCanada) {
+  return [
+    {
+      id: 'financial',
+      title: 'Financial & Legal',
+      badge: 'Do in first 30 days',
+      badgeColor: '#1B5FA8',
+      badgeBg: '#EBF4FB',
+      defaultOpen: true,
+      items: [
+        {
+          id: 'bank',
+          status: 'empty',
+          title: 'Open US bank account',
+          sub: 'Some US banks open accounts for new arrivals without an SSN. Bring your passport and visa approval documentation. Call ahead to confirm requirements.',
+          canadianNote: isCanada ? 'TD Bank and RBC both offer cross-border accounts specifically for Canadians — no SSN required to open.' : null,
+          actions: [{ label: 'Find a bank →', category: 'banking' }],
+        },
+        {
+          id: 'cpa',
+          status: 'empty',
+          title: 'Engage cross-border accountant',
+          sub: 'Engage a tax professional who understands both your home country and US tax obligations before you establish US residency. Tax decisions made after arrival can be costly and sometimes irreversible.',
+          canadianNote: isCanada ? 'Must be engaged BEFORE your Canadian departure date to handle your CRA departure return, RRSP/TFSA decisions, and FBAR filing. Missing this window has real tax consequences.' : null,
+          actions: [{ label: 'Find a cross-border CPA →', route: '/j5', routeState: { filter: 'cpas' } }],
+        },
+        {
+          id: 'advisor',
+          status: 'empty',
+          title: 'Engage financial advisor',
+          sub: 'Investment restructuring, tax-advantaged account wind-down strategy, and US portfolio setup. Ideally the same week as your accountant.',
+          canadianNote: null,
+          actions: [{ label: 'Find a financial advisor →', route: '/j5' }],
+        },
+        {
+          id: 'departure-return',
+          status: 'empty',
+          title: 'File home country departure return',
+          sub: 'Most countries require a final tax return or departure notification when you establish residency elsewhere. Confirm requirements with your cross-border accountant.',
+          canadianNote: isCanada ? 'File your CRA departure return for the year you leave Canada. Your cross-border accountant handles this but you need to initiate it before your departure date.' : null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'registered-accounts',
+          status: 'empty',
+          title: 'Wind down home country registered accounts',
+          sub: 'Review all tax-advantaged accounts in your home country with your financial advisor. Treatment of foreign registered accounts under US tax law varies significantly and requires professional guidance.',
+          canadianNote: isCanada ? 'RRSP and TFSA accounts require specific decisions around your departure date. TFSA loses its tax-free status once you become a US resident. Get advice before you leave — not after.' : null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'credit',
+          status: 'empty',
+          title: 'Build US credit history',
+          sub: 'You arrive in the US with zero credit history. Every month you delay costs you later — higher deposits, worse rates. Use Nova Credit to transfer your home country credit score or open a secured credit card immediately.',
+          canadianNote: null,
+          actions: [{ label: 'Learn how →' }],
+        },
+      ],
+    },
+    {
+      id: 'healthcare',
+      title: 'Healthcare',
+      badge: 'Do in first 30 days',
+      badgeColor: '#1B5FA8',
+      badgeBg: '#EBF4FB',
+      defaultOpen: false,
+      items: [
+        {
+          id: 'health-insurance',
+          status: 'critical',
+          title: 'Enroll in US health insurance',
+          sub: 'Confirm exactly when your home country health coverage ends after you establish US residency. There is often a gap between losing home country coverage and obtaining US coverage. Do not leave this unplanned.',
+          canadianNote: isCanada ? 'Provincial health coverage typically ends within 3 months of establishing residency in another country — sometimes sooner. Check your province\'s specific rules and arrange US coverage before that date.' : null,
+          actions: [{ label: 'Find health insurance options →' }],
+        },
+        {
+          id: 'pcp',
+          status: 'empty',
+          title: 'Find a primary care physician',
+          sub: 'Most practices have waitlists. Start this process before you need a doctor urgently.',
+          canadianNote: null,
+          actions: [{ label: 'Find a doctor →' }],
+        },
+        {
+          id: 'dentist',
+          status: 'empty',
+          title: 'Find a dentist',
+          sub: 'Home country dental coverage does not transfer. Confirm your US insurance includes dental or arrange separately.',
+          canadianNote: null,
+          actions: [{ label: 'Find a dentist →' }],
+        },
+        {
+          id: 'rx',
+          status: 'empty',
+          title: 'Transfer prescription records',
+          sub: 'Contact your home country pharmacy and request full prescription history. US doctors will ask for this.',
+          canadianNote: null,
+          actions: [{ label: 'Learn how →' }],
+        },
+        {
+          id: 'medical-records',
+          status: 'empty',
+          title: 'Obtain medical records from home country doctors',
+          sub: 'Request copies of all medical records before leaving — much harder to obtain after departure.',
+          canadianNote: null,
+          actions: [{ label: 'Learn how →' }],
+        },
+      ],
+    },
+    {
+      id: 'vehicle',
+      title: 'Vehicle & Transportation',
+      badge: 'Critical — time sensitive',
+      badgeColor: '#991B1B',
+      badgeBg: '#FEE2E2',
+      defaultOpen: true,
+      items: [
+        {
+          id: 'auto-insurance',
+          status: 'critical',
+          title: 'Arrange US auto insurance',
+          sub: 'Foreign auto insurance may void after a period of continuous US residence. You may be driving uninsured without knowing it. Confirm your coverage status now.',
+          canadianNote: isCanada ? 'Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles in the US. You may be driving uninsured without knowing it.' : null,
+          actions: [{ label: 'Find insurance →', category: 'auto-insurance' }],
+        },
+        {
+          id: 'plates',
+          status: 'critical',
+          title: 'Check home country vehicle registration status',
+          sub: 'Confirm whether your home country vehicle registration remains valid while you are abroad and for how long. Driving on an expired foreign registration in the US creates legal exposure.',
+          canadianNote: isCanada ? 'Most Canadian provinces void vehicle registration after 6 months abroad. Check your province\'s specific rules before that window closes.' : null,
+          actions: [{ label: 'Check your province rules →' }],
+        },
+        {
+          id: 'import',
+          status: 'empty',
+          title: 'Contact vehicle import company',
+          sub: 'If importing your vehicle permanently, the compliance and registration process can take 6–8 weeks. Start early.',
+          canadianNote: null,
+          actions: [{ label: 'Find an import specialist →' }],
+        },
+        {
+          id: 'fl-licence',
+          status: 'empty',
+          title: "Get Florida driver's licence",
+          sub: "Florida requires you to obtain a state driver's licence within 30 days of establishing residency. Your foreign licence is not sufficient long-term.",
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'us-reg',
+          status: 'empty',
+          title: 'Understand US vehicle registration',
+          sub: "If purchasing a US vehicle, you'll need proof of insurance before registration. Do insurance first.",
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+      ],
+    },
+    {
+      id: 'government',
+      title: 'Government & Identity',
+      badge: 'Do in first 60 days',
+      badgeColor: '#4A5568',
+      badgeBg: '#F1F5F9',
+      defaultOpen: false,
+      items: [
+        {
+          id: 'ssn-apply',
+          status: 'empty',
+          title: 'Apply for SSN',
+          sub: 'Eligibility depends on your visa type and status. Apply as early as you are eligible — processing can take weeks and errors go undetected.',
+          canadianNote: null,
+          actions: [{ label: "Check when you're eligible →" }],
+        },
+        {
+          id: 'ssn-followup',
+          status: 'urgent',
+          title: 'Follow up on SSN application',
+          sub: 'Call 3 weeks after applying to confirm no documentation issues. Errors are common and can affect healthcare, employment, and banking.',
+          canadianNote: null,
+          actions: [{ label: 'Mark as done', dismiss: true }, { label: 'Call SSA now →' }],
+        },
+        {
+          id: 'i94',
+          status: 'empty',
+          title: 'Check I-94 for errors',
+          sub: 'I-94 errors affect your legal status, healthcare eligibility, and employment authorization. Check yours at i94.cbp.dhs.gov immediately after entry.',
+          canadianNote: null,
+          actions: [{ label: 'Check your I-94 →' }],
+        },
+        {
+          id: 'fl-id',
+          status: 'empty',
+          title: "Apply for Florida ID or driver's licence",
+          sub: 'Required within 30 days of establishing Florida residency.',
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'school',
+          status: 'empty',
+          title: 'Register children in school',
+          sub: 'Requires proof of address plus immunization records. Florida has specific immunization requirements that may differ from your home country.',
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+      ],
+    },
+    {
+      id: 'comms',
+      title: 'Communications & Utilities',
+      badge: 'Do in first 2 weeks',
+      badgeColor: '#1A7A4A',
+      badgeBg: '#D1FAE5',
+      defaultOpen: false,
+      items: [
+        {
+          id: 'cell',
+          status: 'empty',
+          title: 'Set up US cell phone plan',
+          sub: 'Foreign roaming charges accumulate fast. Switch to a US plan immediately — T-Mobile and AT&T offer plans with no SSN required.',
+          canadianNote: null,
+          actions: [{ label: 'Find options →' }],
+        },
+        {
+          id: 'utilities',
+          status: 'empty',
+          title: 'Set up utilities',
+          sub: 'Electric, internet, and water accounts typically require a deposit without a US credit history. Factor this into your first-month budget.',
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'home-address',
+          status: 'empty',
+          title: 'Update home country address and accounts',
+          sub: 'Notify your home country tax authority, banks, and pension or retirement providers of your departure and new address. Some institutions restrict accounts for non-residents — confirm with each.',
+          canadianNote: isCanada ? 'Notify CRA, all Canadian banks, and any pension providers of your departure. Some Canadian banks restrict non-resident accounts — confirm your status with each institution.' : null,
+          actions: [{ label: 'Learn how →' }],
+        },
+      ],
+    },
+    {
+      id: 'immigration',
+      title: 'Immigration Milestones',
+      badge: 'Ongoing — never miss these',
+      badgeColor: '#92400E',
+      badgeBg: '#FEF3C7',
+      defaultOpen: false,
+      items: [
+        {
+          id: 'i485-track',
+          status: 'progress',
+          title: 'Track I-485 processing timeline',
+          sub: 'Current processing: 13 months. Normal range for your service center: 12–24 months.',
+          canadianNote: null,
+          actions: [{ label: 'Check USCIS processing times →' }],
+        },
+        {
+          id: 'service-request',
+          status: 'empty',
+          title: 'File USCIS Service Request if delays exceed normal range',
+          sub: 'Free. Takes 10 minutes at uscis.gov. Worth doing once you exceed published processing times.',
+          canadianNote: null,
+          actions: [{ label: 'Learn how →' }],
+        },
+        {
+          id: 'congressional',
+          status: 'empty',
+          title: 'Contact congressional office if delays persist',
+          sub: 'Free, takes 15 minutes, and can significantly accelerate processing. Most applicants never know this exists.',
+          canadianNote: null,
+          actions: [{ label: 'Learn how →' }, { label: 'Ask AI Coach →', route: '/j4' }],
+        },
+        {
+          id: 'gc-interview',
+          status: 'empty',
+          title: 'Calendar conditional green card interview',
+          sub: 'Will be scheduled after I-485 approval. Prepare documentation in advance.',
+          canadianNote: null,
+          actions: [{ label: 'Learn more →' }],
+        },
+        {
+          id: 'i829',
+          status: 'empty',
+          title: 'Calendar I-829 filing window',
+          sub: 'Remove conditions on green card. Must be filed in the 90-day window before your 2-year conditional green card expires. Missing this window is serious.',
+          canadianNote: null,
+          actions: [{ label: 'Set reminder →' }],
+        },
+      ],
+    },
+  ]
+}
 
 // ─── AUTO INSURANCE CATEGORY ──────────────────────────────────────────────────
 
@@ -443,6 +471,15 @@ function ChecklistItem({ item, onAction, onToggle }) {
             <p className="text-xs mt-1 leading-relaxed" style={{ color: '#4A5568' }}>
               {item.sub}
             </p>
+          )}
+          {item.canadianNote && (
+            <div className="mt-1.5 rounded-lg px-2.5 py-2 flex items-start gap-1.5"
+              style={{ backgroundColor: '#FFF8E7', border: '1px solid #FCD34D' }}>
+              <span className="text-xs flex-shrink-0">🍁</span>
+              <p className="text-xs leading-relaxed font-medium" style={{ color: '#92400E' }}>
+                {item.canadianNote}
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -644,9 +681,22 @@ function BankingScreen({ onBack }) {
 export default function J6Essentials() {
   const navigate = useNavigate()
   const [category, setCategory] = useState(null) // null | 'auto-insurance' | 'banking'
+
+  // Read country from D2 answers saved in localStorage
+  const isCanada = (() => {
+    try {
+      const saved = localStorage.getItem('migratrak_answers')
+      if (!saved) return true // default to Canada for demo
+      return JSON.parse(saved)?.country === 'Canada'
+    } catch (_) { return true }
+  })()
+
+  const SECTIONS = buildSections(isCanada)
+  const TOTAL_ITEMS = SECTIONS.reduce((sum, s) => sum + s.items.length, 0)
+
   const [items, setItems] = useState(() => {
     const map = {}
-    SECTIONS.forEach((s) => s.items.forEach((item) => { map[item.id] = item.status }))
+    buildSections(true).forEach((s) => s.items.forEach((item) => { map[item.id] = item.status }))
     return map
   })
 

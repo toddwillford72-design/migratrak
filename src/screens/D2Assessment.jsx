@@ -96,6 +96,7 @@ export default function D2Assessment() {
     setAnswers(newAnswers)
 
     if (isLast) {
+      try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch (_) {}
       navigate('/d3', { state: { answers: newAnswers } })
     } else {
       setStep(step + 1)
