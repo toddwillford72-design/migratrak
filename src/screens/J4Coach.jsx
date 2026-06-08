@@ -135,7 +135,7 @@ function UserBubble({ text }) {
   )
 }
 
-function AIBubble({ paragraphs, showDisclaimer, isTyping }) {
+function AIBubble({ paragraphs, showDisclaimer, isTyping, isLive }) {
   return (
     <div className="flex gap-2 items-start">
       <div
@@ -162,6 +162,10 @@ function AIBubble({ paragraphs, showDisclaimer, isTyping }) {
                 />
               ))}
             </div>
+          ) : isLive ? (
+            <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#0D2B4E' }}>
+              {paragraphs[0]}
+            </p>
           ) : (
             <div className="flex flex-col gap-2">
               {paragraphs.map((p, i) => (
@@ -179,12 +183,13 @@ function AIBubble({ paragraphs, showDisclaimer, isTyping }) {
 }
 
 export default function J4Coach() {
-  const [messages, setMessages]     = useState([])
-  const [input, setInput]           = useState('')
-  const [typingId, setTypingId]     = useState(null)
-  const [usedChips, setUsedChips]   = useState(new Set())
-  const bottomRef                   = useRef(null)
-  const inputRef                    = useRef(null)
+  const [messages, setMessages]         = useState([])
+  const [apiHistory, setApiHistory]     = useState([])
+  const [input, setInput]               = useState('')
+  const [typingId, setTypingId]         = useState(null)
+  const [usedChips, setUsedChips]       = useState(new Set())
+  const bottomRef                       = useRef(null)
+  const inputRef                        = useRef(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -193,62 +198,63 @@ export default function J4Coach() {
   function fireQA(qa) {
     if (usedChips.has(qa.id)) return
     setUsedChips((prev) => new Set([...prev, qa.id]))
-
-    // Add user message
     setMessages((prev) => [...prev, { type: 'user', text: qa.user, id: Date.now() }])
-
-    // Show typing indicator then AI response
     const typId = qa.id + Date.now()
     setTypingId(typId)
     setTimeout(() => {
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
-        { type: 'ai', paragraphs: qa.ai, showDisclaimer: true, id: Date.now() },
+        { type: 'ai', paragraphs: qa.ai, showDisclaimer: false, id: Date.now() },
       ])
     }, 1400)
   }
 
-  function handleSend() {
+  async function handleSend() {
     const text = input.trim()
-    if (!text) return
+    if (!text || typingId) return
 
-    // Match against known questions (loose)
-    const matched = QA.find((q) =>
-      text.toLowerCase().includes(q.id) ||
-      q.chip.toLowerCase().includes(text.toLowerCase().slice(0, 10))
-    )
-
-    setMessages((prev) => [...prev, { type: 'user', text, id: Date.now() }])
+    const userMsg = { type: 'user', text, id: Date.now() }
+    setMessages((prev) => [...prev, userMsg])
     setInput('')
     inputRef.current?.blur()
 
-    const typId = 'custom' + Date.now()
+    const newHistory = [...apiHistory, { role: 'user', content: text }]
+    setApiHistory(newHistory)
+
+    const typId = 'live-' + Date.now()
     setTypingId(typId)
 
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newHistory }),
+      })
+
+      const data = await res.json()
+      const reply = res.ok && data.text ? data.text : "I'm having trouble connecting right now. Please try again in a moment."
+
       setTypingId(null)
-      if (matched && !usedChips.has(matched.id)) {
-        setUsedChips((prev) => new Set([...prev, matched.id]))
-        setMessages((prev) => [
-          ...prev,
-          { type: 'ai', paragraphs: matched.ai, showDisclaimer: true, id: Date.now() },
-        ])
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            type: 'ai',
-            paragraphs: [
-              'That\'s a great question for your immigration journey. For your specific situation, I\'d recommend discussing this directly with your immigration specialist who has the full context of your case.',
-              'In the meantime, try one of the suggested questions above — they cover some of the most important topics for EB-5 applicants.',
-            ],
-            showDisclaimer: true,
-            id: Date.now(),
-          },
-        ])
+      setMessages((prev) => [
+        ...prev,
+        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: Date.now() },
+      ])
+      if (res.ok && data.text) {
+        setApiHistory((prev) => [...prev, { role: 'assistant', content: data.text }])
       }
-    }, 1400)
+    } catch (_) {
+      setTypingId(null)
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: 'ai',
+          paragraphs: ["I'm having trouble connecting right now. Please try again in a moment."],
+          showDisclaimer: false,
+          id: Date.now(),
+        },
+      ])
+    }
   }
 
   const showChips = messages.length === 0
@@ -319,7 +325,7 @@ export default function J4Coach() {
             {messages.map((msg) =>
               msg.type === 'user'
                 ? <UserBubble key={msg.id} text={msg.text} />
-                : <AIBubble key={msg.id} paragraphs={msg.paragraphs} showDisclaimer={msg.showDisclaimer} />
+                : <AIBubble key={msg.id} paragraphs={msg.paragraphs} showDisclaimer={msg.showDisclaimer} isLive={msg.isLive} />
             )}
             {typingId && <AIBubble paragraphs={[]} isTyping />}
           </div>
@@ -393,7 +399,7 @@ export default function J4Coach() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            onKeyDown={(e) => e.key === 'Enter' && !typingId && handleSend()}
             placeholder="Ask anything about your journey..."
             className="flex-1 px-4 py-3 rounded-2xl text-sm outline-none"
             style={{
@@ -406,11 +412,11 @@ export default function J4Coach() {
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || !!typingId}
             className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all active:scale-95"
             style={{
-              backgroundColor: input.trim() ? '#1B5FA8' : '#E2E8F0',
-              color: input.trim() ? '#FFFFFF' : '#A0AEC0',
+              backgroundColor: input.trim() && !typingId ? '#1B5FA8' : '#E2E8F0',
+              color: input.trim() && !typingId ? '#FFFFFF' : '#A0AEC0',
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
