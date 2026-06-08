@@ -339,6 +339,7 @@ function UrgentCard({ client }) {
 
 export default function A1AttorneyDashboard() {
   const [showModal, setShowModal] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <>
@@ -463,6 +464,14 @@ export default function A1AttorneyDashboard() {
             style={{ backgroundColor: '#0D2B4E', color: '#F0A500' }}
           >
             <span className="text-xl leading-none">+</span> Add New Client
+          </button>
+
+          <button
+            onClick={() => navigate('/a3')}
+            className="w-full py-4 rounded-2xl text-base font-extrabold flex items-center justify-center gap-2 transition-all active:scale-95"
+            style={{ backgroundColor: '#1A7A4A', color: '#FFFFFF' }}
+          >
+            ✉️ Send Client Invitation
           </button>
 
         </div>

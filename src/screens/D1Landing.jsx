@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { VISA_TYPES, DESTINATION } from '../data/config'
 import NavFooter from '../components/NavFooter'
 
@@ -16,6 +18,14 @@ const quotes = [
 const visaNames = VISA_TYPES.map((v) => v.name).join(', ')
 
 export default function D1Landing() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (localStorage.getItem('migratrak_loggedin')) {
+      navigate('/j1')
+    }
+  }, [])
+
   return (
     <div
       className="flex flex-col items-center justify-center px-6"

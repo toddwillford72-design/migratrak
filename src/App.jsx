@@ -16,6 +16,8 @@ import J6Essentials from './screens/J6Essentials'
 import JResourcesScreen from './screens/JResourcesScreen'
 import A1AttorneyDashboard from './screens/A1AttorneyDashboard'
 import A2Coming from './screens/A2Coming'
+import A3Invite from './screens/A3Invite'
+import AttyClientEntry from './screens/AttyClientEntry'
 import NavBar from './components/NavBar'
 import './index.css'
 
@@ -51,6 +53,8 @@ function Layout() {
         <Route path="/resources" element={<JResourcesScreen />} />
         <Route path="/a1" element={<A1AttorneyDashboard />} />
         <Route path="/a2" element={<A2Coming />} />
+        <Route path="/a3" element={<A3Invite />} />
+        <Route path="/attorney-client" element={<AttyClientEntry />} />
       </Routes>
     </>
   )

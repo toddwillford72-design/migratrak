@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
@@ -181,9 +181,62 @@ function QuickAction({ icon, label, onPress, color }) {
   )
 }
 
+// ── Resources view ────────────────────────────────────────────────────────────
+
+const ARTICLES = [
+  {
+    id: 'eb5-timeline',
+    title: 'Understanding your EB-5 timeline',
+    desc: 'What the processing stages actually look like — and how long each one takes in practice.',
+  },
+  {
+    id: 'costs',
+    title: 'What all of this actually costs',
+    desc: 'Attorney fees, filing fees, medical exams, moving costs — the full picture before you commit.',
+  },
+  {
+    id: 'eb5-vs-e2',
+    title: 'EB-5 vs E-2 — which is right for you?',
+    desc: 'The key differences between the two most popular investor visas, explained without the jargon.',
+  },
+  {
+    id: 'congressional',
+    title: 'The congressional inquiry — what it is and when to use it',
+    desc: 'A free tool almost nobody knows about that can dramatically accelerate a delayed USCIS case.',
+  },
+]
+
+function ResourcesView() {
+  return (
+    <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
+      {ARTICLES.map((article) => (
+        <div
+          key={article.id}
+          className="rounded-2xl px-5 py-5"
+          style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}
+        >
+          <p className="text-sm font-bold mb-1" style={{ color: '#0D2B4E' }}>{article.title}</p>
+          <p className="text-sm mb-3" style={{ color: '#4A5568' }}>{article.desc}</p>
+          <button
+            className="text-sm font-semibold"
+            style={{ color: '#1B5FA8' }}
+          >
+            Read →
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J1Dashboard() {
   const navigate = useNavigate()
+  const [view, setView] = useState('case')
+
+  useEffect(() => {
+    localStorage.setItem('migratrak_loggedin', 'true')
+  }, [])
 
   const isCanada = (() => {
     try {
@@ -332,6 +385,34 @@ export default function J1Dashboard() {
         </div>
       </div>
 
+      {/* View switcher tab bar */}
+      <div
+        className="flex gap-2"
+        style={{ backgroundColor: '#0D2B4E', paddingBottom: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 8 }}
+      >
+        {[{ id: 'case', label: 'My Case' }, { id: 'resources', label: 'Resources' }].map((tab) => {
+          const isActive = view === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setView(tab.id)}
+              className="px-5 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
+              style={
+                isActive
+                  ? { backgroundColor: '#F0A500', color: '#0D2B4E' }
+                  : { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)' }
+              }
+            >
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {view === 'resources' ? (
+        <ResourcesView />
+      ) : (
+
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
 
         {/* Urgent alerts */}
@@ -397,6 +478,8 @@ export default function J1Dashboard() {
         </div>
 
       </div>
+
+      )} {/* end view === 'case' */}
 
       <TabBar active="dashboard" />
     </div>
