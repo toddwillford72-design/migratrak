@@ -8,7 +8,6 @@ const TABS = [
   { id: 'coach',     label: 'AI Coach',  path: '/j4' },
   { id: 'directory', label: 'Directory', path: '/j5' },
   { id: 'essentials',label: 'Essentials',path: '/j6' },
-  { id: 'resources', label: 'Resources', path: '/a1' },
   { id: 'help',      label: 'Help',      path: '/a2' },
 ]
 
