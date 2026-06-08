@@ -562,6 +562,29 @@ export default function D3Results() {
         ))}
       </div>
 
+      {/* AI Coach nudge */}
+      <div
+        className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col items-center gap-3 text-center"
+        style={{ backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' }}
+      >
+        <span className="text-3xl">💬</span>
+        <div>
+          <p className="text-sm font-bold" style={{ color: '#0D2B4E' }}>
+            Have questions before speaking to anyone?
+          </p>
+          <p className="text-xs mt-1.5 leading-relaxed" style={{ color: '#4A5568' }}>
+            Our AI coach can explain any visa type, walk you through typical timelines and costs, and help you prepare the right questions before your first consultation with a specialist — completely free.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate('/j4')}
+          className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: 'transparent', color: '#0D2B4E', border: '2px solid #0D2B4E' }}
+        >
+          Ask our AI Coach first →
+        </button>
+      </div>
+
       {/* Bottom CTA */}
       <div
         className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col gap-3"
