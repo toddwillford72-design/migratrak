@@ -54,6 +54,30 @@ const QA = [
       'Fix it as early as possible.',
     ],
   },
+  {
+    id: 'eb5deadline',
+    chip: 'What is the September 2026 EB-5 deadline?',
+    user: 'What is the September 2026 EB-5 deadline and why does it matter?',
+    ai: [
+      'This is one of the most time-sensitive issues in US investor immigration right now — and most applicants don\'t know it exists.',
+      'THE DEADLINE:\nSeptember 30, 2026 is the grandfathering deadline for the EB-5 Regional Center program under the 2022 Reform and Integrity Act (RIA).',
+      'WHAT IT MEANS:\nInvestors who file their I-526E petition before September 30, 2026 are protected under current rules — even if the program is later changed or replaced. This protection includes:\n- The current $800,000 investment threshold (TEA projects)\n- Current processing rules and regional center structures\n- Your place in the existing processing queue',
+      'WHAT HAPPENS AFTER:\nThe Regional Center program is currently set to sunset on September 30, 2027. The Trump administration has proposed replacing EB-5 with a \'Gold Card\' visa requiring a $5,000,000 investment — though this has not yet been passed into law.',
+      'THE BOTTOM LINE:\nIf you are seriously considering EB-5, filing before September 30, 2026 is the single most important thing you can do to protect your options.\n\nMost immigration attorneys are advising clients to begin the process immediately given that sourcing funds, preparing documentation, and selecting a regional center typically takes 4–6 months minimum.',
+    ],
+  },
+  {
+    id: 'goldcard',
+    chip: 'What is the Gold Card visa?',
+    user: 'What is the Gold Card visa and how is it different from EB-5?',
+    ai: [
+      'The Gold Card is a proposed new investor visa announced by President Trump in February 2025. Here\'s what we know and don\'t know:',
+      'WHAT IT IS (proposed):\nA permanent residency visa in exchange for a $5,000,000 payment directly to the US government — not an investment in a business or project.',
+      'HOW IT DIFFERS FROM EB-5:\n\n                EB-5          Gold Card\nInvestment:     $800K         $5,000,000\nGoes to:        Business/     US Government\n                Project\nReturned:       Potentially   No — it is a\n                yes after     payment, not\n                5–7 years     an investment\nJob creation:   Required      Not required\nStatus:         Law since     Proposed only\n                1990          — not yet law',
+      'CURRENT STATUS:\nThe Gold Card has not been passed into law. EB-5 is legally protected through September 2027 and cannot be terminated without Congressional approval.',
+      'WHAT THIS MEANS FOR YOU:\nIf you are considering EB-5, the program remains fully operational and is legally protected. Filing before September 30, 2026 locks in your position under current rules regardless of what happens with the Gold Card proposal.\n\nMost immigration attorneys recommend proceeding with EB-5 now rather than waiting to see if the Gold Card becomes law — the risk of waiting outweighs the potential benefit.',
+    ],
+  },
 ]
 
 function Disclaimer() {
@@ -306,22 +330,26 @@ export default function J4Coach() {
         {/* Suggested chips */}
         {showChips && (
           <div
-            className="px-4 pb-3 pt-2"
-            style={{ backgroundColor: '#F7F9FC' }}
+            className="pb-3 pt-2"
+            style={{ backgroundColor: '#F7F9FC', borderTop: '1px solid #E2E8F0' }}
           >
-            <p className="text-xs font-extrabold uppercase tracking-widest mb-2" style={{ color: '#4A5568' }}>
+            <p className="text-xs font-extrabold uppercase tracking-widest mb-2 px-4" style={{ color: '#4A5568' }}>
               Suggested questions
             </p>
-            <div className="flex flex-col gap-2">
+            <div
+              className="flex gap-2 overflow-x-auto px-4"
+              style={{ scrollbarWidth: 'none' }}
+            >
               {QA.map((qa) => (
                 <button
                   key={qa.id}
                   onClick={() => fireQA(qa)}
-                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all active:scale-[0.98]"
+                  className="flex-shrink-0 text-left px-4 py-3 rounded-xl text-sm font-medium transition-all active:scale-[0.98]"
                   style={{
                     backgroundColor: '#FFFFFF',
                     border: '1px solid #E2E8F0',
                     color: '#1B5FA8',
+                    maxWidth: 220,
                   }}
                 >
                   {qa.chip} →
