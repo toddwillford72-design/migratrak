@@ -12,7 +12,7 @@ const TABS = [
   { id: 'help',      label: 'Help',      path: '/a2' },
 ]
 
-const FILTERS = ['All', 'Attorneys', 'CPAs', 'Real Estate', 'Business Brokers', 'MLO', 'Healthcare']
+const FILTERS = ['All', 'Attorneys', 'RCICs', 'CPAs', 'Financial Advisors', 'Real Estate', 'MLO / Mortgage', 'Healthcare', 'Vehicle Import', 'Business Brokers']
 
 const PROFESSIONALS = [
   {
@@ -31,11 +31,13 @@ const PROFESSIONALS = [
     languages: ['English', 'French'],
     canadian: 'Extensive experience',
     bio: 'Canadian-born immigration attorney. Founder of the Canadians Moving to Florida and USA community (80,000+ members). Has personally navigated the same journey her clients are on.',
+    note: null,
     badge: 'Founding Partner',
     category: 'Attorneys',
     stars: 5,
     reviews: null,
     expanded: true,
+    primaryAction: 'Request Introduction',
   },
   {
     id: 2,
@@ -50,11 +52,13 @@ const PROFESSIONALS = [
     languages: null,
     canadian: null,
     bio: null,
+    note: null,
     badge: null,
     category: 'Attorneys',
     stars: 4,
     reviews: 23,
     expanded: false,
+    primaryAction: 'Request Introduction',
   },
   {
     id: 3,
@@ -69,11 +73,13 @@ const PROFESSIONALS = [
     languages: null,
     canadian: null,
     bio: null,
+    note: null,
     badge: null,
     category: 'CPAs',
     stars: 5,
     reviews: 18,
     expanded: false,
+    primaryAction: 'Request Introduction',
   },
   {
     id: 4,
@@ -88,11 +94,13 @@ const PROFESSIONALS = [
     languages: null,
     canadian: null,
     bio: null,
+    note: null,
     badge: null,
     category: 'Real Estate',
     stars: 4,
     reviews: 31,
     expanded: false,
+    primaryAction: 'Request Introduction',
   },
   {
     id: 5,
@@ -107,11 +115,141 @@ const PROFESSIONALS = [
     languages: null,
     canadian: null,
     bio: null,
+    note: null,
     badge: null,
     category: 'Business Brokers',
     stars: 4,
     reviews: 14,
     expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 6,
+    name: 'RCIC Name',
+    title: 'Regulated Canadian Immigration Consultant',
+    firm: 'Firm Name — City, Canada',
+    location: 'Canada',
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['Pre-departure planning', 'US visa referrals', 'Canadian exit strategy'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: 'RCICs are regulated by CICC and can advise on Canadian immigration matters. For US visa applications, they work alongside US-licensed attorneys.',
+    badge: null,
+    category: 'RCICs',
+    stars: 4,
+    reviews: 12,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 7,
+    name: 'Advisor Name',
+    title: 'Cross-Border Financial Advisor',
+    firm: 'Firm Name — City, FL',
+    location: null,
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['RRSP/TFSA wind-down', 'US portfolio setup', 'Cross-border tax planning', 'Retirement accounts'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: null,
+    badge: null,
+    category: 'Financial Advisors',
+    stars: 5,
+    reviews: 9,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 8,
+    name: 'MLO Name',
+    title: 'Mortgage Loan Originator',
+    firm: 'Firm Name — Southwest Florida',
+    location: null,
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['DSCR loans', 'Foreign national lending', 'Canadian investor financing', 'No SSN required options'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: null,
+    badge: null,
+    category: 'MLO / Mortgage',
+    stars: 4,
+    reviews: 17,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 9,
+    name: 'Doctor Name, MD',
+    title: 'Primary Care Physician',
+    firm: 'Practice Name — Tampa, FL',
+    location: null,
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['New arrivals', 'Foreign medical records', 'Insurance transitions'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: 'Experienced with new arrivals — understands foreign medical records and insurance transitions',
+    accepting: true,
+    badge: null,
+    category: 'Healthcare',
+    stars: 5,
+    reviews: 24,
+    expanded: false,
+    primaryAction: 'Book appointment',
+  },
+  {
+    id: 10,
+    name: 'Dentist Name, DDS',
+    title: 'General Dentist',
+    firm: 'Practice Name — Tampa, FL',
+    location: null,
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['General dentistry', 'New patients welcome'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: null,
+    accepting: true,
+    badge: null,
+    category: 'Healthcare',
+    stars: 4,
+    reviews: 19,
+    expanded: false,
+    primaryAction: 'Book appointment',
+  },
+  {
+    id: 11,
+    name: 'Company Name',
+    title: 'Vehicle Import Specialist',
+    firm: 'City, FL',
+    location: null,
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['Canadian vehicle imports', 'RIV registration', 'US compliance modifications', 'Customs'],
+    languages: null,
+    canadian: null,
+    bio: null,
+    note: null,
+    badge: null,
+    category: 'Vehicle Import',
+    stars: 4,
+    reviews: 14,
+    expanded: false,
+    primaryAction: 'Request Introduction',
   },
 ]
 
@@ -252,6 +390,18 @@ function ProfessionalCard({ pro, initialOpen }) {
             </p>
           )}
 
+          {/* Note */}
+          {pro.note && (
+            <div className="rounded-xl px-3 py-2.5" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}>
+              <p className="text-xs leading-relaxed" style={{ color: '#78350F' }}>{pro.note}</p>
+            </div>
+          )}
+
+          {/* Accepting new patients */}
+          {pro.accepting && (
+            <p className="text-xs font-semibold" style={{ color: '#1A7A4A' }}>✓ Accepting new patients</p>
+          )}
+
           {/* Details grid */}
           <div className="flex flex-col gap-2">
             {pro.address && (
@@ -313,7 +463,7 @@ function ProfessionalCard({ pro, initialOpen }) {
                 </a>
               )}
             </div>
-            {/* Request Introduction */}
+            {/* Primary action */}
             <button
               onClick={() => setRequested(true)}
               className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
@@ -322,7 +472,7 @@ function ProfessionalCard({ pro, initialOpen }) {
                 color: requested ? '#1A7A4A' : '#0D2B4E',
               }}
             >
-              {requested ? '✓ Introduction Requested' : 'Request Introduction →'}
+              {requested ? `✓ ${pro.primaryAction || 'Request Introduction'} confirmed` : `${pro.primaryAction || 'Request Introduction'} →`}
             </button>
           </div>
         </div>
@@ -345,7 +495,7 @@ function ProfessionalCard({ pro, initialOpen }) {
               color: requested ? '#1A7A4A' : '#0D2B4E',
             }}
           >
-            {requested ? '✓ Requested' : 'Request Intro →'}
+            {requested ? '✓ Done' : (pro.primaryAction || 'Request Intro') + ' →'}
           </button>
         </div>
       )}
@@ -355,7 +505,8 @@ function ProfessionalCard({ pro, initialOpen }) {
 
 export default function J5Directory() {
   const { state } = useLocation()
-  const initialFilter = state?.filter === 'attorneys' ? 'Attorneys' : 'All'
+  const filterMap = { attorneys: 'Attorneys', cpas: 'CPAs', 'financial-advisors': 'Financial Advisors', healthcare: 'Healthcare', 'vehicle-import': 'Vehicle Import' }
+  const initialFilter = filterMap[state?.filter] ?? 'All'
   const [activeFilter, setActiveFilter] = useState(initialFilter)
 
   const filtered = activeFilter === 'All'
