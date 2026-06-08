@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
@@ -26,21 +26,318 @@ function budgetLabel(answers) {
   }
   return map[answers.budget] || answers.budget || 'undecided'
 }
-
 function isExploringDestination(answers) {
   const settled = answers.destinationSettled ?? ''
   return settled.startsWith('🔍') || settled.startsWith('🤷')
 }
 
-function destinationCity(answers) {
-  const d = answers.destination ?? ''
-  if (d.startsWith('Florida')) return 'Florida'
-  if (d.startsWith('Texas'))   return 'Texas'
-  if (d.startsWith('Arizona')) return 'Arizona'
-  return null
+// ── Country helpers ────────────────────────────────────────────────────────────
+
+function countryKey(answers) {
+  const c = answers.country ?? ''
+  if (c === 'Canada')         return 'canada'
+  if (c === 'United Kingdom') return 'uk'
+  if (c === 'Australia')      return 'australia'
+  return 'other'
 }
 
-// ── Visa card data ─────────────────────────────────────────────────────────────
+function homeCity(answers) {
+  const map = { canada: 'Toronto', uk: 'London', australia: 'Sydney', other: 'your home city' }
+  return map[countryKey(answers)]
+}
+
+function expatLabel(answers) {
+  const map = { canada: 'Canadian', uk: 'UK', australia: 'Australian', other: 'International' }
+  return map[countryKey(answers)]
+}
+
+function countryName(answers) {
+  const c = answers.country ?? ''
+  return c === 'Other country' ? 'your home country' : c
+}
+
+// ── Comparison table rows by country ──────────────────────────────────────────
+
+const COMPARISON_ROWS = {
+  canada: [
+    { label: 'State income tax',         fl: 'None ✅',      tx: 'None ✅',   az: 'Moderate' },
+    { label: 'Canadian expat community', fl: 'Large ✅',     tx: 'Growing',  az: 'Moderate' },
+    { label: 'E-2 business environment', fl: 'Strong',      tx: 'Strong',   az: 'Moderate' },
+    { label: 'EB-5 regional centers',    fl: 'Many ✅',      tx: 'Many ✅',   az: 'Some' },
+    { label: 'Avg home price',           fl: '$420K',       tx: '$340K',    az: '$380K' },
+    { label: 'Climate vs Canada',        fl: 'Low',         tx: 'Low',      az: 'Low 😄' },
+    { label: 'Healthcare quality',       fl: 'Strong',      tx: 'Strong',   az: 'Moderate' },
+    { label: 'Direct flights to Canada', fl: 'Many ✅',      tx: 'Many ✅',   az: 'Some' },
+  ],
+  uk: [
+    { label: 'State income tax',         fl: 'None ✅',      tx: 'None ✅',   az: 'Moderate' },
+    { label: 'UK expat community',       fl: 'Large ✅',     tx: 'Growing',  az: 'Moderate' },
+    { label: 'E-2 business environment', fl: 'Strong',      tx: 'Strong',   az: 'Moderate' },
+    { label: 'EB-5 regional centers',    fl: 'Many ✅',      tx: 'Many ✅',   az: 'Some' },
+    { label: 'Avg home price',           fl: '$420K',       tx: '$340K',    az: '$380K' },
+    { label: 'Climate vs UK',            fl: 'Much warmer ✅', tx: 'Much warmer ✅', az: 'Much warmer ✅' },
+    { label: 'Healthcare quality',       fl: 'Strong',      tx: 'Strong',   az: 'Moderate' },
+    { label: 'Direct flights to UK',     fl: 'Many ✅',      tx: 'Some',     az: 'Limited' },
+  ],
+  australia: [
+    { label: 'State income tax',           fl: 'None ✅',    tx: 'None ✅',   az: 'Moderate' },
+    { label: 'Australian expat community', fl: 'Moderate',  tx: 'Small',    az: 'Small' },
+    { label: 'E-2 business environment',   fl: 'Strong',    tx: 'Strong',   az: 'Moderate' },
+    { label: 'EB-5 regional centers',      fl: 'Many ✅',    tx: 'Many ✅',   az: 'Some' },
+    { label: 'Avg home price',             fl: '$420K',     tx: '$340K',    az: '$380K' },
+    { label: 'Climate vs Australia',       fl: 'Similar ✅', tx: 'Similar ✅', az: 'Similar ✅' },
+    { label: 'Healthcare quality',         fl: 'Strong',    tx: 'Strong',   az: 'Moderate' },
+    { label: 'Direct flights to Australia',fl: 'Limited',   tx: 'Limited',  az: 'Limited' },
+  ],
+  other: [
+    { label: 'State income tax',           fl: 'None ✅',    tx: 'None ✅',   az: 'Moderate' },
+    { label: 'Intl expat community',       fl: 'Large ✅',   tx: 'Growing',  az: 'Moderate' },
+    { label: 'E-2 business environment',   fl: 'Strong',    tx: 'Strong',   az: 'Moderate' },
+    { label: 'EB-5 regional centers',      fl: 'Many ✅',    tx: 'Many ✅',   az: 'Some' },
+    { label: 'Avg home price',             fl: '$420K',     tx: '$340K',    az: '$380K' },
+    { label: 'Cost of living',             fl: 'Moderate',  tx: 'Lower ✅',  az: 'Moderate' },
+    { label: 'Healthcare quality',         fl: 'Strong',    tx: 'Strong',   az: 'Moderate' },
+    { label: 'International flights',      fl: 'Many ✅',    tx: 'Many ✅',   az: 'Some' },
+  ],
+}
+
+// ── City spotlights by country ─────────────────────────────────────────────────
+
+const CITY_SPOTLIGHTS = {
+  canada: [
+    {
+      id: 'tampa', emoji: '🌴', city: 'Tampa / Southwest Florida',
+      headline: 'Most popular with Canadian EB-5 and E-2 investors',
+      bullets: [
+        'Largest established Canadian expat community in Florida',
+        'Strong E-2 business acquisition market — especially services and hospitality',
+        'No state income tax — significant advantage vs Canada',
+      ],
+      stars: 5, costLabel: 'Cost of living vs Toronto', cost: '~35% lower',
+      flightsLabel: 'Direct flights from', flights: 'Toronto, Calgary, Vancouver, Montreal',
+    },
+    {
+      id: 'miami', emoji: '🌊', city: 'Miami / Fort Lauderdale',
+      headline: 'International business hub — highest property values in Florida',
+      bullets: [
+        'Strongest EB-5 regional center concentration in the Southeast',
+        'International business environment — ideal for global entrepreneurs',
+        'Higher cost of living than other Florida metros',
+      ],
+      stars: 4, costLabel: 'Cost of living vs Toronto', cost: '~15% lower',
+      flightsLabel: 'Direct flights from', flights: 'Toronto, Montreal, Vancouver',
+    },
+    {
+      id: 'orlando', emoji: '🎡', city: 'Orlando',
+      headline: 'Fastest growing metro — strong E-2 franchise market',
+      bullets: [
+        'Tourism and hospitality economy creates strong E-2 franchise acquisition opportunities',
+        'More affordable than Miami or Tampa',
+        'Large and growing Canadian snowbird and expat community',
+      ],
+      stars: 4, costLabel: 'Cost of living vs Toronto', cost: '~30% lower',
+      flightsLabel: 'Direct flights from', flights: 'Toronto, Ottawa, Montreal',
+    },
+    {
+      id: 'dallas', emoji: '⭐', city: 'Dallas / Austin, Texas',
+      headline: 'No state income tax — booming business environment',
+      bullets: [
+        'One of the fastest growing business markets in the US',
+        'No state income tax — same advantage as Florida',
+        'Smaller Canadian expat community than Florida but growing rapidly',
+      ],
+      stars: 3, costLabel: 'Cost of living vs Toronto', cost: '~20% lower',
+      flightsLabel: 'Direct flights from', flights: 'Toronto, Calgary',
+    },
+    {
+      id: 'phoenix', emoji: '🌵', city: 'Phoenix / Scottsdale, Arizona',
+      headline: 'Popular with Western Canadian expats — dry climate, lower costs',
+      bullets: [
+        'Strong draw for British Columbia and Alberta expats',
+        'Lower humidity than Florida — popular with retirees and lifestyle movers',
+        'Smaller immigration attorney network than Florida or Texas',
+      ],
+      stars: 3, costLabel: 'Cost of living vs Toronto', cost: '~25% lower',
+      flightsLabel: 'Direct flights from', flights: 'Vancouver, Calgary',
+    },
+  ],
+
+  uk: [
+    {
+      id: 'tampa', emoji: '🌴', city: 'Tampa / Southwest Florida',
+      headline: 'Most popular with UK expats relocating on E-2 and EB-5 visas',
+      bullets: [
+        'Large and established UK expat community — especially Southwest Florida',
+        'Strong E-2 business acquisition market',
+        'No state income tax',
+      ],
+      stars: 5, costLabel: 'Cost of living vs London', cost: '~40% lower',
+      flightsLabel: 'Direct flights from', flights: 'London Heathrow, London Gatwick, Manchester, Birmingham',
+    },
+    {
+      id: 'miami', emoji: '🌊', city: 'Miami / Fort Lauderdale',
+      headline: 'International hub with strong UK business connections',
+      bullets: [
+        'Major international business environment familiar to UK executives',
+        'Strongest EB-5 concentration in the Southeast',
+        'Higher cost of living than other Florida metros',
+      ],
+      stars: 4, costLabel: 'Cost of living vs London', cost: '~20% lower',
+      flightsLabel: 'Direct flights from', flights: 'London Heathrow, London Gatwick',
+    },
+    {
+      id: 'orlando', emoji: '🎡', city: 'Orlando',
+      headline: 'Affordable and fast growing — strong UK expat presence',
+      bullets: [
+        'Large UK expat and tourist familiarity with the market',
+        'Strong E-2 franchise opportunities',
+        'Most affordable major Florida metro',
+      ],
+      stars: 4, costLabel: 'Cost of living vs London', cost: '~45% lower',
+      flightsLabel: 'Direct flights from', flights: 'London Gatwick, Manchester, Birmingham, Edinburgh',
+    },
+    {
+      id: 'dallas', emoji: '⭐', city: 'Dallas / Austin, Texas',
+      headline: 'Booming business market — growing UK expat community',
+      bullets: [
+        'Fast growing technology and business economy',
+        'No state income tax',
+        'Smaller UK expat community than Florida but growing',
+      ],
+      stars: 3, costLabel: 'Cost of living vs London', cost: '~30% lower',
+      flightsLabel: 'Direct flights from', flights: 'London Heathrow',
+    },
+    {
+      id: 'phoenix', emoji: '🌵', city: 'Phoenix / Scottsdale, Arizona',
+      headline: 'Dry climate — popular with UK retirees and lifestyle movers',
+      bullets: [
+        'Popular destination for UK lifestyle movers',
+        'Lower cost of living than coastal cities',
+        'Smaller immigration specialist network than Florida or Texas',
+      ],
+      stars: 3, costLabel: 'Cost of living vs London', cost: '~35% lower',
+      flightsLabel: 'Direct flights from', flights: 'London Heathrow, Manchester (seasonal)',
+    },
+  ],
+
+  australia: [
+    {
+      id: 'tampa', emoji: '🌴', city: 'Tampa / Southwest Florida',
+      headline: 'Climate and lifestyle most similar to Eastern Australia',
+      bullets: [
+        'Climate and outdoor lifestyle most comparable to Queensland and New South Wales',
+        'Strong E-2 business market',
+        'No state income tax',
+      ],
+      stars: 4, costLabel: 'Cost of living vs Sydney', cost: '~35% lower',
+      flightsLabel: 'Direct flights from', flights: 'Sydney, Melbourne (via LAX or DFW connection)',
+    },
+    {
+      id: 'miami', emoji: '🌊', city: 'Miami / Fort Lauderdale',
+      headline: 'International business hub — closest cultural fit for Australians',
+      bullets: [
+        'Cosmopolitan international environment familiar to Australians',
+        'Strong EB-5 investor market',
+        'Higher cost of living but still below Sydney',
+      ],
+      stars: 4, costLabel: 'Cost of living vs Sydney', cost: '~15% lower',
+      flightsLabel: 'Direct flights from', flights: 'Sydney, Melbourne (via LAX connection)',
+    },
+    {
+      id: 'la', emoji: '🌅', city: 'Los Angeles / California',
+      headline: 'Most established Australian expat community in the US',
+      bullets: [
+        'Largest Australian expat community in the United States',
+        'Pacific timezone closer to Australian business hours',
+        'Higher cost of living — state income tax applies',
+      ],
+      stars: 5, costLabel: 'Cost of living vs Sydney', cost: '~10% lower',
+      flightsLabel: 'Direct flights from', flights: 'Sydney, Melbourne, Brisbane, Perth (direct)',
+    },
+    {
+      id: 'dallas', emoji: '⭐', city: 'Dallas / Austin, Texas',
+      headline: 'No state income tax — fast growing economy',
+      bullets: [
+        'Strong technology and business sector',
+        'No state income tax',
+        'Smaller Australian expat community',
+      ],
+      stars: 3, costLabel: 'Cost of living vs Sydney', cost: '~30% lower',
+      flightsLabel: 'Direct flights from', flights: 'Sydney (via LAX connection)',
+    },
+    {
+      id: 'phoenix', emoji: '🌵', city: 'Phoenix / Scottsdale, Arizona',
+      headline: 'Desert climate — popular with Western Australians',
+      bullets: [
+        'Dry desert climate familiar to Western Australians',
+        'Affordable cost of living',
+        'Smaller expat network than coastal cities',
+      ],
+      stars: 3, costLabel: 'Cost of living vs Sydney', cost: '~30% lower',
+      flightsLabel: 'Direct flights from', flights: 'Perth (via connection)',
+    },
+  ],
+
+  other: [
+    {
+      id: 'tampa', emoji: '🌴', city: 'Tampa / Southwest Florida',
+      headline: 'Most popular destination for international investor visa applicants',
+      bullets: [
+        'Large and diverse international expat community',
+        'Strong E-2 business acquisition market',
+        'No state income tax',
+      ],
+      stars: 5, costLabel: 'Cost of living', cost: 'Moderate — lower than most major US metros',
+      flightsLabel: 'International flights', flights: 'Tampa and Miami airports serve most major international routes',
+    },
+    {
+      id: 'miami', emoji: '🌊', city: 'Miami / Fort Lauderdale',
+      headline: 'Most international city in the Southeast US',
+      bullets: [
+        'Largest international business and expat hub in Florida',
+        'Most diverse cultural environment in the Southeast',
+        'Higher cost of living than other Florida metros',
+      ],
+      stars: 5, costLabel: 'Cost of living', cost: 'Higher — comparable to major international cities',
+      flightsLabel: 'International flights', flights: 'Miami is a major international hub',
+    },
+    {
+      id: 'orlando', emoji: '🎡', city: 'Orlando',
+      headline: 'Affordable and internationally diverse — strong business market',
+      bullets: [
+        'Highly internationally diverse population',
+        'Strong E-2 franchise and hospitality market',
+        'Most affordable major Florida metro',
+      ],
+      stars: 4, costLabel: 'Cost of living', cost: 'Lower — among the most affordable major metros',
+      flightsLabel: 'International flights', flights: 'Orlando International serves key routes',
+    },
+    {
+      id: 'dallas', emoji: '⭐', city: 'Dallas / Austin, Texas',
+      headline: 'No state income tax — major international business hub',
+      bullets: [
+        'Major international airport with global connections',
+        'No state income tax',
+        'Fast growing business economy',
+      ],
+      stars: 4, costLabel: 'Cost of living', cost: 'Moderate',
+      flightsLabel: 'International flights', flights: 'Dallas/Fort Worth is a major international hub',
+    },
+    {
+      id: 'phoenix', emoji: '🌵', city: 'Phoenix / Scottsdale, Arizona',
+      headline: 'Warm climate — affordable and growing',
+      bullets: [
+        'Year-round warm climate',
+        'Lower cost of living than coastal metros',
+        'Growing international community',
+      ],
+      stars: 3, costLabel: 'Cost of living', cost: 'Lower',
+      flightsLabel: 'International flights', flights: 'Phoenix Sky Harbor serves key routes',
+    },
+  ],
+}
+
+// ── Visa card logic ────────────────────────────────────────────────────────────
 
 function buildCards(answers) {
   const canada   = isCanada(answers)
@@ -137,19 +434,16 @@ function buildCards(answers) {
     if (canada) return [{ ...tnCard, lead: true }, e2Caution]
     return [e2Caution]
   }
-
   if (isEmployerTransfer(answers)) {
     const cards = [{ ...l1Card, lead: true }]
     if (canada) cards.push(tnCard)
     return cards
   }
-
   if (isLifestyleOrFamily(answers) || isNotSure(answers)) {
     const cards = [e2Card, eb5Card]
     if (canada) cards.push(tnCard)
     return cards
   }
-
   if (isBusiness(answers)) {
     if (budget === 'Over $800,000') {
       const cards = [{ ...eb5Card, lead: true }, e2Card]
@@ -165,7 +459,6 @@ function buildCards(answers) {
     if (canada) cards.push(tnCard)
     return cards
   }
-
   const cards = [e2Card, eb5Card]
   if (canada) cards.push(tnCard)
   return cards
@@ -190,92 +483,6 @@ function buildHeader(answers) {
   return 'Based on your answers, here are your most likely visa pathways. These are starting points for a conversation with an attorney, not a final determination.'
 }
 
-// ── Destination comparison data ────────────────────────────────────────────────
-
-const COMPARISON_ROWS = [
-  { label: 'State income tax',          fl: 'None ✅',   tx: 'None ✅',  az: 'Moderate' },
-  { label: 'Canadian expat community',  fl: 'Large ✅',  tx: 'Growing', az: 'Moderate' },
-  { label: 'E-2 business environment',  fl: 'Strong',   tx: 'Strong',  az: 'Moderate' },
-  { label: 'EB-5 regional centers',     fl: 'Many ✅',   tx: 'Many ✅',  az: 'Some' },
-  { label: 'Avg home price',            fl: '$420K',    tx: '$340K',   az: '$380K' },
-  { label: 'Climate vs Canada',         fl: 'Low',      tx: 'Low',     az: 'Low 😄' },
-  { label: 'Healthcare quality',        fl: 'Strong',   tx: 'Strong',  az: 'Moderate' },
-  { label: 'Direct flights to Canada',  fl: 'Many ✅',   tx: 'Many ✅',  az: 'Some' },
-]
-
-const CITY_SPOTLIGHTS = [
-  {
-    id: 'tampa',
-    emoji: '🌴',
-    city: 'Tampa / Southwest Florida',
-    headline: 'Most popular with Canadian EB-5 and E-2 investors',
-    bullets: [
-      'Largest established Canadian expat community in Florida',
-      'Strong E-2 business acquisition market — especially services and hospitality',
-      'No state income tax — significant advantage vs Canada',
-    ],
-    stars: 5,
-    costVsToronto: '~35% lower',
-    flights: 'Toronto, Calgary, Vancouver, Montreal',
-  },
-  {
-    id: 'miami',
-    emoji: '🌊',
-    city: 'Miami / Fort Lauderdale',
-    headline: 'International business hub — highest property values in Florida',
-    bullets: [
-      'Strongest EB-5 regional center concentration in the Southeast',
-      'International business environment — ideal for global entrepreneurs',
-      'Higher cost of living than other Florida metros',
-    ],
-    stars: 4,
-    costVsToronto: '~15% lower',
-    flights: 'Toronto, Montreal, Vancouver',
-  },
-  {
-    id: 'orlando',
-    emoji: '🎡',
-    city: 'Orlando',
-    headline: 'Fastest growing metro — strong E-2 franchise market',
-    bullets: [
-      'Tourism and hospitality economy creates strong E-2 franchise acquisition opportunities',
-      'More affordable than Miami or Tampa',
-      'Large and growing Canadian snowbird and expat community',
-    ],
-    stars: 4,
-    costVsToronto: '~30% lower',
-    flights: 'Toronto, Ottawa, Montreal',
-  },
-  {
-    id: 'dallas',
-    emoji: '⭐',
-    city: 'Dallas / Austin, Texas',
-    headline: 'No state income tax — booming business environment',
-    bullets: [
-      'One of the fastest growing business markets in the US',
-      'No state income tax — same advantage as Florida',
-      'Smaller Canadian expat community than Florida but growing rapidly',
-    ],
-    stars: 3,
-    costVsToronto: '~20% lower',
-    flights: 'Toronto, Calgary',
-  },
-  {
-    id: 'phoenix',
-    emoji: '🌵',
-    city: 'Phoenix / Scottsdale, Arizona',
-    headline: 'Popular with Western Canadian expats — dry climate, lower costs',
-    bullets: [
-      'Strong draw for British Columbia and Alberta expats',
-      'Lower humidity than Florida — popular with retirees and lifestyle movers',
-      'Smaller immigration attorney network than Florida or Texas',
-    ],
-    stars: 3,
-    costVsToronto: '~25% lower',
-    flights: 'Vancouver, Calgary',
-  },
-]
-
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 function Stars({ count }) {
@@ -286,7 +493,12 @@ function Stars({ count }) {
   )
 }
 
-function DestinationComparisonCard({ onSetDestination }) {
+function DestinationComparisonCard({ answers, onSetDestination, onCoach }) {
+  const key     = countryKey(answers)
+  const rows    = COMPARISON_ROWS[key]
+  const spots   = CITY_SPOTLIGHTS[key]
+  const expat   = expatLabel(answers)
+
   return (
     <div className="mx-4 mb-4 rounded-2xl overflow-hidden"
       style={{ backgroundColor: '#FFFFFF', border: '2px solid #1B5FA8' }}>
@@ -301,7 +513,7 @@ function DestinationComparisonCard({ onSetDestination }) {
         </p>
       </div>
 
-      {/* Comparison table — horizontally scrollable */}
+      {/* Comparison table — horizontally scrollable with sticky first column */}
       <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
         <table style={{ minWidth: 460, borderCollapse: 'collapse', width: '100%' }}>
           <thead>
@@ -319,7 +531,7 @@ function DestinationComparisonCard({ onSetDestination }) {
             </tr>
           </thead>
           <tbody>
-            {COMPARISON_ROWS.map((row, i) => (
+            {rows.map((row, i) => (
               <tr key={row.label} style={{ backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F7F9FC' }}>
                 <td className="py-2.5 pl-4 pr-2 text-xs font-semibold"
                   style={{ color: '#4A5568', position: 'sticky', left: 0, backgroundColor: i % 2 === 0 ? '#FFFFFF' : '#F7F9FC', zIndex: 1, borderBottom: '1px solid #F1F5F9' }}>
@@ -328,7 +540,7 @@ function DestinationComparisonCard({ onSetDestination }) {
                 {[row.fl, row.tx, row.az].map((val, ci) => (
                   <td key={ci} className="py-2.5 px-3 text-center text-xs font-semibold"
                     style={{
-                      color: val.includes('✅') ? '#1A7A4A' : val === 'Moderate' ? '#92400E' : '#0D2B4E',
+                      color: val.includes('✅') ? '#1A7A4A' : val === 'Moderate' || val === 'Limited' || val === 'Small' ? '#92400E' : '#0D2B4E',
                       borderBottom: '1px solid #F1F5F9',
                     }}>
                     {val}
@@ -349,7 +561,7 @@ function DestinationComparisonCard({ onSetDestination }) {
 
       {/* Horizontally scrollable city cards */}
       <div className="flex gap-3 px-4 pb-4 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
-        {CITY_SPOTLIGHTS.map((spot) => (
+        {spots.map((spot) => (
           <div key={spot.id} className="flex-shrink-0 flex flex-col gap-2 rounded-2xl p-4"
             style={{ width: 240, backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
             <p className="text-2xl">{spot.emoji}</p>
@@ -367,13 +579,13 @@ function DestinationComparisonCard({ onSetDestination }) {
             <div className="flex flex-col gap-0.5 pt-1" style={{ borderTop: '1px solid #E2E8F0' }}>
               <div className="flex items-center gap-1">
                 <Stars count={spot.stars} />
-                <span className="text-xs font-semibold" style={{ color: '#4A5568' }}>Canadian expat score</span>
+                <span className="text-xs font-semibold" style={{ color: '#4A5568' }}>{expat} expat score</span>
               </div>
               <p className="text-xs" style={{ color: '#4A5568' }}>
-                <span className="font-semibold">Cost vs Toronto:</span> {spot.costVsToronto}
+                <span className="font-semibold">{spot.costLabel}:</span> {spot.cost}
               </p>
               <p className="text-xs" style={{ color: '#4A5568' }}>
-                <span className="font-semibold">Direct flights from:</span> {spot.flights}
+                <span className="font-semibold">{spot.flightsLabel}:</span> {spot.flights}
               </p>
             </div>
             <button
@@ -389,14 +601,14 @@ function DestinationComparisonCard({ onSetDestination }) {
       {/* Info note */}
       <div className="mx-4 mb-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' }}>
         <p className="text-xs leading-relaxed" style={{ color: '#4A5568' }}>
-          These comparisons are general indicators. Your ideal destination depends on your business type, family needs, lifestyle preferences, and visa pathway. An immigration specialist familiar with your destination market can give you city-specific guidance.
+          These comparisons are general indicators. Your ideal destination depends on your business type, family needs, lifestyle preferences, and visa pathway. A specialist familiar with your destination market can give you city-specific guidance.
         </p>
       </div>
 
       {/* AI Coach CTA */}
       <div className="px-4 pb-4">
         <button
-          data-coach-destination
+          onClick={onCoach}
           className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: 'transparent', color: '#0D2B4E', border: '2px solid #0D2B4E' }}>
           Ask our AI Coach about destinations →
@@ -423,8 +635,7 @@ function AgeOutBanner({ onFindAttorney }) {
           </p>
         </div>
       </div>
-      <button
-        onClick={onFindAttorney}
+      <button onClick={onFindAttorney}
         className="w-full py-2.5 rounded-xl text-sm font-bold transition-opacity active:opacity-80"
         style={{ backgroundColor: '#FFFFFF', color: '#DC2626' }}>
         Find a specialist now →
@@ -496,7 +707,6 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           </div>
         </div>
       </div>
-
       <div className="px-5 pt-3 pb-4 flex flex-col gap-3">
         <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>{card.opener}</p>
         {card.budgetWarning && (
@@ -523,8 +733,7 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <span className="text-sm flex-shrink-0">⚠️</span>
           <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>{card.warning}</p>
         </div>
-        <button
-          onClick={() => setExpanded(!expanded)}
+        <button onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 text-xs font-semibold transition-opacity active:opacity-60"
           style={{ color: '#1B5FA8' }}>
           <span>{card.expandLabel} →</span>
@@ -539,8 +748,7 @@ function VisaCard({ card, onCta, onCostEstimate }) {
             ))}
           </div>
         )}
-        <button
-          onClick={() => onCostEstimate(card.ctaVisa)}
+        <button onClick={() => onCostEstimate(card.ctaVisa)}
           className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
           {card.ctaLabel} →
@@ -550,19 +758,11 @@ function VisaCard({ card, onCta, onCostEstimate }) {
   )
 }
 
-// ── Toast ──────────────────────────────────────────────────────────────────────
-
 function Toast({ message }) {
   if (!message) return null
   return (
-    <div
-      className="fixed bottom-24 left-1/2 z-50 px-5 py-3 rounded-2xl shadow-lg text-sm font-bold"
-      style={{
-        transform: 'translateX(-50%)',
-        backgroundColor: '#0D2B4E',
-        color: '#F0A500',
-        whiteSpace: 'nowrap',
-      }}>
+    <div className="fixed bottom-24 left-1/2 z-50 px-5 py-3 rounded-2xl shadow-lg text-sm font-bold"
+      style={{ transform: 'translateX(-50%)', backgroundColor: '#0D2B4E', color: '#F0A500', whiteSpace: 'nowrap' }}>
       {message}
     </div>
   )
@@ -575,10 +775,9 @@ export default function D3Results() {
   const { state } = useLocation()
   const baseAnswers = state?.answers ?? {}
 
-  // Local overrides for destination updates from "Set as my destination"
-  const [destOverride, setDestOverride]       = useState(null)
+  const [destOverride,    setDestOverride]    = useState(null)
   const [settledOverride, setSettledOverride] = useState(null)
-  const [toast, setToast]                     = useState(null)
+  const [toast,           setToast]           = useState(null)
 
   const answers = {
     ...baseAnswers,
@@ -588,35 +787,37 @@ export default function D3Results() {
 
   function handleSetDestination(city) {
     setDestOverride(city)
-    setSettledOverride('✅  Decided — I know exactly where I\'m going')
+    setSettledOverride("✅  Decided — I know exactly where I'm going")
     setToast(`✓ Destination set to ${city}`)
     try {
       localStorage.setItem('migratrak_destination', city)
       const saved = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
       saved.destination = city
-      saved.destinationSettled = '✅  Decided — I know exactly where I\'m going'
+      saved.destinationSettled = "✅  Decided — I know exactly where I'm going"
       localStorage.setItem('migratrak_answers', JSON.stringify(saved))
     } catch (_) {}
     setTimeout(() => setToast(null), 2800)
   }
 
-  const ageOut            = hasAgeOutRisk(answers)
-  const showLifestyleBox  = isLifestyleOrFamily(answers)
-  const showLowBudgetBox  = isLowBudget(answers)
-  const showDestCard      = isExploringDestination(answers) && !destOverride
-  const cards             = buildCards(answers)
-  const headerText        = buildHeader(answers)
-  const leadVisa          = cards[0]?.id ?? 'e2'
-
-  function goToJ5()       { navigate('/j5', { state: { filter: 'attorneys' } }) }
-  function goToD4(visa)   { navigate('/d4', { state: { visa: visa ?? leadVisa, answers } }) }
-  function goToCoach()    {
+  function goToCoach() {
+    const country = countryName(answers)
     navigate('/j4', {
       state: {
-        seedPrompt: "I'm considering relocating to the US but haven't decided on a destination yet. Can you help me think through the best options for my situation?",
+        seedPrompt: `I'm originally from ${country} and considering relocating to the US but haven't decided on a destination. Can you help me think through the best options for my situation?`,
       },
     })
   }
+
+  const ageOut           = hasAgeOutRisk(answers)
+  const showLifestyleBox = isLifestyleOrFamily(answers)
+  const showLowBudgetBox = isLowBudget(answers)
+  const showDestCard     = isExploringDestination(answers) && !destOverride
+  const cards            = buildCards(answers)
+  const headerText       = buildHeader(answers)
+  const leadVisa         = cards[0]?.id ?? 'e2'
+
+  function goToJ5()    { navigate('/j5', { state: { filter: 'attorneys' } }) }
+  function goToD4(visa){ navigate('/d4', { state: { visa: visa ?? leadVisa, answers } }) }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
@@ -624,7 +825,6 @@ export default function D3Results() {
 
       {ageOut && <AgeOutBanner onFindAttorney={goToJ5} />}
 
-      {/* Page header */}
       <div className="px-5 pt-5 pb-4">
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>Your Results</p>
         <h1 className="text-2xl font-extrabold leading-tight mb-2" style={{ color: '#0D2B4E' }}>Visa Pathways to Explore</h1>
@@ -636,23 +836,21 @@ export default function D3Results() {
       {showLowBudgetBox  && <LowBudgetInfoBox />}
       {showLifestyleBox  && <LifestyleInfoBox />}
 
-      {/* Destination comparison card — ABOVE visa cards */}
       {showDestCard && (
         <DestinationComparisonCard
+          answers={answers}
           onSetDestination={handleSetDestination}
+          onCoach={goToCoach}
         />
       )}
 
-      {/* Visa cards */}
       <div className="flex flex-col gap-4 px-4 pb-4">
         {cards.map((card) => (
           <VisaCard key={card.id} card={card} onCta={goToJ5} onCostEstimate={goToD4} />
         ))}
       </div>
 
-      {/* AI Coach nudge */}
-      <div
-        className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col items-center gap-3 text-center"
+      <div className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col items-center gap-3 text-center"
         style={{ backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' }}>
         <span className="text-3xl">💬</span>
         <div>
@@ -661,20 +859,17 @@ export default function D3Results() {
             Our AI coach can explain any visa type, walk you through typical timelines and costs, and help you prepare the right questions before your first consultation with a specialist — completely free.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/j4')}
+        <button onClick={() => navigate('/j4')}
           className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: 'transparent', color: '#0D2B4E', border: '2px solid #0D2B4E' }}>
           Ask our AI Coach first →
         </button>
       </div>
 
-      {/* Bottom CTA */}
       <div className="mx-4 mb-4 rounded-2xl px-5 py-5 flex flex-col gap-3" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-sm font-bold leading-snug" style={{ color: '#FFFFFF' }}>Not sure which path is right for you?</p>
         <p className="text-xs leading-relaxed" style={{ color: '#4A9FD4' }}>A 30-minute consultation with an immigration specialist costs nothing and clarifies everything.</p>
-        <button
-          onClick={goToJ5}
+        <button onClick={goToJ5}
           className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
           Speak with an immigration specialist — find one near you →
