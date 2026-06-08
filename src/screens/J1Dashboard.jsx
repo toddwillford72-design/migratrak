@@ -186,63 +186,98 @@ function QuickAction({ icon, label, onPress, color }) {
 export default function J1Dashboard() {
   const navigate = useNavigate()
 
-  const [alerts, setAlerts] = useState([
-    {
-      id: 'auto-insurance',
-      title: 'Auto Insurance — Act Now',
-      body: 'You have been in Florida for 5 months. Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles. Arrange US coverage this week.',
-      urgent: true,
-      dismissed: false,
-      actions: [
-        { label: 'Find insurance →', onPress: () => navigate('/j6') },
-        { label: 'Dismiss' },
-      ],
-    },
-    {
-      id: 'plates',
-      title: 'Canadian Plate Registration',
-      body: 'Most provinces void vehicle registration after 6 months abroad. Driving on expired Canadian plates in Florida is a legal exposure. Check your province\'s rules now.',
-      urgent: true,
-      dismissed: false,
-      actions: [
-        { label: 'Learn more →' },
-        { label: 'Dismiss' },
-      ],
-    },
-    {
-      id: 'ssn',
-      title: 'SSN Follow-Up Needed',
-      body: 'You applied 3 weeks ago. Call to confirm no documentation issues — errors can go undetected for months and affect healthcare and employment eligibility.',
-      urgent: false,
-      dismissed: false,
-      actions: [
-        { label: 'Mark as done' },
-        { label: 'Call now' },
-      ],
-    },
-    {
-      id: 'rrsp',
-      title: 'RRSP / TFSA Decision Window',
-      body: 'Key decisions about your Canadian registered accounts must be made around your departure date — not after. If you haven\'t engaged a cross-border accountant yet, do this now.',
-      urgent: false,
-      dismissed: false,
-      actions: [
-        { label: 'Find a cross-border accountant →', onPress: () => navigate('/j5', { state: { filter: 'cpas' } }) },
-        { label: 'Dismiss' },
-      ],
-    },
-    {
-      id: 'credit',
-      title: 'US Credit History — Start the Clock',
-      body: 'You have no US credit history yet. Every month you delay costs you later. Open a secured credit card or use Nova Credit to transfer your Canadian credit score.',
-      urgent: false,
-      dismissed: false,
-      actions: [
-        { label: 'Learn how →' },
-        { label: 'Dismiss' },
-      ],
-    },
-  ])
+  const isCanada = (() => {
+    try {
+      const saved = localStorage.getItem('migratrak_answers')
+      if (!saved) return true // default to Canada for demo
+      return JSON.parse(saved)?.country === 'Canada'
+    } catch (_) { return true }
+  })()
+
+  const [alerts, setAlerts] = useState(() => {
+    const list = [
+      isCanada
+        ? {
+            id: 'auto-insurance',
+            title: 'Auto Insurance — Act Now',
+            body: 'You have been in Florida for 5 months. Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles. Arrange US coverage this week.',
+            urgent: true,
+            dismissed: false,
+            actions: [
+              { label: 'Find insurance →', onPress: () => navigate('/j6') },
+              { label: 'Dismiss' },
+            ],
+          }
+        : {
+            id: 'auto-insurance',
+            title: 'Auto Insurance — Confirm Your Coverage',
+            body: 'Confirm whether your home country auto insurance policy remains valid in the US and for how long. Coverage often voids sooner than expected. Arrange US coverage before any gap occurs.',
+            urgent: true,
+            dismissed: false,
+            actions: [
+              { label: 'Find insurance →', onPress: () => navigate('/j6') },
+              { label: 'Dismiss' },
+            ],
+          },
+      ...(isCanada ? [{
+        id: 'plates',
+        title: 'Canadian Plate Registration',
+        body: 'Most provinces void vehicle registration after 6 months abroad. Driving on expired Canadian plates in Florida is a legal exposure. Check your province\'s rules now.',
+        urgent: true,
+        dismissed: false,
+        actions: [
+          { label: 'Learn more →' },
+          { label: 'Dismiss' },
+        ],
+      }] : []),
+      {
+        id: 'ssn',
+        title: 'SSN Follow-Up Needed',
+        body: 'You applied 3 weeks ago. Call to confirm no documentation issues — errors can go undetected for months and affect healthcare and employment eligibility.',
+        urgent: false,
+        dismissed: false,
+        actions: [
+          { label: 'Mark as done' },
+          { label: 'Call now' },
+        ],
+      },
+      isCanada
+        ? {
+            id: 'rrsp',
+            title: 'RRSP / TFSA Decision Window',
+            body: 'Key decisions about your Canadian registered accounts must be made around your departure date — not after. If you haven\'t engaged a cross-border accountant yet, do this now.',
+            urgent: false,
+            dismissed: false,
+            actions: [
+              { label: 'Find a cross-border accountant →', onPress: () => navigate('/j5', { state: { filter: 'cpas' } }) },
+              { label: 'Dismiss' },
+            ],
+          }
+        : {
+            id: 'home-accounts',
+            title: 'Home Country Financial Accounts',
+            body: 'Review all tax-advantaged accounts in your home country with a cross-border financial advisor before establishing US residency. Treatment under US tax law varies significantly by account type and country.',
+            urgent: false,
+            dismissed: false,
+            actions: [
+              { label: 'Find a financial advisor →', onPress: () => navigate('/j5') },
+              { label: 'Dismiss' },
+            ],
+          },
+      {
+        id: 'credit',
+        title: 'US Credit History — Start the Clock',
+        body: 'You have no US credit history yet. Every month you delay costs you later. Open a secured credit card or use Nova Credit to transfer your home country credit score.',
+        urgent: false,
+        dismissed: false,
+        actions: [
+          { label: 'Learn how →' },
+          { label: 'Dismiss' },
+        ],
+      },
+    ]
+    return list
+  })
 
   function dismissAlert(id) {
     setAlerts((prev) => prev.map((a) => a.id === id ? { ...a, dismissed: true } : a))
