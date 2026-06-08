@@ -37,7 +37,6 @@ const QUESTIONS = [
       'Yes — aged 18, 19, or 20',
       'Yes — over 21',
     ],
-    // "Yes — aged 18, 19, or 20" triggers red alert on D3
     alertOption: 'Yes — aged 18, 19, or 20',
   },
   {
@@ -51,6 +50,27 @@ const QUESTIONS = [
       'Not sure yet',
     ],
     footnote: `Visa options powered by ${VISA_TYPES.map((v) => v.name).join(', ')}`,
+  },
+  {
+    id: 'destination',
+    text: 'Which US destination are you targeting?',
+    options: [
+      'Florida (Tampa / Miami / Orlando)',
+      'Texas (Dallas / Austin / Houston)',
+      'Arizona (Phoenix / Scottsdale)',
+      'Other US state',
+      'Not sure yet',
+    ],
+  },
+  {
+    id: 'destinationSettled',
+    text: 'How settled are you on your destination?',
+    large: true,
+    options: [
+      '✅  Decided — I know exactly where I\'m going',
+      '🔍  Researching — I have 2–3 cities in mind',
+      '🤷  Undecided — open to recommendations',
+    ],
   },
 ]
 
@@ -77,7 +97,7 @@ function ProgressBar({ step, total }) {
 
 export default function D2Assessment() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(0) // 0-indexed
+  const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState({})
   const [selected, setSelected] = useState(null)
 
@@ -137,10 +157,7 @@ export default function D2Assessment() {
 
       {/* Question card */}
       <div className="flex-1 px-4 pt-4 pb-8 flex flex-col gap-4">
-        <div
-          className="rounded-2xl px-5 py-6 shadow-sm"
-          style={{ backgroundColor: '#FFFFFF' }}
-        >
+        <div className="rounded-2xl px-5 py-6 shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
           <h2 className="text-xl font-bold leading-snug mb-6" style={{ color: '#0D2B4E' }}>
             {q.text}
           </h2>
@@ -154,13 +171,12 @@ export default function D2Assessment() {
                   onClick={() => handleSelect(option)}
                   className="flex items-center gap-3 w-full text-left rounded-xl px-4 transition-all duration-150 active:scale-[0.98]"
                   style={{
-                    minHeight: '52px',
+                    minHeight: q.large ? '64px' : '52px',
                     border: `2px solid ${isActive ? '#1B5FA8' : '#E2E8F0'}`,
                     backgroundColor: isActive ? '#EBF4FB' : '#FFFFFF',
                     color: isActive ? '#0D2B4E' : '#4A5568',
                   }}
                 >
-                  {/* Radio dot */}
                   <div
                     className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center"
                     style={{
@@ -172,7 +188,12 @@ export default function D2Assessment() {
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FFFFFF' }} />
                     )}
                   </div>
-                  <span className="text-sm font-medium py-3">{option}</span>
+                  <span
+                    className="font-medium py-3 leading-snug"
+                    style={{ fontSize: q.large ? '15px' : '14px' }}
+                  >
+                    {option}
+                  </span>
                 </button>
               )
             })}
@@ -185,7 +206,6 @@ export default function D2Assessment() {
           )}
         </div>
 
-        {/* Continue button */}
         <button
           onClick={handleContinue}
           disabled={!selected}
