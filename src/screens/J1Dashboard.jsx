@@ -298,10 +298,13 @@ export default function J1Dashboard() {
               <span className="text-sm font-extrabold" style={{ color: '#FFFFFF' }}>CF</span>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A9FD4' }}>
-                EB-5 Investor · Started June 2024
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A9FD4', letterSpacing: '0.12em' }}>
+                CLIENT PORTAL
               </p>
               <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>Chen Family</h1>
+              <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                EB-5 Investor · Started June 2024
+              </p>
             </div>
           </div>
           <div className="px-3 py-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>

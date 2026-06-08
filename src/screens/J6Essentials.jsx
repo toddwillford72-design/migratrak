@@ -471,6 +471,19 @@ export default function J6Essentials() {
 
       </div>
 
+      {/* Attorney portal entry point */}
+      <div className="px-5 pb-6 flex flex-col items-center gap-1.5">
+        <div className="w-full h-px mb-2" style={{ backgroundColor: '#E2E8F0' }} />
+        <p className="text-xs" style={{ color: '#A0AEC0' }}>Are you an immigration specialist?</p>
+        <button
+          onClick={() => navigate('/a1')}
+          className="text-xs transition-opacity active:opacity-60"
+          style={{ color: '#4A9FD4', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+        >
+          Access Attorney Portal →
+        </button>
+      </div>
+
       <TabBar active="essentials" />
       <NavFooter backPath="/j5" />
     </div>
