@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
 const FEATURES = [
-  'Step-by-step guidance as you go',
+  'Step-by-step visa pathway guidance',
   'Track every expense from day one',
-  'Find vetted attorneys and professionals',
-  'Get reminders before deadlines hit',
+  'Never miss a critical immigration deadline',
+  'Full life setup checklist — banking, healthcare, vehicle, utilities and more',
+  'Find vetted specialists in every category',
+  'Build your US credit history from day one',
   'Ask our AI coach anything, anytime',
-  'Never miss a critical deadline again',
+  'Document vault — everything in one place',
 ]
 
 function CheckIcon() {
@@ -80,7 +82,7 @@ export default function D6Save() {
           Almost there
         </p>
         <h1 className="text-2xl font-extrabold leading-tight" style={{ color: '#FFFFFF' }}>
-          Your personalized roadmap is ready
+          Your complete US relocation companion is ready
         </h1>
       </div>
 
@@ -174,7 +176,7 @@ export default function D6Save() {
                 className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95"
                 style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
               >
-                Create free account — takes 30 seconds →
+                Start my relocation journey — it's free →
               </button>
             </form>
           )}
