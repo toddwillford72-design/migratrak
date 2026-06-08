@@ -276,7 +276,7 @@ function AgeOutBanner({ onFindAttorney }) {
             Based on your answers, you have a dependent child approaching 21. They could lose eligibility as a dependent on your application when they turn 21 — regardless of where you are in the process. This affects your entire family's timeline.
           </p>
           <p className="text-sm font-semibold mt-2" style={{ color: '#FFFFFF' }}>
-            Speak to an immigration attorney this week — not next month.
+            Speak with a specialist this week — not next month.
           </p>
         </div>
       </div>
@@ -285,7 +285,7 @@ function AgeOutBanner({ onFindAttorney }) {
         className="w-full py-2.5 rounded-xl text-sm font-bold transition-opacity active:opacity-80"
         style={{ backgroundColor: '#FFFFFF', color: '#DC2626' }}
       >
-        Find an attorney now →
+        Find a specialist now →
       </button>
     </div>
   )

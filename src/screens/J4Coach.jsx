@@ -217,7 +217,7 @@ export default function J4Coach() {
           {
             type: 'ai',
             paragraphs: [
-              'That\'s a great question for your immigration journey. For your specific situation, I\'d recommend discussing this directly with your immigration attorney who has the full context of your case.',
+              'That\'s a great question for your immigration journey. For your specific situation, I\'d recommend discussing this directly with your immigration specialist who has the full context of your case.',
               'In the meantime, try one of the suggested questions above — they cover some of the most important topics for EB-5 applicants.',
             ],
             showDisclaimer: true,
