@@ -217,7 +217,7 @@ export default function D6Save() {
       </div>
 
       {!submitted && (
-        <NavFooter backPath="/d5" nextPath="/j1" nextLabel="Skip to dashboard →" />
+        <NavFooter backPath="/d6" nextPath="/j1" nextLabel="Skip to dashboard →" />
       )}
     </div>
   )

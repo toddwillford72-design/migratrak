@@ -4,6 +4,7 @@ import D1Landing from './screens/D1Landing'
 import D2Assessment from './screens/D2Assessment'
 import D3Results from './screens/D3Results'
 import D4CostEstimator from './screens/D4CostEstimator'
+import D5Destination from './screens/D5Destination'
 import D5Timeline from './screens/D5Timeline'
 import D6Save from './screens/D6Save'
 import J1Dashboard from './screens/J1Dashboard'
@@ -33,12 +34,13 @@ function Layout() {
       <ScrollToTop />
       {!isLanding && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
-        <Route path="/" element={<D1Landing />} />
+        <Route path="/"   element={<D1Landing />} />
         <Route path="/d2" element={<D2Assessment />} />
         <Route path="/d3" element={<D3Results />} />
         <Route path="/d4" element={<D4CostEstimator />} />
-        <Route path="/d5" element={<D5Timeline />} />
-        <Route path="/d6" element={<D6Save />} />
+        <Route path="/d5" element={<D5Destination />} />
+        <Route path="/d6" element={<D5Timeline />} />
+        <Route path="/d7" element={<D6Save />} />
         <Route path="/j1" element={<J1Dashboard />} />
         <Route path="/j2" element={<J2Expenses />} />
         <Route path="/j3" element={<J3Documents />} />

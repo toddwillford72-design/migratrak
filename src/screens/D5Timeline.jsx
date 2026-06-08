@@ -257,7 +257,7 @@ export default function D5Timeline() {
         </button>
       </div>
 
-      <NavFooter backPath="/d4" nextPath="/d6" nextLabel="Next →" />
+      <NavFooter backPath="/d5" nextPath="/d7" nextLabel="Next →" />
     </div>
   )
 }

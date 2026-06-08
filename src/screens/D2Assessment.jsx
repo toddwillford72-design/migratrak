@@ -51,27 +51,6 @@ const QUESTIONS = [
     ],
     footnote: `Visa options powered by ${VISA_TYPES.map((v) => v.name).join(', ')}`,
   },
-  {
-    id: 'destination',
-    text: 'Which US destination are you targeting?',
-    options: [
-      'Florida (Tampa / Miami / Orlando)',
-      'Texas (Dallas / Austin / Houston)',
-      'Arizona (Phoenix / Scottsdale)',
-      'Other US state',
-      'Not sure yet',
-    ],
-  },
-  {
-    id: 'destinationSettled',
-    text: 'How settled are you on your destination?',
-    large: true,
-    options: [
-      '✅  Decided — I know exactly where I\'m going',
-      '🔍  Researching — I have 2–3 cities in mind',
-      '🤷  Undecided — open to recommendations',
-    ],
-  },
 ]
 
 function ProgressBar({ step, total }) {

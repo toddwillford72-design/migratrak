@@ -447,11 +447,11 @@ export default function D4CostEstimator() {
           className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #E2E8F0' }}
         >
-          See my timeline →
+          Choose my destination →
         </button>
       </div>
 
-      <NavFooter onBack={() => navigate(-1)} nextPath="/d5" nextLabel="See Timeline →" />
+      <NavFooter onBack={() => navigate(-1)} nextPath="/d5" nextLabel="Choose Destination →" />
     </div>
   )
 }
