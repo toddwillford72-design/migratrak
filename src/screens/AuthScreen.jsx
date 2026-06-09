@@ -51,32 +51,32 @@ export default function AuthScreen() {
 
     setLoading(true)
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password })
+      const signUpOptions = userType === 'attorney'
+        ? { email, password, options: { data: { role: 'attorney' } } }
+        : { email, password }
+
+      const { data, error: signUpError } = await supabase.auth.signUp(signUpOptions)
       if (signUpError) throw signUpError
 
       const userId = data.user?.id
       if (!userId) throw new Error('No user ID returned from signup.')
 
-      const userRow = userType === 'client'
+      // Trigger already inserted the row — update the profile fields
+      const profileUpdate = userType === 'client'
         ? {
-            id: userId,
-            email,
             name,
-            role: 'client',
             visa_type: visaType || null,
             origin_country: originCountry || 'Canada',
             destination_state: destinationState || null,
           }
         : {
-            id: userId,
-            email,
             name,
             role: 'attorney',
             firm_name: firmName || null,
           }
 
-      const { error: insertError } = await supabase.from('users').insert(userRow)
-      if (insertError) throw insertError
+      const { error: updateError } = await supabase.from('users').update(profileUpdate).eq('id', userId)
+      if (updateError) throw updateError
 
       navigate(userType === 'attorney' ? '/a1' : '/j1')
     } catch (err) {

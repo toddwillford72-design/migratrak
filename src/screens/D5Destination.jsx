@@ -4,6 +4,17 @@ import { useNavigate, useLocation } from 'react-router-dom'
 // ── Destination data ───────────────────────────────────────────────────────────
 
 const DEST_DATA = {
+  'Sarasota, FL': {
+    state: 'FL', stateName: 'Florida', stateTax: 'None ✅', climate: 'Warm & sunny',
+    housing: { medianHome: '$420,000', trend: 'Rising', inventory: 'Low', rent2br: '$2,100/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['One of the most livable mid-size metros on Florida\'s Gulf Coast', 'Strong arts scene, walkable downtown, and top-rated beaches', 'No state income tax — significant advantage vs most home countries'],
+      business: ['Growing E-2 acquisition market — hospitality, retail and services', 'Lower business costs than Tampa or Miami', 'Rapidly growing international expat community'],
+      lifestyle: ['Consistently ranked among the best places to live in Florida', 'World-class beaches including Siesta Key — rated #1 in the US', 'No state income tax — lower overall tax burden vs most countries'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Seasonal direct flights from Toronto; otherwise connect via Tampa or Charlotte', 'United Kingdom': 'Connect via Charlotte or Atlanta', Australia: 'Via LAX or DFW connection', default: 'Connect via Tampa International or Charlotte' },
+  },
   'Tampa / Southwest Florida': {
     state: 'FL', stateName: 'Florida', stateTax: 'None ✅', climate: 'Warm & sunny',
     housing: { medianHome: '$385,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,950/mo', rentalMarket: 'Moderate' },
@@ -638,7 +649,10 @@ const DEST_DATA = {
 // Covers cities that belong to a metro area listed in DEST_DATA
 const CITY_ALIASES = {
   // Florida
-  'sarasota':        'Tampa / Southwest Florida',
+  'sarasota':        'Sarasota, FL',
+  'sarasota fl':     'Sarasota, FL',
+  'sarasota florida':'Sarasota, FL',
+  'tampa':           'Tampa / Southwest Florida',
   'st. pete':        'Tampa / Southwest Florida',
   'st pete':         'Tampa / Southwest Florida',
   'saint pete':      'Tampa / Southwest Florida',

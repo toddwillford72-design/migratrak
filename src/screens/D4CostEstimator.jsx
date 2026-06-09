@@ -444,21 +444,13 @@ export default function D4CostEstimator() {
         </button>
       </div>
 
-      {/* Secondary action buttons */}
-      <div className="flex gap-3 px-4 mt-3 mb-28">
+      <div className="px-4 mt-3 mb-28">
         <button
           onClick={() => navigate('/j2')}
-          className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+          className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #E2E8F0' }}
         >
           Save my estimate
-        </button>
-        <button
-          onClick={() => navigate('/d5')}
-          className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#FFFFFF', color: '#1B5FA8', border: '2px solid #E2E8F0' }}
-        >
-          Choose my destination →
         </button>
       </div>
 
