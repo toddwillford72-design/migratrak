@@ -634,6 +634,184 @@ const DEST_DATA = {
   },
 }
 
+// ── City aliases — maps user-entered city names to a DEST_DATA key ────────────
+// Covers cities that belong to a metro area listed in DEST_DATA
+const CITY_ALIASES = {
+  // Florida
+  'sarasota':        'Tampa / Southwest Florida',
+  'st. pete':        'Tampa / Southwest Florida',
+  'st pete':         'Tampa / Southwest Florida',
+  'saint pete':      'Tampa / Southwest Florida',
+  'saint petersburg':'Tampa / Southwest Florida',
+  'st. petersburg':  'Tampa / Southwest Florida',
+  'st petersburg':   'Tampa / Southwest Florida',
+  'clearwater':      'Tampa / Southwest Florida',
+  'bradenton':       'Tampa / Southwest Florida',
+  'naples':          'Tampa / Southwest Florida',
+  'fort myers':      'Tampa / Southwest Florida',
+  'cape coral':      'Tampa / Southwest Florida',
+  'punta gorda':     'Tampa / Southwest Florida',
+  'port charlotte':  'Tampa / Southwest Florida',
+  'venice':          'Tampa / Southwest Florida',
+  'north port':      'Tampa / Southwest Florida',
+  'bonita springs':  'Tampa / Southwest Florida',
+  'marco island':    'Tampa / Southwest Florida',
+  'estero':          'Tampa / Southwest Florida',
+  'fort lauderdale': 'Miami / Fort Lauderdale',
+  'boca raton':      'Miami / Fort Lauderdale',
+  'pompano beach':   'Miami / Fort Lauderdale',
+  'hollywood':       'Miami / Fort Lauderdale',
+  'hialeah':         'Miami / Fort Lauderdale',
+  'coral gables':    'Miami / Fort Lauderdale',
+  'doral':           'Miami / Fort Lauderdale',
+  'west palm beach': 'Miami / Fort Lauderdale',
+  'palm beach':      'Miami / Fort Lauderdale',
+  'delray beach':    'Miami / Fort Lauderdale',
+  'kissimmee':       'Orlando',
+  'sanford':         'Orlando',
+  'lake mary':       'Orlando',
+  'altamonte springs':'Orlando',
+  'daytona beach':   'Orlando',
+  'gainesville':     'Orlando',
+  'jacksonville':    'Orlando',
+  // Texas
+  'plano':           'Dallas / Fort Worth, TX',
+  'frisco':          'Dallas / Fort Worth, TX',
+  'mckinney':        'Dallas / Fort Worth, TX',
+  'arlington':       'Dallas / Fort Worth, TX',
+  'fort worth':      'Dallas / Fort Worth, TX',
+  'irving':          'Dallas / Fort Worth, TX',
+  'garland':         'Dallas / Fort Worth, TX',
+  'richardson':      'Dallas / Fort Worth, TX',
+  'the woodlands':   'Houston, TX',
+  'sugar land':      'Houston, TX',
+  'katy':            'Houston, TX',
+  'pearland':        'Houston, TX',
+  'round rock':      'Austin, TX',
+  'cedar park':      'Austin, TX',
+  'georgetown':      'Austin, TX',
+  // California
+  'san jose':        'San Francisco / Bay Area',
+  'oakland':         'San Francisco / Bay Area',
+  'berkeley':        'San Francisco / Bay Area',
+  'san mateo':       'San Francisco / Bay Area',
+  'fremont':         'San Francisco / Bay Area',
+  'santa clara':     'San Francisco / Bay Area',
+  'sunnyvale':       'San Francisco / Bay Area',
+  'palo alto':       'San Francisco / Bay Area',
+  'long beach':      'Los Angeles, CA',
+  'pasadena':        'Los Angeles, CA',
+  'anaheim':         'Los Angeles, CA',
+  'irvine':          'Los Angeles, CA',
+  'santa ana':       'Los Angeles, CA',
+  'glendale':        'Los Angeles, CA',
+  'burbank':         'Los Angeles, CA',
+  'san diego':       'Los Angeles, CA',
+  // Arizona
+  'tempe':           'Phoenix / Scottsdale, AZ',
+  'chandler':        'Phoenix / Scottsdale, AZ',
+  'gilbert':         'Phoenix / Scottsdale, AZ',
+  'mesa':            'Phoenix / Scottsdale, AZ',
+  'peoria':          'Phoenix / Scottsdale, AZ',
+  'surprise':        'Phoenix / Scottsdale, AZ',
+  'tucson':          'Phoenix / Scottsdale, AZ',
+  // North Carolina
+  'durham':          'Raleigh / Durham, NC',
+  'chapel hill':     'Raleigh / Durham, NC',
+  'cary':            'Raleigh / Durham, NC',
+  // Virginia / DC
+  'arlington':       'Northern Virginia / DC Metro',
+  'alexandria':      'Northern Virginia / DC Metro',
+  'reston':          'Northern Virginia / DC Metro',
+  'tysons':          'Northern Virginia / DC Metro',
+  'washington':      'Northern Virginia / DC Metro',
+  'washington dc':   'Northern Virginia / DC Metro',
+  'd.c.':            'Northern Virginia / DC Metro',
+  // Maryland
+  'bethesda':        'Baltimore / Bethesda, MD',
+  'rockville':       'Baltimore / Bethesda, MD',
+  'silver spring':   'Baltimore / Bethesda, MD',
+  // New Jersey
+  'newark':          'Jersey City / Newark, NJ',
+  'hoboken':         'Jersey City / Newark, NJ',
+  // New York
+  'brooklyn':        'New York, NY',
+  'queens':          'New York, NY',
+  'bronx':           'New York, NY',
+  'staten island':   'New York, NY',
+  'manhattan':       'New York, NY',
+  'buffalo':         'New York, NY',
+  // Georgia
+  'marietta':        'Atlanta, GA',
+  'alpharetta':      'Atlanta, GA',
+  'roswell':         'Atlanta, GA',
+  'sandy springs':   'Atlanta, GA',
+  // Illinois
+  'evanston':        'Chicago, IL',
+  'naperville':      'Chicago, IL',
+  'aurora':          'Chicago, IL',
+  // Washington State
+  'bellevue':        'Seattle, WA',
+  'redmond':         'Seattle, WA',
+  'kirkland':        'Seattle, WA',
+  'tacoma':          'Seattle, WA',
+  // Colorado
+  'aurora':          'Denver, CO',
+  'lakewood':        'Denver, CO',
+  'boulder':         'Denver, CO',
+  'fort collins':    'Denver, CO',
+  // Tennessee
+  'franklin':        'Nashville, TN',
+  'brentwood':       'Nashville, TN',
+  'murfreesboro':    'Nashville, TN',
+  'memphis':         'Nashville, TN',
+  'knoxville':       'Nashville, TN',
+  'chattanooga':     'Nashville, TN',
+  // South Carolina
+  'mount pleasant':  'Charleston, SC',
+  'summerville':     'Charleston, SC',
+  'greenville':      'Charleston, SC',
+  'columbia':        'Charleston, SC',
+  // Ohio
+  'cleveland':       'Columbus, OH',
+  'cincinnati':      'Columbus, OH',
+  'toledo':          'Columbus, OH',
+  // Pennsylvania
+  'philadelphia':    'Pittsburgh, PA',
+  'allentown':       'Pittsburgh, PA',
+}
+
+function resolveDestKey(input) {
+  const all = Object.keys(DEST_DATA)
+  const raw = input.trim()
+  const lower = raw.toLowerCase()
+
+  // 1. Exact key match
+  const exact = all.find(k => k.toLowerCase() === lower)
+  if (exact) return exact
+
+  // 2. City alias lookup (before comma)
+  const cityPart = lower.split(',')[0].trim()
+  if (CITY_ALIASES[cityPart]) return CITY_ALIASES[cityPart]
+
+  // 3. Key contains the city name
+  const partial = all.find(k => k.toLowerCase().includes(cityPart))
+  if (partial) return partial
+
+  // 4. State name match (after comma, or full input if no comma)
+  const statePart = (lower.includes(',') ? lower.split(',')[1] : lower).trim()
+    .replace(/^(fl|florida)$/, 'florida')
+  const byState = all.find(k => DEST_DATA[k].stateName.toLowerCase() === statePart)
+  if (byState) return byState
+
+  // 5. State abbreviation match
+  const stateAbbr = statePart.toUpperCase()
+  const byAbbr = all.find(k => DEST_DATA[k].state === stateAbbr)
+  if (byAbbr) return byAbbr
+
+  return null
+}
+
 // ── Matching ───────────────────────────────────────────────────────────────────
 
 function matchDestinations(d5answers) {
@@ -672,8 +850,7 @@ function matchDestinations(d5answers) {
 }
 
 function getBestCityForState(stateName) {
-  const keys = Object.keys(DEST_DATA)
-  return keys.find(k => DEST_DATA[k].stateName === stateName) ?? null
+  return resolveDestKey(stateName)
 }
 
 const BADGE      = ['Strong match',   'Good match',  'Worth considering']
@@ -1266,15 +1443,7 @@ export default function D5Destination() {
       } else {
         // Known destination — show only that city, no alternatives
         const dest = answers.knownDest ?? ''
-        const allKeys = Object.keys(DEST_DATA)
-        // Try exact match first, then partial on city portion before comma
-        const cityPart = dest.split(',')[0].trim().toLowerCase()
-        const statePart = dest.split(',')[1]?.trim().toLowerCase() ?? ''
-        const primary = allKeys.find(k => k.toLowerCase() === dest.toLowerCase())
-          ?? allKeys.find(k => k.toLowerCase().includes(cityPart))
-          ?? (statePart ? allKeys.find(k => DEST_DATA[k].stateName.toLowerCase() === statePart) : null)
-          ?? allKeys.find(k => DEST_DATA[k].stateName.toLowerCase() === cityPart)
-          ?? null
+        const primary = resolveDestKey(dest)
         resultMatches = primary ? [primary] : []
         newAnswers._isKnownDest = true
       }
