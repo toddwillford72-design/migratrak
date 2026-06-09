@@ -203,7 +203,7 @@ function EmptyMilestones() {
       </div>
       <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>No milestones yet</p>
       <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>
-        Your journey milestones will appear here once your attorney sets up your account or you complete the discovery flow.
+        Your journey milestones will appear here once your attorney activates your account.
       </p>
     </div>
   )
@@ -226,14 +226,14 @@ export default function J1Dashboard() {
   const [milestones, setMilestones] = useState(null) // null = loading
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) { setProfile(false); setMilestones([]); return }
-      const userId = session.user.id
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setProfile(false); setMilestones([]); return }
+      const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, case_start_date').eq('id', userId).single(),
         supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
       ])
-      setProfile(userRow || { name: session.user.email, visa_type: null })
+      setProfile(userRow || { name: user.email, visa_type: null })
       setMilestones(mRows || [])
     })
   }, [])
