@@ -493,7 +493,7 @@ function ProfessionalCard({ pro, initialOpen }) {
                 <p className="text-sm whitespace-pre-line" style={{ color: '#0D2B4E' }}>{pro.address}</p>
               </div>
             )}
-            {pro.phones.length > 0 && (
+            {pro.id === 1 && pro.phones.length > 0 && (
               <div className="flex gap-2">
                 <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Phone</span>
                 <div className="flex flex-col gap-0.5">
@@ -504,6 +504,18 @@ function ProfessionalCard({ pro, initialOpen }) {
                     </a>
                   ))}
                 </div>
+              </div>
+            )}
+            {pro.id !== 1 && (
+              <div className="flex gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Phone</span>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>Coming soon</p>
+              </div>
+            )}
+            {pro.id !== 1 && (
+              <div className="flex gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Email</span>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>Coming soon</p>
               </div>
             )}
             {pro.hours && (
@@ -536,7 +548,7 @@ function ProfessionalCard({ pro, initialOpen }) {
               >
                 View Profile
               </button>
-              {pro.phones.length > 0 && (
+              {pro.id === 1 && pro.phones.length > 0 && (
                 <a
                   href={`tel:${pro.phones[0].number.replace(/\D/g,'')}`}
                   className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center transition-all active:scale-95"
@@ -634,6 +646,13 @@ export default function J5Directory() {
             </button>
           )
         })}
+      </div>
+
+      {/* Directory disclaimer */}
+      <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #F1F5F9' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+          Directory listings are for informational purposes only. MigraTrak does not endorse or guarantee the services of any listed professional. Always verify credentials independently.
+        </p>
       </div>
 
       {/* Cards */}
