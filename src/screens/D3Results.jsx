@@ -383,9 +383,11 @@ export default function D3Results() {
         </button>
       </div>
 
-      <p className="text-xs text-center px-6 mb-28 leading-relaxed" style={{ color: '#A0AEC0' }}>
-        MigraTrak provides general information only — not legal advice. Visa eligibility depends on your specific circumstances. Always confirm your pathway with a licensed immigration attorney.
-      </p>
+      <div className="mx-4 mb-28 rounded-2xl px-4 py-4" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>
+          <span className="font-semibold">Educational purposes only.</span> The information above does not constitute legal advice. Visa eligibility depends on your specific circumstances and is determined by USCIS. Consult a licensed immigration attorney before making any decisions.
+        </p>
+      </div>
 
       <NavFooter backPath="/d2" onNext={() => navigate('/d4', { state: { answers } })} />
     </div>

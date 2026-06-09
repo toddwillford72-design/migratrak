@@ -233,6 +233,14 @@ function ResourcesView() {
 export default function J1Dashboard() {
   const navigate = useNavigate()
   const [view, setView] = useState('case')
+  const [legalBannerDismissed, setLegalBannerDismissed] = useState(() => {
+    try { return localStorage.getItem('migratrak_legal_banner_dismissed') === 'true' } catch (_) { return false }
+  })
+
+  function dismissLegalBanner() {
+    try { localStorage.setItem('migratrak_legal_banner_dismissed', 'true') } catch (_) {}
+    setLegalBannerDismissed(true)
+  }
 
   const isCanada = (() => {
     try {
@@ -335,6 +343,22 @@ export default function J1Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
+
+      {/* Dismissable legal disclaimer banner */}
+      {!legalBannerDismissed && (
+        <div className="px-4 py-3 flex items-start gap-3" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+          <p className="flex-1 text-xs leading-relaxed" style={{ color: '#64748B' }}>
+            MigraTrak tracks your journey and provides educational guidance — it is not a substitute for qualified legal counsel. Your attorney makes all legal decisions.
+          </p>
+          <button
+            onClick={dismissLegalBanner}
+            className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity active:opacity-60"
+            style={{ backgroundColor: '#E2E8F0', color: '#475569' }}
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>

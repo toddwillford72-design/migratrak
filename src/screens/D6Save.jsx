@@ -103,6 +103,11 @@ export default function D6Save() {
           ))}
         </div>
 
+        {/* Legal disclaimer */}
+        <p className="text-xs leading-relaxed px-1" style={{ color: '#94A3B8' }}>
+          By creating an account you acknowledge that MigraTrak provides educational information only and does not constitute legal advice, attorney-client relationship, or immigration consultation services.
+        </p>
+
         {/* Form or success */}
         <div
           className="rounded-2xl px-5 py-5"

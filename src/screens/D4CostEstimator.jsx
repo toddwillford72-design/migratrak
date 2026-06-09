@@ -402,6 +402,13 @@ export default function D4CostEstimator() {
         </p>
       </div>
 
+      {/* Cost disclaimer */}
+      <div className="mx-4 mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>
+          Cost estimates are approximate ranges based on typical cases and may vary significantly. These figures do not constitute a quote or guarantee. Consult your attorney for costs specific to your situation.
+        </p>
+      </div>
+
       {/* TN success note */}
       {data.successNote && (
         <div className="mx-4 mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#D1FAE5', border: '1px solid #1A7A4A' }}>

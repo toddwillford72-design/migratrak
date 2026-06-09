@@ -318,6 +318,14 @@ export default function J4Coach() {
           </div>
         </div>
 
+        {/* Legal disclaimer banner */}
+        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#FFFBEB', borderBottom: '1px solid #F0A500' }}>
+          <span className="text-sm flex-shrink-0">⚠️</span>
+          <p className="text-xs font-semibold leading-snug" style={{ color: '#92400E' }}>
+            MigraTrak AI provides educational context only — not legal advice.
+          </p>
+        </div>
+
         {/* Chat area */}
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-2" style={{ paddingBottom: showChips ? 180 : 120 }}>
 

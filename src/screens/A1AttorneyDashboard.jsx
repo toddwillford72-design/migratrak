@@ -388,6 +388,13 @@ export default function A1AttorneyDashboard() {
           </p>
         </div>
 
+        {/* Attorney legal disclaimer */}
+        <div className="px-4 py-2.5" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+          <p className="text-xs" style={{ color: '#94A3B8' }}>
+            Client data is for case management purposes only. MigraTrak does not provide legal advice.
+          </p>
+        </div>
+
         <div className="flex flex-col gap-4 px-4 pt-4 pb-16">
 
           {/* Needs Attention */}

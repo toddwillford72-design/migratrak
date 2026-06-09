@@ -27,6 +27,16 @@ function ScrollToTop() {
   return null
 }
 
+function GlobalFooter() {
+  return (
+    <div className="w-full px-4 py-3 text-center" style={{ backgroundColor: '#F1F5F9', borderTop: '1px solid #E2E8F0' }}>
+      <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+        MigraTrak provides educational information only — not legal advice. Always consult a qualified immigration attorney for guidance specific to your situation.
+      </p>
+    </div>
+  )
+}
+
 function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -56,6 +66,7 @@ function Layout() {
         <Route path="/a3" element={<A3Invite />} />
         <Route path="/attorney-client" element={<AttyClientEntry />} />
       </Routes>
+      <GlobalFooter />
     </>
   )
 }
