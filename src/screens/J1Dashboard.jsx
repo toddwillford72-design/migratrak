@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 
@@ -182,14 +183,59 @@ function QuickAction({ icon, label, onPress, color }) {
   )
 }
 
+const VISA_LABELS = {
+  eb5: 'EB-5 Investor', e2: 'E-2 Treaty Investor', tn: 'TN Visa',
+  l1: 'L-1 Transfer', h1b: 'H-1B', o1: 'O-1', k1: 'K-1 Fiancé(e)', eb2niw: 'EB-2 NIW',
+}
+
+function initials(name) {
+  if (!name) return '?'
+  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
+}
+
+function EmptyMilestones() {
+  return (
+    <div className="rounded-2xl px-5 py-8 flex flex-col items-center text-center gap-3"
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: '#EBF4FB' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B5FA8" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
+        </svg>
+      </div>
+      <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>No milestones yet</p>
+      <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>
+        Your journey milestones will appear here once your attorney sets up your account or you complete the discovery flow.
+      </p>
+    </div>
+  )
+}
+
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J1Dashboard() {
   const navigate = useNavigate()
 
+  const [profile, setProfile] = useState(null)       // null = loading, false = no session (demo)
+  const [milestones, setMilestones] = useState(null) // null = loading
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) { setProfile(false); setMilestones([]); return }
+      const userId = session.user.id
+      const [{ data: userRow }, { data: mRows }] = await Promise.all([
+        supabase.from('users').select('name, visa_type, case_start_date').eq('id', userId).single(),
+        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
+      ])
+      setProfile(userRow || { name: session.user.email, visa_type: null })
+      setMilestones(mRows || [])
+    })
+  }, [])
+
+  const isDemo = profile === false
+
   const isCanada = (() => {
     try {
       const saved = localStorage.getItem('migratrak_answers')
-      if (!saved) return true // default to Canada for demo
+      if (!saved) return true
       return JSON.parse(saved)?.country === 'Canada'
     } catch (_) { return true }
   })()
@@ -296,13 +342,21 @@ export default function J1Dashboard() {
               className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: '#1B5FA8' }}
             >
-              <span className="text-sm font-extrabold" style={{ color: '#FFFFFF' }}>CF</span>
+              <span className="text-sm font-extrabold" style={{ color: '#FFFFFF' }}>
+                {isDemo ? 'CF' : initials(profile?.name)}
+              </span>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A9FD4' }}>
-                EB-5 Investor · Started June 2024
+                {isDemo
+                  ? 'EB-5 Investor · Started June 2024'
+                  : profile?.visa_type
+                    ? `${VISA_LABELS[profile.visa_type] ?? profile.visa_type}${profile.case_start_date ? ' · Started ' + new Date(profile.case_start_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''}`
+                    : 'Immigration journey'}
               </p>
-              <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>Chen Family</h1>
+              <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>
+                {isDemo ? 'Chen Family' : (profile?.name || '—')}
+              </h1>
             </div>
           </div>
           <div className="px-3 py-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
@@ -357,14 +411,35 @@ export default function J1Dashboard() {
         </div>
 
         {/* Milestones */}
-        <div className="rounded-2xl px-5 py-5" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-          <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
-            Case Milestones
-          </p>
-          {MILESTONES.map((m, i) => (
-            <MilestoneRow key={m.id} milestone={m} isLast={i === MILESTONES.length - 1} />
-          ))}
-        </div>
+        {isDemo ? (
+          <div className="rounded-2xl px-5 py-5" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
+              Case Milestones
+            </p>
+            {MILESTONES.map((m, i) => (
+              <MilestoneRow key={m.id} milestone={m} isLast={i === MILESTONES.length - 1} />
+            ))}
+          </div>
+        ) : milestones === null ? (
+          <div className="rounded-2xl px-5 py-5 text-center" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <p className="text-sm" style={{ color: '#4A5568' }}>Loading milestones…</p>
+          </div>
+        ) : milestones.length === 0 ? (
+          <EmptyMilestones />
+        ) : (
+          <div className="rounded-2xl px-5 py-5" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
+              Case Milestones
+            </p>
+            {milestones.map((m, i) => (
+              <MilestoneRow
+                key={m.id}
+                milestone={{ id: m.id, label: m.title, status: m.status === 'complete' ? 'done' : m.status === 'in_progress' ? 'active' : 'upcoming', date: m.completed_date || m.due_date || null }}
+                isLast={i === milestones.length - 1}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Life setup checklist preview */}
         <div className="rounded-2xl px-5 py-5" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
