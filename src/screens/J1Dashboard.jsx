@@ -230,10 +230,13 @@ export default function J1Dashboard() {
       if (!user) { setProfile(false); setMilestones([]); return }
       const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
-        supabase.from('users').select('name, visa_type, case_start_date').eq('id', userId).single(),
+        supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
         supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
       ])
-      setProfile(userRow || { name: user.email, visa_type: null })
+      const displayName = userRow?.name
+        || user.user_metadata?.name
+        || user.email
+      setProfile({ ...(userRow || {}), name: displayName, visa_type: userRow?.visa_type ?? null })
       setMilestones(mRows || [])
     })
   }, [])
@@ -360,8 +363,8 @@ export default function J1Dashboard() {
 
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div
               className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: '#1B5FA8' }}
@@ -370,15 +373,15 @@ export default function J1Dashboard() {
                 {isDemo ? 'CF' : initials(profile?.name)}
               </span>
             </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A9FD4' }}>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest truncate" style={{ color: '#4A9FD4' }}>
                 {isDemo
                   ? 'EB-5 Investor · Started June 2024'
                   : profile?.visa_type
-                    ? `${VISA_LABELS[profile.visa_type] ?? profile.visa_type}${profile.case_start_date ? ' · Started ' + new Date(profile.case_start_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''}`
+                    ? VISA_LABELS[profile.visa_type] ?? profile.visa_type
                     : 'Immigration journey'}
               </p>
-              <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>
+              <h1 className="text-xl font-extrabold truncate" style={{ color: '#FFFFFF' }}>
                 {isDemo ? 'Chen Family' : (profile?.name || '—')}
               </h1>
             </div>
@@ -407,7 +410,7 @@ export default function J1Dashboard() {
         <div className="mt-4">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              Overall Progress · Phase 4 of 6: USCIS Processing
+              Overall Progress
             </span>
             <span className="text-sm font-extrabold" style={{ color: '#F0A500' }}>62%</span>
           </div>
