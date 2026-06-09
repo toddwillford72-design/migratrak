@@ -19,7 +19,7 @@ export default function D1Landing() {
   const navigate = useNavigate()
   return (
     <div
-      className="flex flex-col items-center justify-center px-6"
+      className="flex flex-col items-center justify-center px-6 relative"
       style={{
         minHeight: '100dvh',
         background: 'linear-gradient(160deg, #0D2B4E 0%, #1B5FA8 100%)',
@@ -27,6 +27,15 @@ export default function D1Landing() {
         paddingBottom: '5.5rem',
       }}
     >
+      {/* Sign in link — top right, always visible */}
+      <button
+        onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
+        className="absolute top-4 right-5 text-xs font-semibold transition-opacity active:opacity-60"
+        style={{ color: 'rgba(255,255,255,0.65)' }}
+      >
+        Sign in
+      </button>
+
       <div className="w-full max-w-sm flex flex-col items-center gap-5">
 
         {/* Logo / wordmark */}
