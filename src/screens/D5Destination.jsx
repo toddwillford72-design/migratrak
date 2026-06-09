@@ -202,6 +202,436 @@ const DEST_DATA = {
     expat: 'Small',
     flights: { Canada: 'Connections via major hubs', 'United Kingdom': 'Connections via New York', Australia: 'Via connection', default: 'Pittsburgh International Airport' },
   },
+  // ── Additional states ──────────────────────────────────────────────────────────
+  'Atlanta, GA': {
+    state: 'GA', stateName: 'Georgia', stateTax: '5.75%', climate: 'Warm — mild winters',
+    housing: { medianHome: '$375,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,750/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ["World's busiest airport — unmatched US and international connectivity", 'Fast growing economy and diverse international community', 'Warm climate with mild winters — shorter than the Northeast'],
+      business: ['Major logistics, film and technology hub', 'Lower operating costs than coastal metros', 'Fast growing international business community'],
+      lifestyle: ['Warm climate — mild winters', 'Fast growing diverse international community', 'Lower cost of living than DC or New York'],
+    },
+    expat: 'Growing',
+    flights: { Canada: 'Direct from Toronto and Montreal', 'United Kingdom': 'Direct from London Heathrow', Australia: 'Via LAX or direct from Sydney', default: "Hartsfield-Jackson Atlanta — world's busiest airport" },
+  },
+  'Houston, TX': {
+    state: 'TX', stateName: 'Texas', stateTax: 'None ✅', climate: 'Warm & humid',
+    housing: { medianHome: '$310,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,600/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No state income tax', 'Major international energy and business hub', 'Largest city in Texas — extremely diverse international community'],
+      business: ['Global energy sector headquarters', 'No state income tax', 'Large international business community — very diverse'],
+      lifestyle: ['No state income tax', 'Extremely diverse international community — over 145 languages spoken', 'Very affordable cost of living for a major metro'],
+    },
+    expat: 'Large ✅',
+    flights: { Canada: 'Direct from Toronto', 'United Kingdom': 'Direct from London Heathrow', Australia: 'Via LAX connection', default: 'George Bush Intercontinental — major international hub' },
+  },
+  'Los Angeles, CA': {
+    state: 'CA', stateName: 'California', stateTax: '9.3%', climate: 'Warm & sunny',
+    housing: { medianHome: '$850,000', trend: 'Stable', inventory: 'Low', rent2br: '$2,900/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Entertainment and creative industry capital of the world', 'Year-round warm and sunny climate', 'Extremely diverse international community — 140+ languages spoken'],
+      business: ['Global entertainment, media and technology hub', 'Very large international business community', 'High cost of living and taxes'],
+      lifestyle: ['Year-round sun, beaches and outdoor lifestyle', "The world's most diverse city — enormous international community", 'Very high cost of living'],
+    },
+    expat: 'Large ✅',
+    flights: { Canada: 'Direct from Vancouver, Calgary, Toronto', 'United Kingdom': 'Direct from London Heathrow and Gatwick', Australia: 'Direct from Sydney and Melbourne — LAX is the main gateway', default: 'LAX is one of the largest international airports in the world' },
+  },
+  'Portland, OR': {
+    state: 'OR', stateName: 'Oregon', stateTax: '9.9%', climate: 'Mild — cool and rainy',
+    housing: { medianHome: '$490,000', trend: 'Cooling', inventory: 'Moderate', rent2br: '$1,800/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No sales tax — significant everyday cost advantage', 'Outdoor lifestyle — forests, coast and mountains within an hour', 'Growing technology and creative sector'],
+      business: ['No sales tax — retail and hospitality cost advantage', 'Growing technology sector at lower cost than San Francisco', 'Strong creative and food economy'],
+      lifestyle: ['Outdoor lifestyle — hiking, skiing, coast within 90 minutes', 'No sales tax', 'Vibrant food, coffee and arts culture'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Direct from Vancouver (45 min); Toronto seasonal', 'United Kingdom': 'Connections via Seattle or San Francisco', Australia: 'Connections via San Francisco', default: 'Portland International Airport' },
+  },
+  'Salt Lake City, UT': {
+    state: 'UT', stateName: 'Utah', stateTax: '4.85%', climate: 'Mild — four seasons',
+    housing: { medianHome: '$480,000', trend: 'Cooling', inventory: 'Moderate', rent2br: '$1,650/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['World-class skiing — 7 resorts within an hour of downtown', 'Fast growing technology sector — Silicon Slopes', 'Outdoor lifestyle with genuine four seasons'],
+      business: ['Fast growing technology hub — Silicon Slopes', 'Lower cost of living than coastal metros', 'Business-friendly state environment'],
+      lifestyle: ['World-class skiing and outdoor recreation year-round', 'Clean, safe community with strong family values', 'Fast growing international community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Direct from Calgary and Vancouver', 'United Kingdom': 'Connections via Los Angeles or Denver', Australia: 'Via LAX connection', default: 'Salt Lake City International Airport' },
+  },
+  'New Orleans, LA': {
+    state: 'LA', stateName: 'Louisiana', stateTax: '4.25%', climate: 'Warm & humid',
+    housing: { medianHome: '$235,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,350/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Most affordable major city in the South', 'Unique culture, cuisine and vibrant hospitality economy', 'Warm climate with mild winters'],
+      business: ['Strong hospitality and tourism economy — ideal for E-2', 'Very affordable real estate and operating costs', 'Unique culture drives strong restaurant and entertainment market'],
+      lifestyle: ['World-famous culture, music, food and festivals', 'One of the most affordable major cities on this list', 'Warm subtropical climate year-round'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Houston or Atlanta', 'United Kingdom': 'Connections via New York or Atlanta', Australia: 'Via connection', default: 'Louis Armstrong New Orleans International Airport' },
+  },
+  'Charleston, SC': {
+    state: 'SC', stateName: 'South Carolina', stateTax: '6.5%', climate: 'Warm — mild winters',
+    housing: { medianHome: '$400,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,700/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Beautiful historic coastal city with exceptional quality of life', 'Fast growing metro with warm climate and mild winters', 'Lower cost of living than comparable Florida coastal cities'],
+      business: ['Growing technology and aerospace manufacturing sector', 'Strong hospitality and tourism opportunity', 'Lower operating costs than Florida coastal metros'],
+      lifestyle: ['Beautiful historic architecture, beaches and coastal lifestyle', 'Warm climate — mild winters', 'Strong local food and culture scene'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Atlanta or Charlotte', 'United Kingdom': 'Connections via Atlanta', Australia: 'Via connection', default: 'Charleston International Airport' },
+  },
+  'Asheville, NC': {
+    state: 'NC', stateName: 'North Carolina', stateTax: '4.75%', climate: 'Mild — four seasons',
+    housing: { medianHome: '$385,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,600/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Consistently rated top small city for quality of life and arts', 'Blue Ridge Mountains — world-class hiking, biking and outdoor living', 'Vibrant food, craft beer and independent arts scene'],
+      business: ['Strong tourism and hospitality economy', 'Growing remote worker and creative professional community', 'Lower costs than major metros'],
+      lifestyle: ['World-class outdoor recreation in the Blue Ridge Mountains', 'Highly rated food and arts scene', 'Genuine four seasons in a walkable small city'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Charlotte or Atlanta', 'United Kingdom': 'Connections via Charlotte (CLT)', Australia: 'Via connection', default: 'Asheville Regional Airport — connections via Charlotte' },
+  },
+  'Bozeman, MT': {
+    state: 'MT', stateName: 'Montana', stateTax: '6.75%', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$530,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,800/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Gateway to Yellowstone National Park — world-class outdoor recreation', 'No sales tax', 'Fast growing small city with strong outdoor culture and quality of life'],
+      business: ['No sales tax', 'Growing technology and remote worker community', 'Tourism and outdoor recreation economy'],
+      lifestyle: ['Gateway to Yellowstone — world-class skiing, fly fishing and hiking', 'No sales tax', 'Beautiful four seasons in a tight-knit community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Salt Lake City or Seattle', 'United Kingdom': 'Connections via Salt Lake City or Seattle', Australia: 'Via connection', default: 'Bozeman Yellowstone International Airport' },
+  },
+  'Burlington, VT': {
+    state: 'VT', stateName: 'Vermont', stateTax: '8.75%', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$395,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,700/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Highly rated quality of life — clean, safe, welcoming community', 'Stunning natural beauty — Green Mountains and Lake Champlain', 'University of Vermont town — strong arts, food and culture scene'],
+      business: ['Strong tourism and outdoor recreation economy', 'University of Vermont drives education and healthcare sector', 'Proximity to Montreal (1.5 hours) — strong Canadian connections'],
+      lifestyle: ['World-class skiing and outdoor recreation', 'Beautiful four seasons — especially fall foliage', 'Only 1.5 hours from Montreal — very accessible for Canadians'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Very close to Montreal — 1.5 hours by car', 'United Kingdom': 'Connections via Boston or New York', Australia: 'Via Boston or New York', default: 'Burlington International Airport — connections via Boston' },
+  },
+  'Northern Virginia / DC Metro': {
+    state: 'VA', stateName: 'Virginia', stateTax: '5.75%', climate: 'Four seasons',
+    housing: { medianHome: '$620,000', trend: 'Stable', inventory: 'Low', rent2br: '$2,300/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Gateway to Washington DC — federal government and major contractor market', 'Amazon HQ2 — major technology and professional services hub', 'Strong international expat community from diplomatic and government sectors'],
+      business: ['Largest concentration of US federal and tech contracts', 'Amazon HQ2 and major federal contractor market', 'Access to DC business environment and talent'],
+      lifestyle: ['Proximity to Washington DC culture without DC prices', 'Excellent schools and large international community', 'Four seasons — familiar to many European and Canadian expats'],
+    },
+    expat: 'Large ✅',
+    flights: { Canada: 'Direct from Toronto and Montreal via Dulles Airport', 'United Kingdom': 'Direct from London Heathrow via Dulles', Australia: 'Via LAX connection', default: 'Dulles International (IAD) and Reagan National (DCA) airports' },
+  },
+  'Baltimore / Bethesda, MD': {
+    state: 'MD', stateName: 'Maryland', stateTax: '5.75%', climate: 'Four seasons',
+    housing: { medianHome: '$370,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,750/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Proximity to Washington DC without DC prices', 'Major biomedical and healthcare hub — Johns Hopkins University', 'Easy Amtrak access to Philadelphia, New York and Boston'],
+      business: ['Leading biomedical research and healthcare sector', 'Access to DC federal market from Baltimore (45 min)', 'More affordable than DC or Northern Virginia'],
+      lifestyle: ['Chesapeake Bay lifestyle — waterfront culture and fresh seafood', 'Real four seasons', 'Easy access to DC and Northeast corridor'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Direct from Toronto (BWI Airport)', 'United Kingdom': 'Direct from London Heathrow (BWI)', Australia: 'Via connection', default: 'BWI Airport — convenient to both DC and Philadelphia' },
+  },
+  'Wilmington / Dover, DE': {
+    state: 'DE', stateName: 'Delaware', stateTax: '6.6%', climate: 'Four seasons',
+    housing: { medianHome: '$310,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,550/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No sales tax — significant everyday cost advantage', '2 hours from New York City, 30 minutes from Philadelphia by Amtrak', 'Delaware is the corporate registration capital of the US — strong business environment'],
+      business: ['No sales tax and Delaware corporate-friendly legal system', 'Proximity to Philadelphia and New York business markets', 'Lower operating costs than Pennsylvania or New Jersey'],
+      lifestyle: ['No sales tax', 'Easy Amtrak access to Philadelphia and New York', 'Affordable suburban and coastal living with beach access'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Via Philadelphia (PHL) — 30 min drive; Baltimore (BWI) — 1 hour', 'United Kingdom': 'Via Philadelphia (PHL) — many direct UK flights', Australia: 'Via Philadelphia or New York', default: 'Philadelphia PHL (30 min) and Baltimore BWI (1 hour) are the closest major airports' },
+  },
+  'Hartford / Stamford, CT': {
+    state: 'CT', stateName: 'Connecticut', stateTax: '6.99%', climate: 'Four seasons',
+    housing: { medianHome: '$370,000', trend: 'Stable', inventory: 'Low', rent2br: '$1,900/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Easy access to both New York City (1 hour) and Boston (2 hours)', 'Major insurance and financial services hub', 'Affluent and well-resourced communities — excellent schools'],
+      business: ['Major insurance and financial services sector', 'Access to NYC and Boston professional markets', 'Highly educated workforce'],
+      lifestyle: ['Access to New York City and Boston culture', 'Real four seasons', 'Affluent communities in Fairfield County — very safe, excellent schools'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Via Boston Logan (2 hours) or New York JFK/EWR', 'United Kingdom': 'Via New York or Boston connections', Australia: 'Via New York', default: 'Bradley International Airport or New York / Boston airports' },
+  },
+  'Jersey City / Newark, NJ': {
+    state: 'NJ', stateName: 'New Jersey', stateTax: '6.37%', climate: 'Four seasons',
+    housing: { medianHome: '$480,000', trend: 'Stable', inventory: 'Low', rent2br: '$2,400/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Direct transit access to Manhattan — without full New York City prices', 'Newark Liberty is a major international hub serving the Northeast', 'Extremely diverse international community'],
+      business: ['Access to New York City business market via PATH train', 'Newark is a major international logistics and airport hub', 'Large and diverse international business community'],
+      lifestyle: ['Access to New York City culture at lower cost', 'Extremely diverse — among the most international communities in the US', 'Real four seasons'],
+    },
+    expat: 'Large ✅',
+    flights: { Canada: 'Many direct flights via Newark (EWR)', 'United Kingdom': 'Many direct flights from all major UK airports via EWR', Australia: 'Direct from Sydney and Melbourne via EWR', default: 'Newark Liberty is a top-tier international hub' },
+  },
+  'Manchester / Concord, NH': {
+    state: 'NH', stateName: 'New Hampshire', stateTax: 'None ✅', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$400,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,750/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['No state income tax — unique advantage in the Northeast US', 'Easy access to Boston (1 hour) without Massachusetts taxes', 'Beautiful four seasons — White Mountains, fall foliage, skiing'],
+      business: ['No state income tax', 'Access to Boston labor market and innovation ecosystem', 'Lower costs than Massachusetts'],
+      lifestyle: ['No state income tax', 'White Mountains — hiking, skiing, and stunning fall foliage', 'Easy access to Boston and the New England coast'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Boston Logan (1 hour drive)', 'United Kingdom': 'Via Boston Logan connections', Australia: 'Via Boston', default: 'Manchester-Boston Regional Airport or Boston Logan (1 hour drive)' },
+  },
+  'Providence, RI': {
+    state: 'RI', stateName: 'Rhode Island', stateTax: '5.99%', climate: 'Four seasons',
+    housing: { medianHome: '$340,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,700/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Vibrant arts and university city — Brown University, RISD', 'More affordable than Boston with easy Amtrak access', 'Highly rated food scene — one of the best restaurant cities per capita'],
+      business: ['Access to Boston business market (45 min by Amtrak)', 'Strong university economy', 'More affordable than Boston or New York'],
+      lifestyle: ['Excellent food scene and arts culture', 'Easy Amtrak access to Boston and New York', 'Real four seasons'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Via Boston Logan (45 min) or direct from Toronto (seasonal)', 'United Kingdom': 'Via Boston connections', Australia: 'Via Boston or New York', default: 'TF Green Airport or Boston Logan (45 min)' },
+  },
+  'Portland, ME': {
+    state: 'ME', stateName: 'Maine', stateTax: '7.15%', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$390,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,750/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Top-rated small city for quality of life — safe, clean, walkable', 'Stunning coastline — lobster, sailing, lighthouses and ocean lifestyle', 'Consistently rated one of the best food cities per capita in the US'],
+      business: ['Tourism and hospitality economy', 'Growing remote worker and technology community', 'Proximity to Boston market (2 hours)'],
+      lifestyle: ['World-class seafood and coastal lifestyle', 'Beautiful four seasons', 'Very safe, welcoming and close-knit community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Close to Canadian border — Quebec City 3 hours by car', 'United Kingdom': 'Via Boston Logan connections (2 hours)', Australia: 'Via Boston or New York', default: 'Portland International Jetport — connections via Boston' },
+  },
+  'Indianapolis, IN': {
+    state: 'IN', stateName: 'Indiana', stateTax: '3.15%', climate: 'Four seasons',
+    housing: { medianHome: '$265,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,200/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable major metro — among the lowest cost of living in the US', 'Low flat state income tax', "Central US location — within a day's drive of most major cities"],
+      business: ['Very low operating costs', 'Strong manufacturing, logistics and life sciences hub', 'Low flat state income tax'],
+      lifestyle: ['Very affordable cost of living', 'Real four seasons', 'Central Midwest location — easy access across the country'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Chicago or Detroit', 'United Kingdom': 'Connections via Chicago or New York', Australia: 'Via connection', default: 'Indianapolis International Airport' },
+  },
+  'Madison / Milwaukee, WI': {
+    state: 'WI', stateName: 'Wisconsin', stateTax: '7.65%', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$275,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,250/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable cost of living', 'University of Wisconsin — world-class university town', 'Real four seasons — cold winters familiar to Canadians and Scandinavians'],
+      business: ['Low operating costs', 'Strong manufacturing and university-driven economy', 'Access to Chicago market (1.5 hours)'],
+      lifestyle: ['Very affordable', 'Lake lifestyle — water access and outdoor culture in summer', 'Cold winters familiar to Canadians and Northern Europeans'],
+    },
+    expat: 'Small',
+    flights: { Canada: "Connections via Chicago O'Hare (1.5 hours)", 'United Kingdom': 'Connections via Chicago', Australia: 'Via connection', default: 'Milwaukee Mitchell and Madison airports — connections via Chicago' },
+  },
+  'Detroit / Ann Arbor, MI': {
+    state: 'MI', stateName: 'Michigan', stateTax: '4.25%', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$235,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,250/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Major automotive and manufacturing hub undergoing significant revival', 'Very affordable cost of living — especially for a major metro', 'Real four seasons — very familiar climate for Canadians'],
+      business: ['Automotive, advanced manufacturing and mobility technology center', 'Very affordable operating costs', 'University of Michigan drives research and technology sector'],
+      lifestyle: ['Very affordable', 'Great Lakes lifestyle — water access in summer', 'Very close to Windsor, Ontario — familiar for Canadians'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Direct from Toronto — 45 min; very close to Windsor, Ontario', 'United Kingdom': 'Direct from London Heathrow', Australia: 'Via connection', default: 'Detroit Metropolitan Wayne County Airport' },
+  },
+  'Kansas City, MO': {
+    state: 'MO', stateName: 'Missouri', stateTax: '5.4%', climate: 'Four seasons',
+    housing: { medianHome: '$255,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,200/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable major metro — strong value for cost of living', 'Central US location — major logistics and agriculture hub', 'Strong local food, arts and music culture'],
+      business: ['Major agricultural and logistics hub', 'Very low operating costs', 'Central US location reduces logistics costs'],
+      lifestyle: ['Very affordable cost of living', 'Real four seasons', 'World-famous barbecue and growing arts scene'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Chicago or Dallas', 'United Kingdom': 'Connections via Chicago or New York', Australia: 'Via connection', default: 'Kansas City International Airport' },
+  },
+  'Louisville, KY': {
+    state: 'KY', stateName: 'Kentucky', stateTax: '5%', climate: 'Four seasons',
+    housing: { medianHome: '$230,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,100/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable — among lowest cost of living for mid-size US metros', 'Major UPS air hub — strong logistics and manufacturing sector', 'Real four seasons — Kentucky Derby, bourbon trail and unique culture'],
+      business: ['Major UPS global air hub — strong logistics advantage', 'Very low operating costs', 'Growing healthcare and spirits industry'],
+      lifestyle: ['Very affordable cost of living', 'Kentucky Derby and bourbon trail — unique American experience', 'Real four seasons'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Chicago or Charlotte', 'United Kingdom': 'Connections via New York or Atlanta', Australia: 'Via connection', default: 'Louisville Muhammad Ali International Airport' },
+  },
+  'Birmingham, AL': {
+    state: 'AL', stateName: 'Alabama', stateTax: '5%', climate: 'Warm — mild winters',
+    housing: { medianHome: '$225,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,100/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Most affordable major metro in the Southeast', 'Warm climate with short, mild winters', 'Growing healthcare and manufacturing economy'],
+      business: ['Very low operating costs', 'Growing healthcare and automotive manufacturing sector', 'Affordable real estate and talent'],
+      lifestyle: ['Very affordable cost of living', 'Warm climate — short, mild winters', 'Growing food and arts scene'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Atlanta or Charlotte', 'United Kingdom': 'Connections via Atlanta', Australia: 'Via connection', default: 'Birmingham-Shuttlesworth Airport — connections via Atlanta' },
+  },
+  'Biloxi / Gulfport, MS': {
+    state: 'MS', stateName: 'Mississippi', stateTax: '4.7%', climate: 'Warm & humid',
+    housing: { medianHome: '$165,000', trend: 'Stable', inventory: 'High', rent2br: '$900/mo', rentalMarket: 'Renter-friendly' },
+    bullets: {
+      default: ['Most affordable cost of living in the US', 'Gulf Coast lifestyle — beaches, seafood and warm climate', 'Warm subtropical climate year-round'],
+      business: ['Lowest operating costs in the US', 'Strong gaming, tourism and hospitality economy', 'Gulf Coast strategic location'],
+      lifestyle: ['Most affordable state in the US', 'Gulf Coast beaches and seafood culture', 'Warm subtropical climate'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Atlanta or Dallas', 'United Kingdom': 'Connections via Atlanta', Australia: 'Via connection', default: 'Gulfport-Biloxi International Airport — connections via Atlanta' },
+  },
+  'Des Moines, IA': {
+    state: 'IA', stateName: 'Iowa', stateTax: '6%', climate: 'Four seasons',
+    housing: { medianHome: '$235,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,050/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable cost of living', 'Major insurance and financial services hub', 'Safe and growing mid-size city'],
+      business: ['Major insurance industry hub — Principal Financial, Nationwide', 'Very low operating costs', 'Strong agriculture and financial services economy'],
+      lifestyle: ['Very affordable', 'Real four seasons', 'Safe, clean and growing community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Chicago or Minneapolis', 'United Kingdom': 'Connections via Chicago', Australia: 'Via connection', default: 'Des Moines International Airport — connections via Chicago' },
+  },
+  'Wichita / Overland Park, KS': {
+    state: 'KS', stateName: 'Kansas', stateTax: '5.7%', climate: 'Four seasons',
+    housing: { medianHome: '$235,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,050/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable cost of living', 'Major aviation manufacturing hub — Spirit AeroSystems, Cessna', 'Central US location'],
+      business: ['Aviation and aerospace manufacturing center', 'Very low operating costs', 'Central US logistics advantage'],
+      lifestyle: ['Very affordable', 'Real four seasons', 'Wide open space and quiet suburban lifestyle'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Dallas or Chicago', 'United Kingdom': 'Connections via Dallas', Australia: 'Via connection', default: 'Wichita Eisenhower National Airport — connections via Dallas' },
+  },
+  'Oklahoma City, OK': {
+    state: 'OK', stateName: 'Oklahoma', stateTax: '4.75%', climate: 'Warm — hot summers',
+    housing: { medianHome: '$215,000', trend: 'Stable', inventory: 'High', rent2br: '$1,050/mo', rentalMarket: 'Renter-friendly' },
+    bullets: {
+      default: ['One of the most affordable major metros in the US', 'Growing economy — energy, aerospace and agriculture', 'Very low cost of living'],
+      business: ['Very low operating costs', 'Strong energy and aerospace sector', 'Low state income tax'],
+      lifestyle: ['Lowest cost of living on this list', 'Warm climate with hot summers', 'Growing arts and culture scene'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Dallas', 'United Kingdom': 'Connections via Dallas or Chicago', Australia: 'Via connection', default: 'Will Rogers World Airport — connections via Dallas' },
+  },
+  'Omaha, NE': {
+    state: 'NE', stateName: 'Nebraska', stateTax: '6.84%', climate: 'Four seasons',
+    housing: { medianHome: '$255,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,150/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable major metro', "Warren Buffett's hometown — strong financial and insurance sector", 'Safe, clean and family-friendly community'],
+      business: ['Major financial services and insurance hub', 'Very low operating costs', 'Strong agriculture and logistics economy'],
+      lifestyle: ['Very affordable cost of living', 'Real four seasons', 'Safe, clean and family-friendly'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Chicago or Minneapolis', 'United Kingdom': 'Connections via Chicago', Australia: 'Via connection', default: 'Eppley Airfield — connections via Chicago or Dallas' },
+  },
+  'Sioux Falls, SD': {
+    state: 'SD', stateName: 'South Dakota', stateTax: 'None ✅', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$285,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,100/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No state income tax', 'Very affordable cost of living', 'One of the fastest growing small metros in the US'],
+      business: ['No state income tax', 'Very business-friendly regulatory environment', 'Very low operating costs'],
+      lifestyle: ['No state income tax', 'Very affordable', 'Four seasons — familiar to people from cold climates'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Minneapolis or Denver', 'United Kingdom': 'Connections via Chicago or Minneapolis', Australia: 'Via connection', default: 'Sioux Falls Regional Airport — connections via Minneapolis' },
+  },
+  'Fargo, ND': {
+    state: 'ND', stateName: 'North Dakota', stateTax: '2.5%', climate: 'Four seasons — very cold winters',
+    housing: { medianHome: '$240,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,000/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable cost of living', 'One of the lowest state income tax rates in the US', 'Growing university and technology economy'],
+      business: ['Very low operating costs', 'One of the lowest state income tax rates in the US', 'NDSU-driven technology and agriculture sector'],
+      lifestyle: ['Very affordable', 'Very cold winters — familiar to Canadians and Scandinavians', 'Safe, clean and close-knit community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Close to Canadian border — Winnipeg 3 hours by car', 'United Kingdom': 'Connections via Minneapolis', Australia: 'Via connection', default: 'Hector International Airport — connections via Minneapolis' },
+  },
+  'Anchorage, AK': {
+    state: 'AK', stateName: 'Alaska', stateTax: 'None ✅', climate: 'Cold — subarctic',
+    housing: { medianHome: '$370,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,500/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No state income tax — plus annual Permanent Fund dividend for residents', 'Extraordinary natural beauty — aurora borealis, glaciers, wildlife', 'Unique lifestyle — deeply rewarding for those who love nature and adventure'],
+      business: ['No state income tax', 'Strong oil, gas, fishing and tourism industries', 'Strategic Pacific Rim location for cargo and logistics'],
+      lifestyle: ['World-class outdoor adventure — aurora borealis, glaciers, wildlife', 'No state income tax', 'A truly unique American experience'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Direct from Vancouver and Whitehorse', 'United Kingdom': 'Connections via Seattle', Australia: 'Connections via Seattle or Tokyo', default: 'Ted Stevens Anchorage International Airport — major Pacific cargo hub' },
+  },
+  'Honolulu, HI': {
+    state: 'HI', stateName: 'Hawaii', stateTax: '11%', climate: 'Warm & tropical',
+    housing: { medianHome: '$850,000', trend: 'Stable', inventory: 'Low', rent2br: '$2,600/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Tropical paradise — beaches, warm weather and outdoor lifestyle year-round', 'Strong Asia-Pacific connections — ideal for Asian and Australian expats', 'High cost of living offset by extraordinary lifestyle'],
+      business: ['Strong tourism and hospitality economy', 'Strategic Asia-Pacific location', 'Tourism-driven E-2 opportunity'],
+      lifestyle: ['Year-round warm tropical weather — truly paradise living', 'World-class beaches and outdoor lifestyle', 'Unique Pacific island culture with strong international community'],
+    },
+    expat: 'Large ✅',
+    flights: { Canada: 'Direct from Vancouver', 'United Kingdom': 'Connections via Los Angeles', Australia: 'Direct from Sydney and Melbourne', default: 'Daniel K. Inouye International Airport — major Pacific hub' },
+  },
+  'Jackson Hole / Cheyenne, WY': {
+    state: 'WY', stateName: 'Wyoming', stateTax: 'None ✅', climate: 'Four seasons — cold winters',
+    housing: { medianHome: '$295,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,100/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['No state income tax — one of the most tax-friendly states in the US', 'Gateway to Grand Teton and Yellowstone National Parks', 'Wide open Western lifestyle with extraordinary natural beauty'],
+      business: ['No state income tax', 'Very low operating costs', 'Strong energy, tourism and ranching economy'],
+      lifestyle: ['No state income tax', 'Gateway to Grand Teton and Yellowstone (Jackson Hole area)', 'Wide open spaces and authentic Western lifestyle'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Denver or Salt Lake City', 'United Kingdom': 'Connections via Denver', Australia: 'Via connection', default: 'Jackson Hole Airport or Cheyenne Regional Airport — connections via Denver' },
+  },
+  'Charleston, WV': {
+    state: 'WV', stateName: 'West Virginia', stateTax: '6.5%', climate: 'Four seasons',
+    housing: { medianHome: '$145,000', trend: 'Stable', inventory: 'High', rent2br: '$800/mo', rentalMarket: 'Renter-friendly' },
+    bullets: {
+      default: ['Most affordable housing in the US', 'Extraordinary natural beauty — Appalachian Mountains and whitewater rivers', 'Small but close-knit and welcoming community'],
+      business: ['Lowest real estate costs in the US', 'Growing outdoor recreation and tourism economy', 'Very low operating costs'],
+      lifestyle: ['Extraordinary affordability', 'Outdoor recreation — whitewater rafting, hiking in Appalachian Mountains', 'Authentic small city experience'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Charlotte or Pittsburgh', 'United Kingdom': 'Connections via Charlotte', Australia: 'Via connection', default: 'Yeager Airport — connections via Charlotte or Pittsburgh' },
+  },
+  'Bentonville / Fayetteville, AR': {
+    state: 'AR', stateName: 'Arkansas', stateTax: '4.9%', climate: 'Warm — mild winters',
+    housing: { medianHome: '$290,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,000/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Walmart headquarters drives a fast growing, high-quality business ecosystem', 'Very affordable cost of living with a surprisingly strong arts and mountain biking scene', 'Warm climate with mild, short winters'],
+      business: ['Walmart HQ and major supplier network — strong retail and logistics opportunity', 'Very affordable operating costs', 'Fast growing entrepreneurial ecosystem'],
+      lifestyle: ['World-class mountain biking trails and Crystal Bridges Museum of American Art', 'Very affordable', 'Warm climate with mild winters'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Dallas or Atlanta', 'United Kingdom': 'Connections via Dallas', Australia: 'Via connection', default: 'Northwest Arkansas National Airport — connections via Dallas' },
+  },
+  'Albuquerque / Santa Fe, NM': {
+    state: 'NM', stateName: 'New Mexico', stateTax: '5.9%', climate: 'Warm & dry',
+    housing: { medianHome: '$290,000', trend: 'Stable', inventory: 'Moderate', rent2br: '$1,300/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Very affordable cost of living — 300 days of sun per year', 'Unique culture — rich blend of Native American, Spanish and American heritage', 'Warm and dry climate with mild winters at altitude'],
+      business: ['Very affordable operating costs', 'Growing film industry and technology sector', 'Strong arts, tourism and hospitality economy'],
+      lifestyle: ['300 days of sun — warm and dry with mild winters', 'Unique cultural experience unlike anywhere else in the US', 'Very affordable cost of living'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Denver or Dallas', 'United Kingdom': 'Connections via Dallas or Denver', Australia: 'Via connection', default: 'Albuquerque International Sunport' },
+  },
+  'Boise, ID': {
+    state: 'ID', stateName: 'Idaho', stateTax: '5.8%', climate: 'Mild — four seasons',
+    housing: { medianHome: '$420,000', trend: 'Cooling', inventory: 'Moderate', rent2br: '$1,500/mo', rentalMarket: 'Moderate' },
+    bullets: {
+      default: ['Fast growing outdoor lifestyle city — consistently rated top for quality of life', 'Affordable alternative to Seattle or Denver', 'Outdoor recreation — skiing, hiking and river access within an hour'],
+      business: ['Fast growing technology sector', 'Lower costs than Pacific Northwest metros', 'Business-friendly state environment'],
+      lifestyle: ['Outdoor lifestyle — skiing, hiking, whitewater rafting nearby', 'More affordable than Seattle or Denver', 'Clean, safe and fast growing community'],
+    },
+    expat: 'Small',
+    flights: { Canada: 'Connections via Seattle or Salt Lake City', 'United Kingdom': 'Connections via Seattle or San Francisco', Australia: 'Via connection', default: 'Boise Airport' },
+  },
+  'Raleigh / Durham, NC': {
+    state: 'NC', stateName: 'North Carolina', stateTax: '4.75%', climate: 'Mild — four seasons',
+    housing: { medianHome: '$400,000', trend: 'Rising', inventory: 'Low', rent2br: '$1,650/mo', rentalMarket: 'Competitive' },
+    bullets: {
+      default: ['Research Triangle — major technology and biotech hub', 'Fast growing metro with strong quality of life', 'Duke, UNC and NC State drive world-class talent'],
+      business: ['Leading biotech, technology and life sciences hub', 'Highly educated workforce at competitive cost', 'Strong international professional community'],
+      lifestyle: ['Mild four seasons', 'Fast growing diverse international community', 'Strong food, arts and university culture'],
+    },
+    expat: 'Moderate',
+    flights: { Canada: 'Connections via Charlotte or New York', 'United Kingdom': 'Direct from London Heathrow (seasonal)', Australia: 'Via connection', default: 'Raleigh-Durham International Airport' },
+  },
 }
 
 // ── Matching ───────────────────────────────────────────────────────────────────
@@ -219,24 +649,31 @@ function matchDestinations(d5answers) {
   const major    = env.startsWith('🏙️')
   const midsize  = env.startsWith('🌆')
   const suburban = env.startsWith('🏡')
+  const rural    = env.startsWith('🌿')
 
   const restaurant = business.startsWith('🍽️')
   const trades     = business.startsWith('🔧')
   const prof       = business.startsWith('💼')
   const tourism    = business.startsWith('🏨')
 
-  if (warm && major)                    return ['Miami / Fort Lauderdale', 'Tampa / Southwest Florida', 'Orlando']
+  if (rural)                            return ['Asheville, NC', 'Bozeman, MT', 'Burlington, VT']
+  if (warm && major)                    return ['Miami / Fort Lauderdale', 'Los Angeles, CA', 'Houston, TX']
   if (warm && suburban)                 return ['Tampa / Southwest Florida', 'Phoenix / Scottsdale, AZ', 'Dallas / Fort Worth, TX']
-  if (warm && midsize)                  return ['Tampa / Southwest Florida', 'Orlando', 'Austin, TX']
-  if (mild && major)                    return ['San Francisco / Bay Area', 'Seattle, WA', 'Denver, CO']
-  if (mild && suburban)                 return ['Denver, CO', 'Charlotte, NC', 'Nashville, TN']
-  if (mild && midsize)                  return ['Denver, CO', 'Seattle, WA', 'Charlotte, NC']
+  if (warm && midsize)                  return ['Orlando', 'Austin, TX', 'Tampa / Southwest Florida']
+  if (mild && major)                    return ['Seattle, WA', 'Denver, CO', 'Chicago, IL']
+  if (mild && suburban)                 return ['Denver, CO', 'Nashville, TN', 'Charlotte, NC']
+  if (mild && midsize)                  return ['Denver, CO', 'Nashville, TN', 'Charlotte, NC']
   if (seasons && major)                 return ['Chicago, IL', 'Boston, MA', 'New York, NY']
   if (seasons && (suburban || midsize)) return ['Minneapolis, MN', 'Columbus, OH', 'Pittsburgh, PA']
   if (anyClim && (restaurant || tourism)) return ['Orlando', 'Las Vegas, NV', 'Miami / Fort Lauderdale']
   if (anyClim && prof)                  return ['New York, NY', 'Chicago, IL', 'Dallas / Fort Worth, TX']
   if (anyClim && trades)                return ['Tampa / Southwest Florida', 'Dallas / Fort Worth, TX', 'Phoenix / Scottsdale, AZ']
-  return ['Tampa / Southwest Florida', 'Dallas / Fort Worth, TX', 'Orlando']
+  return ['Denver, CO', 'Nashville, TN', 'Charlotte, NC']
+}
+
+function getBestCityForState(stateName) {
+  const keys = Object.keys(DEST_DATA)
+  return keys.find(k => DEST_DATA[k].stateName === stateName) ?? null
 }
 
 const BADGE      = ['Strong match',   'Good match',  'Worth considering']
@@ -328,9 +765,9 @@ function HousingSection({ housing, rentBuy }) {
   )
 }
 
-function DestinationCard({ name, rank, d2answers, rentBuy, onSet }) {
+function DestinationCard({ name, rank, d2answers, rentBuy, onSet, isKnownChoice }) {
   const [expanded, setExpanded] = useState(false)
-  const data = DEST_DATA[name] ?? DEST_DATA['Tampa / Southwest Florida']
+  const data = DEST_DATA[name] ?? Object.values(DEST_DATA)[0]
   const country = d2answers?.country ?? ''
   const isBusiness = d2answers?.motivation === 'Buying or starting a business'
   const isLifestyle = d2answers?.motivation === 'Lifestyle — I want a fresh start' || d2answers?.motivation === 'Family reasons'
@@ -344,10 +781,17 @@ function DestinationCard({ name, rank, d2answers, rentBuy, onSet }) {
       style={{ backgroundColor: '#FFFFFF', border: isTop ? '2px solid #1B5FA8' : '1px solid #E2E8F0' }}>
 
       <div className="px-4 pt-4 pb-3">
-        <span className="inline-block text-xs font-extrabold px-2.5 py-1 rounded-full mb-2"
-          style={{ backgroundColor: BADGE_BG[rank], color: BADGE_CLR[rank] }}>
-          {BADGE[rank]}
-        </span>
+        {isKnownChoice ? (
+          <span className="inline-block text-xs font-extrabold px-2.5 py-1 rounded-full mb-2"
+            style={{ backgroundColor: '#D1FAE5', color: '#1A7A4A', border: '1px solid #1A7A4A' }}>
+            Your chosen destination ✓
+          </span>
+        ) : (
+          <span className="inline-block text-xs font-extrabold px-2.5 py-1 rounded-full mb-2"
+            style={{ backgroundColor: BADGE_BG[rank], color: BADGE_CLR[rank] }}>
+            {BADGE[rank]}
+          </span>
+        )}
         <p className="text-xl font-extrabold leading-tight" style={{ color: '#0D2B4E' }}>{name}</p>
         <p className="text-sm mt-0.5 font-semibold" style={{ color: '#4A9FD4' }}>{data.stateName}</p>
       </div>
@@ -411,7 +855,7 @@ function DestinationCard({ name, rank, d2answers, rentBuy, onSet }) {
 
 // ── Results screen ─────────────────────────────────────────────────────────────
 
-function ResultsScreen({ d5answers, d2answers, matches, onBack, onContinue }) {
+function ResultsScreen({ d5answers, d2answers, matches, onBack, onContinue, isKnownDest }) {
   const navigate = useNavigate()
   const [confirmed, setConfirmed] = useState(null)
   const rentBuy = d5answers.rentbuy?.startsWith('🏠') ? 'buy' : d5answers.rentbuy?.startsWith('🔑') ? 'rent' : 'unsure'
@@ -466,8 +910,12 @@ function ResultsScreen({ d5answers, d2answers, matches, onBack, onContinue }) {
           <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Back</span>
         </button>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>Destination Discovery</p>
-        <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Your top destination matches</h1>
-        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>Based on your preferences — here are your best fits</p>
+        <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>
+          {isKnownDest ? 'Your chosen destination' : 'Your top destination matches'}
+        </h1>
+        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          {isKnownDest ? 'Here is the key information for your selected destination' : 'Based on your preferences — here are your best fits'}
+        </p>
       </div>
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-32">
@@ -486,7 +934,7 @@ function ResultsScreen({ d5answers, d2answers, matches, onBack, onContinue }) {
           </>
         ) : (
           matches.map((city, i) => (
-            <DestinationCard key={city} name={city} rank={i} d2answers={d2answers} rentBuy={rentBuy} onSet={handleSet} />
+            <DestinationCard key={city} name={city} rank={i} d2answers={d2answers} rentBuy={rentBuy} onSet={handleSet} isKnownChoice={isKnownDest && i === 0} />
           ))
         )}
 
@@ -692,6 +1140,7 @@ export default function D5Destination() {
   const [answers,    setAnswers]    = useState({})          // linear question answers
   const [linStep,    setLinStep]    = useState(0)
   const [matches,    setMatches]    = useState(null)
+  const [isKnownDest,setIsKnownDest]= useState(false)
 
   // Build the linear question sequence based on q1 answer
   function buildLinear(q1, rentbuyAnswer) {
@@ -812,19 +1261,24 @@ export default function D5Destination() {
         resultMatches = matchDestinations(newAnswers)
       } else if (phase === 'linear-multi') {
         // Use their selected states — find best matching city for each state
-        resultMatches = multiStates.map(s => {
-          const match = Object.keys(DEST_DATA).find(k => DEST_DATA[k].stateName === s)
-          return match ?? 'Tampa / Southwest Florida'
-        }).slice(0, 3)
+        const stateMatches = multiStates.map(s => getBestCityForState(s)).filter(Boolean)
+        resultMatches = stateMatches.length > 0 ? stateMatches.slice(0, 3) : matchDestinations(newAnswers)
       } else {
-        // Known destination — show that city + 2 close alternatives
-        const dest = answers.knownDest
+        // Known destination — show only that city, no alternatives
+        const dest = answers.knownDest ?? ''
         const allKeys = Object.keys(DEST_DATA)
-        const primary = allKeys.find(k => k.toLowerCase().includes(dest.toLowerCase().split(',')[0]))
-          ?? 'Tampa / Southwest Florida'
-        const others = allKeys.filter(k => DEST_DATA[k].state === DEST_DATA[primary]?.state && k !== primary).slice(0, 2)
-        resultMatches = [primary, ...others]
+        // Try exact match first, then partial on city portion before comma
+        const cityPart = dest.split(',')[0].trim().toLowerCase()
+        const statePart = dest.split(',')[1]?.trim().toLowerCase() ?? ''
+        const primary = allKeys.find(k => k.toLowerCase() === dest.toLowerCase())
+          ?? allKeys.find(k => k.toLowerCase().includes(cityPart))
+          ?? (statePart ? allKeys.find(k => DEST_DATA[k].stateName.toLowerCase() === statePart) : null)
+          ?? allKeys.find(k => DEST_DATA[k].stateName.toLowerCase() === cityPart)
+          ?? null
+        resultMatches = primary ? [primary] : []
+        newAnswers._isKnownDest = true
       }
+      setIsKnownDest(!!newAnswers._isKnownDest)
       setMatches(resultMatches)
       setPhase('results')
     }
@@ -856,6 +1310,7 @@ export default function D5Destination() {
         d5answers={answers}
         d2answers={d2answers}
         matches={matches}
+        isKnownDest={isKnownDest}
         onBack={() => {
           const qs = getCurrentLinear()
           setLinStep(qs.length - 1)
