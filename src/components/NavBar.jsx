@@ -9,6 +9,12 @@ export default function NavBar({ onAICoach }) {
   const [helpOpen, setHelpOpen] = useState(false)
 
   async function handleSignOut() {
+    try {
+      localStorage.removeItem('migratrak_answers')
+      localStorage.removeItem('migratrak_visa')
+      localStorage.removeItem('migratrak_destination')
+      localStorage.removeItem('migratrak_legal_banner_dismissed')
+    } catch (_) {}
     await supabase.auth.signOut()
     setHelpOpen(false)
     navigate('/')

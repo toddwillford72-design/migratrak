@@ -225,6 +225,17 @@ export default function J1Dashboard() {
   const [profile, setProfile] = useState(null)       // null = loading, false = no session (demo)
   const [milestones, setMilestones] = useState(null) // null = loading
 
+  async function handleLogout() {
+    try {
+      localStorage.removeItem('migratrak_answers')
+      localStorage.removeItem('migratrak_visa')
+      localStorage.removeItem('migratrak_destination')
+      localStorage.removeItem('migratrak_legal_banner_dismissed')
+    } catch (_) {}
+    await supabase.auth.signOut()
+    navigate('/')
+  }
+
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { setProfile(false); setMilestones([]); return }
@@ -403,6 +414,18 @@ export default function J1Dashboard() {
               </svg>
               USCIS Status
             </a>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium transition-opacity active:opacity-60"
+              style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)' }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Log out
+            </button>
           </div>
         </div>
 
