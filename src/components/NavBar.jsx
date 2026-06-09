@@ -102,23 +102,21 @@ export default function NavBar({ onAICoach }) {
               </button>
             </div>
 
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid #E2E8F0' }} />
+
             {/* Sign Out */}
-            <div className="flex flex-col gap-1">
-              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A5568' }}>
-                Account
-              </p>
-              <button
-                onClick={handleSignOut}
-                className="text-left text-base font-medium"
-                style={{ color: '#DC2626' }}
-              >
-                Sign out
-              </button>
-            </div>
+            <button
+              onClick={handleSignOut}
+              className="text-left text-base font-semibold"
+              style={{ color: '#DC2626' }}
+            >
+              Sign out
+            </button>
 
             <button
               onClick={() => setHelpOpen(false)}
-              className="mt-2 w-full py-3 rounded-xl text-sm font-semibold"
+              className="w-full py-3 rounded-xl text-sm font-semibold"
               style={{ backgroundColor: '#EBF4FB', color: '#0D2B4E' }}
             >
               Close
