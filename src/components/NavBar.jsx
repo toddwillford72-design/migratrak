@@ -1,9 +1,18 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 
 export default function NavBar({ onAICoach }) {
+  const navigate = useNavigate()
   const [helpOpen, setHelpOpen] = useState(false)
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    setHelpOpen(false)
+    navigate('/')
+  }
 
   return (
     <>
@@ -90,6 +99,20 @@ export default function NavBar({ onAICoach }) {
                 style={{ color: '#1B5FA8' }}
               >
                 Ask the AI Coach →
+              </button>
+            </div>
+
+            {/* Sign Out */}
+            <div className="flex flex-col gap-1">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#4A5568' }}>
+                Account
+              </p>
+              <button
+                onClick={handleSignOut}
+                className="text-left text-base font-medium"
+                style={{ color: '#DC2626' }}
+              >
+                Sign out
               </button>
             </div>
 

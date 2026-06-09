@@ -67,10 +67,15 @@ export default function D6Save() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!name.trim()) { setError('Please enter your name.'); return }
-    if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email address.'); return }
-    setError('')
-    setSubmitted(true)
+    const visa = localStorage.getItem('migratrak_visa') || ''
+    const dest = localStorage.getItem('migratrak_destination') || ''
+    navigate('/auth', {
+      state: {
+        mode: 'signup',
+        visa_type: visa,
+        destination_state: dest,
+      }
+    })
   }
 
   return (
