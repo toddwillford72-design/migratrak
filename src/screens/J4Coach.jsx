@@ -195,19 +195,40 @@ export default function J4Coach() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, typingId])
 
-  function fireQA(qa) {
-    if (usedChips.has(qa.id)) return
+  async function fireQA(qa) {
+    if (usedChips.has(qa.id) || typingId) return
     setUsedChips((prev) => new Set([...prev, qa.id]))
     setMessages((prev) => [...prev, { type: 'user', text: qa.user, id: Date.now() }])
+
+    const newHistory = [...apiHistory, { role: 'user', content: qa.user }]
+    setApiHistory(newHistory)
+
     const typId = qa.id + Date.now()
     setTypingId(typId)
-    setTimeout(() => {
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newHistory }),
+      })
+      const data = await res.json()
+      const reply = res.ok && data.text ? data.text : "I'm having trouble connecting right now. Please try again in a moment."
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
-        { type: 'ai', paragraphs: qa.ai, showDisclaimer: false, id: Date.now() },
+        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: Date.now() },
       ])
-    }, 1400)
+      if (res.ok && data.text) {
+        setApiHistory((prev) => [...prev, { role: 'assistant', content: data.text }])
+      }
+    } catch (_) {
+      setTypingId(null)
+      setMessages((prev) => [
+        ...prev,
+        { type: 'ai', paragraphs: ["I'm having trouble connecting right now. Please try again in a moment."], showDisclaimer: false, id: Date.now() },
+      ])
+    }
   }
 
   async function handleSend() {
