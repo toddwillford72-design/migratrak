@@ -103,9 +103,16 @@ export default function D1Landing() {
           </button>
           <div className="w-full h-px" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
           <button
+            onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
+            className="text-xs transition-opacity active:opacity-60"
+            style={{ color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            Already using MigraTrak? Sign in →
+          </button>
+          <button
             onClick={() => navigate('/a1')}
             className="text-xs transition-opacity active:opacity-60"
-            style={{ color: 'rgba(255,255,255,0.45)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            style={{ color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
           >
             Immigration specialist? Access your portal →
           </button>

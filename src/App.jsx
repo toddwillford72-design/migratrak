@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { supabase } from './lib/supabase'
 import D1Landing from './screens/D1Landing'
 import D2Assessment from './screens/D2Assessment'
 import D3Results from './screens/D3Results'
@@ -39,11 +40,30 @@ function GlobalFooter() {
   )
 }
 
-function Layout() {
+async function getDashboardPath(userId) {
+  const { data } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', userId)
+    .single()
+  return data?.role === 'attorney' ? '/a1' : '/j1'
+}
+
+function Layout({ authReady, authedPath }) {
   const location = useLocation()
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
   const isAuth = location.pathname === '/auth'
+
+  // Redirect / to dashboard when session exists
+  useEffect(() => {
+    if (authReady && authedPath && location.pathname === '/') {
+      navigate(authedPath, { replace: true })
+    }
+  }, [authReady, authedPath, location.pathname])
+
+  // Show blank while we figure out where the user should go from /
+  if (!authReady && location.pathname === '/') return null
 
   return (
     <>
@@ -76,9 +96,36 @@ function Layout() {
 }
 
 export default function App() {
+  const [authReady, setAuthReady] = useState(false)
+  const [authedPath, setAuthedPath] = useState(null) // '/j1' | '/a1' | null
+
+  useEffect(() => {
+    // Check session on first load
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const path = await getDashboardPath(session.user.id)
+        setAuthedPath(path)
+      }
+      setAuthReady(true)
+    })
+
+    // Listen for sign-in / sign-out events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const path = await getDashboardPath(session.user.id)
+        setAuthedPath(path)
+      }
+      if (event === 'SIGNED_OUT') {
+        setAuthedPath(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
   return (
     <BrowserRouter>
-      <Layout />
+      <Layout authReady={authReady} authedPath={authedPath} />
     </BrowserRouter>
   )
 }
