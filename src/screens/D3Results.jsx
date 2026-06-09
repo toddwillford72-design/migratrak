@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import NavFooter from '../components/NavFooter'
 
 // ── Personalization helpers ────────────────────────────────────────────────────
 
@@ -245,7 +244,11 @@ function VisaCard({ card, onCta, onCostEstimate }) {
   const titleColor  = card.caution ? '#92400E' : card.lead ? '#FFFFFF' : '#0D2B4E'
 
   return (
-    <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: '#FFFFFF', border: `2px solid ${borderColor}` }}>
+    <div
+      className="rounded-2xl overflow-hidden shadow-sm cursor-pointer transition-shadow active:shadow-md"
+      style={{ backgroundColor: '#FFFFFF', border: `2px solid ${borderColor}` }}
+      onClick={() => onCostEstimate(card.ctaVisa)}
+    >
       <div className="px-5 py-4" style={{ backgroundColor: headerBg }}>
         <div className="flex items-start justify-between gap-2">
           <p className="text-lg font-extrabold leading-tight" style={{ color: titleColor }}>{card.title}</p>
@@ -294,9 +297,11 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <span className="text-sm flex-shrink-0">⚠️</span>
           <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>{card.warning}</p>
         </div>
-        <button onClick={() => setExpanded(!expanded)}
+        <button
+          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
           className="flex items-center gap-1 text-xs font-semibold transition-opacity active:opacity-60"
-          style={{ color: '#1B5FA8' }}>
+          style={{ color: '#1B5FA8' }}
+        >
           <span>{card.expandLabel} →</span>
           <span style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block', transition: 'transform 0.2s' }}>›</span>
         </button>
@@ -309,11 +314,17 @@ function VisaCard({ card, onCta, onCostEstimate }) {
             ))}
           </div>
         )}
-        <button onClick={() => onCostEstimate(card.ctaVisa)}
-          className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
-          {card.ctaLabel} →
-        </button>
+      </div>
+
+      {/* Tappable footer cue */}
+      <div
+        className="px-5 py-3 flex items-center justify-between"
+        style={{ backgroundColor: '#F7F9FC', borderTop: '1px solid #E2E8F0' }}
+      >
+        <span className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>See cost estimate</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B5FA8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
       </div>
     </div>
   )
@@ -334,7 +345,11 @@ export default function D3Results() {
   const leadVisa         = cards[0]?.id ?? 'e2'
 
   function goToJ5()    { navigate('/j5', { state: { filter: 'attorneys' } }) }
-  function goToD4(visa){ navigate('/d4', { state: { visa: visa ?? leadVisa, answers } }) }
+  function goToD4(visa) {
+    const v = visa ?? leadVisa
+    try { localStorage.setItem('migratrak_visa', v) } catch (_) {}
+    navigate('/d4', { state: { visa: v, answers } })
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
@@ -389,7 +404,11 @@ export default function D3Results() {
         </p>
       </div>
 
-      <NavFooter backPath="/d2" onNext={() => navigate('/d4', { state: { answers } })} />
+      <div className="px-4 pb-10 pt-2 text-center">
+        <button onClick={() => navigate('/d2')} className="text-sm" style={{ color: '#A0AEC0' }}>
+          ← Back to assessment
+        </button>
+      </div>
     </div>
   )
 }
