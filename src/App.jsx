@@ -13,9 +13,14 @@ import J3Documents from './screens/J3Documents'
 import J4Coach from './screens/J4Coach'
 import J5Directory from './screens/J5Directory'
 import J6Essentials from './screens/J6Essentials'
+import JResourcesScreen from './screens/JResourcesScreen'
 import A1AttorneyDashboard from './screens/A1AttorneyDashboard'
 import A2Coming from './screens/A2Coming'
+import A3Invite from './screens/A3Invite'
+import AttyClientEntry from './screens/AttyClientEntry'
 import NavBar from './components/NavBar'
+import AuthScreen from './screens/AuthScreen'
+import ProtectedRoute from './components/ProtectedRoute'
 import './index.css'
 
 function ScrollToTop() {
@@ -24,15 +29,26 @@ function ScrollToTop() {
   return null
 }
 
+function GlobalFooter() {
+  return (
+    <div className="w-full px-4 py-3 text-center" style={{ backgroundColor: '#F1F5F9', borderTop: '1px solid #E2E8F0' }}>
+      <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+        MigraTrak provides educational information only — not legal advice. Always consult a qualified immigration attorney for guidance specific to your situation.
+      </p>
+    </div>
+  )
+}
+
 function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
+  const isAuth = location.pathname === '/auth'
 
   return (
     <>
       <ScrollToTop />
-      {!isLanding && <NavBar onAICoach={() => navigate('/j4')} />}
+      {!isLanding && !isAuth && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
         <Route path="/"   element={<D1Landing />} />
         <Route path="/d2" element={<D2Assessment />} />
@@ -41,15 +57,20 @@ function Layout() {
         <Route path="/d5" element={<D5Destination />} />
         <Route path="/d6" element={<D5Timeline />} />
         <Route path="/d7" element={<D6Save />} />
-        <Route path="/j1" element={<J1Dashboard />} />
-        <Route path="/j2" element={<J2Expenses />} />
-        <Route path="/j3" element={<J3Documents />} />
-        <Route path="/j4" element={<J4Coach />} />
-        <Route path="/j5" element={<J5Directory />} />
-        <Route path="/j6" element={<J6Essentials />} />
-        <Route path="/a1" element={<A1AttorneyDashboard />} />
-        <Route path="/a2" element={<A2Coming />} />
+        <Route path="/auth" element={<AuthScreen />} />
+        <Route path="/j1" element={<ProtectedRoute allowedRole="client"><J1Dashboard /></ProtectedRoute>} />
+        <Route path="/j2" element={<ProtectedRoute allowedRole="client"><J2Expenses /></ProtectedRoute>} />
+        <Route path="/j3" element={<ProtectedRoute allowedRole="client"><J3Documents /></ProtectedRoute>} />
+        <Route path="/j4" element={<ProtectedRoute allowedRole="client"><J4Coach /></ProtectedRoute>} />
+        <Route path="/j5" element={<ProtectedRoute allowedRole="client"><J5Directory /></ProtectedRoute>} />
+        <Route path="/j6" element={<ProtectedRoute allowedRole="client"><J6Essentials /></ProtectedRoute>} />
+        <Route path="/resources" element={<ProtectedRoute allowedRole="client"><JResourcesScreen /></ProtectedRoute>} />
+        <Route path="/a1" element={<ProtectedRoute allowedRole="attorney"><A1AttorneyDashboard /></ProtectedRoute>} />
+        <Route path="/a2" element={<ProtectedRoute allowedRole="attorney"><A2Coming /></ProtectedRoute>} />
+        <Route path="/a3" element={<ProtectedRoute allowedRole="attorney"><A3Invite /></ProtectedRoute>} />
+        <Route path="/attorney-client" element={<AttyClientEntry />} />
       </Routes>
+      <GlobalFooter />
     </>
   )
 }

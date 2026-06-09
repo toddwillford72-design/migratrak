@@ -339,6 +339,7 @@ function UrgentCard({ client }) {
 
 export default function A1AttorneyDashboard() {
   const [showModal, setShowModal] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <>
@@ -347,13 +348,16 @@ export default function A1AttorneyDashboard() {
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
 
         {/* Header */}
-        <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
+        <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#1A4A2E' }}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-widest mb-0.5" style={{ color: '#4A9FD4' }}>
-                Client Portal — Powered by MigraTrak
+              <p className="text-xs font-extrabold uppercase tracking-widest mb-0.5" style={{ color: '#FFFFFF', letterSpacing: '0.14em' }}>
+                ATTORNEY PORTAL
               </p>
               <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Maimone Legal</h1>
+              <p className="text-xs mt-0.5 font-medium" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                Maimone Law — Powered by MigraTrak
+              </p>
               <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)' }}>
@@ -374,6 +378,21 @@ export default function A1AttorneyDashboard() {
               Add Client
             </button>
           </div>
+        </div>
+
+        {/* Attorney portal banner */}
+        <div className="px-4 py-3 flex items-center gap-2" style={{ backgroundColor: '#1A7A4A' }}>
+          <span className="text-base">⚖️</span>
+          <p className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+            You are viewing the Attorney Dashboard — this is not the client view
+          </p>
+        </div>
+
+        {/* Attorney legal disclaimer */}
+        <div className="px-4 py-2.5" style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+          <p className="text-xs" style={{ color: '#94A3B8' }}>
+            Client data is for case management purposes only. MigraTrak does not provide legal advice.
+          </p>
         </div>
 
         <div className="flex flex-col gap-4 px-4 pt-4 pb-16">
@@ -452,6 +471,14 @@ export default function A1AttorneyDashboard() {
             style={{ backgroundColor: '#0D2B4E', color: '#F0A500' }}
           >
             <span className="text-xl leading-none">+</span> Add New Client
+          </button>
+
+          <button
+            onClick={() => navigate('/a3')}
+            className="w-full py-4 rounded-2xl text-base font-extrabold flex items-center justify-center gap-2 transition-all active:scale-95"
+            style={{ backgroundColor: '#1A7A4A', color: '#FFFFFF' }}
+          >
+            ✉️ Send Client Invitation
           </button>
 
         </div>

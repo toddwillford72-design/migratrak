@@ -8,8 +8,7 @@ const TABS = [
   { id: 'coach',     label: 'AI Coach',  path: '/j4' },
   { id: 'directory', label: 'Directory', path: '/j5' },
   { id: 'essentials',label: 'Essentials',path: '/j6' },
-  { id: 'resources', label: 'Resources', path: '/a1' },
-  { id: 'help',      label: 'Help',      path: '/a2' },
+  { id: 'resources', label: 'Resources', path: '/resources' },
 ]
 
 const FILTERS = ['All', 'Attorneys', 'RCICs', 'CPAs', 'Financial Advisors', 'Real Estate', 'MLO / Mortgage', 'Healthcare', 'Vehicle Import', 'Business Brokers']
@@ -41,17 +40,17 @@ const PROFESSIONALS = [
   },
   {
     id: 2,
-    name: 'Attorney B',
+    name: 'James R. Patterson',
     title: 'Immigration Attorney',
-    firm: null,
+    firm: 'Patterson Immigration Law',
     location: 'Orlando, FL',
     address: null,
     phones: [],
     hours: null,
-    specialties: ['E-2', 'TN'],
-    languages: null,
+    specialties: ['E-2', 'TN', 'H-1B'],
+    languages: ['English', 'Spanish'],
     canadian: null,
-    bio: null,
+    bio: 'Specializes in business and investor visas for entrepreneurs entering the US market. 15 years experience.',
     note: null,
     badge: null,
     category: 'Attorneys',
@@ -62,17 +61,38 @@ const PROFESSIONALS = [
   },
   {
     id: 3,
-    name: 'CPA Name',
-    title: 'Cross-Border Tax Specialist',
-    firm: null,
-    location: null,
+    name: 'Sarah Chen',
+    title: 'Senior Immigration Attorney',
+    firm: 'Global Mobility Partners',
+    location: 'Miami, FL',
     address: null,
     phones: [],
     hours: null,
-    specialties: ['CRA departure', 'US filing', 'FBAR'],
-    languages: null,
+    specialties: ['EB-5', 'L-1', 'EB-1'],
+    languages: ['English', 'Mandarin'],
     canadian: null,
-    bio: null,
+    bio: 'Dedicated to helping high-net-worth individuals and families achieve permanent US residency through investor pathways.',
+    note: null,
+    badge: null,
+    category: 'Attorneys',
+    stars: 4,
+    reviews: 31,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 4,
+    name: 'David MacKenzie CPA',
+    title: 'Cross-Border Tax Specialist',
+    firm: 'MacKenzie Cross-Border Advisors',
+    location: 'Tampa, FL',
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['CRA departure', 'US filing', 'FBAR', 'RRSP treatment', 'FATCA compliance'],
+    languages: null,
+    canadian: 'Extensive',
+    bio: 'Canadian-trained CPA now based in Tampa. Specializes exclusively in Canada-US cross-border tax situations.',
     note: null,
     badge: null,
     category: 'CPAs',
@@ -82,18 +102,81 @@ const PROFESSIONALS = [
     primaryAction: 'Request Introduction',
   },
   {
-    id: 4,
-    name: 'RE Agent Name',
-    title: 'Real Estate Specialist',
+    id: 12,
+    name: 'Jennifer Walsh CPA CA',
+    title: 'International Tax Advisor',
+    firm: 'Walsh and Associates',
+    location: 'Fort Lauderdale, FL',
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['Departure returns', 'Deemed disposition', 'Rental withholding'],
+    languages: null,
+    canadian: null,
+    bio: 'Former CRA auditor. Now helps Canadians navigate the departure process and establish clean US tax profiles.',
+    note: null,
+    badge: null,
+    category: 'CPAs',
+    stars: 4,
+    reviews: 14,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 5,
+    name: 'Robert Sandoval',
+    title: 'Certified Business Broker',
+    firm: 'Florida Business Exchange',
+    location: 'Southwest Florida',
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['E-2 qualifying businesses', 'Franchise resales', 'Service businesses'],
+    languages: null,
+    canadian: null,
+    bio: 'Specializes in identifying and valuing businesses that qualify for E-2 investor visa requirements.',
+    note: null,
+    badge: null,
+    category: 'Business Brokers',
+    stars: 4,
+    reviews: 14,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 13,
+    name: 'Amanda Foster',
+    title: 'M&A Advisor',
+    firm: 'Foster Business Advisors',
+    location: 'Tampa, FL',
+    address: null,
+    phones: [],
+    hours: null,
+    specialties: ['Business valuations', 'E-2 compliance', 'Acquisition due diligence'],
+    languages: null,
+    canadian: null,
+    bio: 'Former immigration paralegal turned business broker. Understands exactly what USCIS looks for in an E-2 qualifying business.',
+    note: null,
+    badge: null,
+    category: 'Business Brokers',
+    stars: 5,
+    reviews: 9,
+    expanded: false,
+    primaryAction: 'Request Introduction',
+  },
+  {
+    id: 14,
+    name: 'Michael Torres',
+    title: 'Commercial Real Estate Specialist',
     firm: 'LQ Commercial',
     location: 'Sarasota & Punta Gorda, FL',
     address: null,
     phones: [],
     hours: null,
-    specialties: ['Canadian buyers', 'E-2 businesses'],
+    specialties: ['Canadian buyers', 'E-2 qualifying businesses', 'Investment properties'],
     languages: null,
     canadian: null,
-    bio: null,
+    bio: 'Specializes in helping Canadian investors find E-2 qualifying businesses and investment properties in Southwest FL.',
     note: null,
     badge: null,
     category: 'Real Estate',
@@ -103,23 +186,23 @@ const PROFESSIONALS = [
     primaryAction: 'Request Introduction',
   },
   {
-    id: 5,
-    name: 'Broker Name',
-    title: 'Business Broker',
-    firm: null,
-    location: 'Southwest Florida',
+    id: 15,
+    name: 'Linda Beaumont',
+    title: 'Residential Specialist',
+    firm: 'Premier Properties',
+    location: 'Tampa Bay, FL',
     address: null,
     phones: [],
     hours: null,
-    specialties: ['E-2 qualifying businesses'],
+    specialties: ['Foreign national buyers', 'Canadian purchasers', 'Relocation'],
     languages: null,
     canadian: null,
-    bio: null,
+    bio: 'Helps Canadian and international buyers navigate the Florida residential market with no US credit history required.',
     note: null,
     badge: null,
-    category: 'Business Brokers',
+    category: 'Real Estate',
     stars: 4,
-    reviews: 14,
+    reviews: 19,
     expanded: false,
     primaryAction: 'Request Introduction',
   },
@@ -167,22 +250,22 @@ const PROFESSIONALS = [
   },
   {
     id: 8,
-    name: 'MLO Name',
-    title: 'Mortgage Loan Originator',
-    firm: 'Firm Name — Southwest Florida',
-    location: null,
+    name: 'Carlos Rivera',
+    title: 'Mortgage Loan Officer',
+    firm: 'CrossBorder Lending Group',
+    location: 'Tampa, FL',
     address: null,
     phones: [],
     hours: null,
-    specialties: ['DSCR loans', 'Foreign national lending', 'Canadian investor financing', 'No SSN required options'],
+    specialties: ['Foreign national mortgages', 'ITIN loans', 'DSCR investment loans', 'Canadian buyers'],
     languages: null,
     canadian: null,
-    bio: null,
+    bio: 'Specializes in mortgage solutions for Canadians and foreign nationals purchasing in Florida without US credit.',
     note: null,
     badge: null,
     category: 'MLO / Mortgage',
     stars: 4,
-    reviews: 17,
+    reviews: 22,
     expanded: false,
     primaryAction: 'Request Introduction',
   },
@@ -410,7 +493,7 @@ function ProfessionalCard({ pro, initialOpen }) {
                 <p className="text-sm whitespace-pre-line" style={{ color: '#0D2B4E' }}>{pro.address}</p>
               </div>
             )}
-            {pro.phones.length > 0 && (
+            {pro.id === 1 && pro.phones.length > 0 && (
               <div className="flex gap-2">
                 <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Phone</span>
                 <div className="flex flex-col gap-0.5">
@@ -421,6 +504,18 @@ function ProfessionalCard({ pro, initialOpen }) {
                     </a>
                   ))}
                 </div>
+              </div>
+            )}
+            {pro.id !== 1 && (
+              <div className="flex gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Phone</span>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>Coming soon</p>
+              </div>
+            )}
+            {pro.id !== 1 && (
+              <div className="flex gap-2">
+                <span className="text-xs font-extrabold uppercase tracking-wider w-20 flex-shrink-0 pt-0.5" style={{ color: '#4A5568' }}>Email</span>
+                <p className="text-sm" style={{ color: '#94A3B8' }}>Coming soon</p>
               </div>
             )}
             {pro.hours && (
@@ -453,7 +548,7 @@ function ProfessionalCard({ pro, initialOpen }) {
               >
                 View Profile
               </button>
-              {pro.phones.length > 0 && (
+              {pro.id === 1 && pro.phones.length > 0 && (
                 <a
                   href={`tel:${pro.phones[0].number.replace(/\D/g,'')}`}
                   className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center transition-all active:scale-95"
@@ -551,6 +646,13 @@ export default function J5Directory() {
             </button>
           )
         })}
+      </div>
+
+      {/* Directory disclaimer */}
+      <div className="px-4 py-2.5" style={{ borderBottom: '1px solid #F1F5F9' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+          Directory listings are for informational purposes only. MigraTrak does not endorse or guarantee the services of any listed professional. Always verify credentials independently.
+        </p>
       </div>
 
       {/* Cards */}

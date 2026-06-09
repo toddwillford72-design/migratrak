@@ -67,10 +67,15 @@ export default function D6Save() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!name.trim()) { setError('Please enter your name.'); return }
-    if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email address.'); return }
-    setError('')
-    setSubmitted(true)
+    const visa = localStorage.getItem('migratrak_visa') || ''
+    const dest = localStorage.getItem('migratrak_destination') || ''
+    navigate('/auth', {
+      state: {
+        mode: 'signup',
+        visa_type: visa,
+        destination_state: dest,
+      }
+    })
   }
 
   return (
@@ -102,6 +107,11 @@ export default function D6Save() {
             </div>
           ))}
         </div>
+
+        {/* Legal disclaimer */}
+        <p className="text-xs leading-relaxed px-1" style={{ color: '#94A3B8' }}>
+          By creating an account you acknowledge that MigraTrak provides educational information only and does not constitute legal advice, attorney-client relationship, or immigration consultation services.
+        </p>
 
         {/* Form or success */}
         <div

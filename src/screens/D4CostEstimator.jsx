@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
@@ -328,6 +328,10 @@ export default function D4CostEstimator() {
     TOGGLE_ORDER.includes(initialVisa) ? initialVisa : 'e2'
   )
 
+  useEffect(() => {
+    try { localStorage.setItem('migratrak_visa', initialVisa) } catch (_) {}
+  }, [initialVisa])
+
   const data = VISA_DATA[activeVisa]
 
   return (
@@ -395,6 +399,13 @@ export default function D4CostEstimator() {
         </p>
         <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
           {data.totalNote}
+        </p>
+      </div>
+
+      {/* Cost disclaimer */}
+      <div className="mx-4 mt-3 rounded-xl px-4 py-3" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>
+          Cost estimates are approximate ranges based on typical cases and may vary significantly. These figures do not constitute a quote or guarantee. Consult your attorney for costs specific to your situation.
         </p>
       </div>
 
