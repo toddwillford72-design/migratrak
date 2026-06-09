@@ -1316,7 +1316,7 @@ export default function D5Destination() {
           setLinStep(qs.length - 1)
           setPhase(q1Answer?.startsWith('✅') ? 'linear-known' : q1Answer?.startsWith('🔍') ? 'linear-multi' : 'linear')
         }}
-        onContinue={() => navigate('/d7')}
+        onContinue={() => navigate('/d6')}
       />
     )
   }
