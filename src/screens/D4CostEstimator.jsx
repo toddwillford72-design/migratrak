@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
@@ -327,6 +327,10 @@ export default function D4CostEstimator() {
   const [activeVisa, setActiveVisa] = useState(
     TOGGLE_ORDER.includes(initialVisa) ? initialVisa : 'e2'
   )
+
+  useEffect(() => {
+    try { localStorage.setItem('migratrak_visa', initialVisa) } catch (_) {}
+  }, [initialVisa])
 
   const data = VISA_DATA[activeVisa]
 

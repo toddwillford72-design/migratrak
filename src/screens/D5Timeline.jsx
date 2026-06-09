@@ -269,7 +269,9 @@ function TimelineRow({ item, isLast }) {
 export default function D5Timeline() {
   const navigate = useNavigate()
   const { state } = useLocation()
-  const visa = state?.visa ?? ''
+  const visa = state?.visa ?? (() => {
+    try { return localStorage.getItem('migratrak_visa') ?? '' } catch (_) { return '' }
+  })()
   const showEb5Alert = visa === 'eb5' || visa === 'EB-5'
 
   const timeline = TIMELINE.filter(item =>
