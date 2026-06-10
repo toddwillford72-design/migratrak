@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -23,7 +23,8 @@ const PHASES = [
   'Residency',
 ]
 
-const MILESTONES = [
+// Demo milestones for Chen Family (logged-out)
+const DEMO_MILESTONES = [
   { id: 1,  label: 'Immigration attorney engaged',     status: 'done',     date: null },
   { id: 2,  label: 'I-526 petition filed',             status: 'done',     date: 'Oct 4, 2024' },
   { id: 3,  label: 'I-526 approved',                   status: 'done',     date: 'Aug 13, 2025' },
@@ -41,6 +42,103 @@ const CHECKLIST_PREVIEW = [
   { id: 'accountant',label: 'Cross-border accountant',  note: 'Not engaged yet',              urgency: 'amber' },
   { id: 'health',    label: 'US health insurance',      note: 'Not enrolled',                 urgency: 'amber' },
 ]
+
+// Seed milestone templates per visa type
+const SEED_MILESTONES = {
+  eb5: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'Investment funds transferred to escrow', phase: 'Preparation', status: 'upcoming' },
+    { title: 'I-526 petition filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'I-526 approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'DS-260 / NVC processing', phase: 'Documentation', status: 'upcoming' },
+    { title: 'I-485 or consular interview', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'I-765 / I-131 (EAD / AP) approved', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Conditional green card received', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+    { title: 'I-829 petition to remove conditions', phase: 'Residency', status: 'upcoming' },
+    { title: 'Permanent green card received', phase: 'Residency', status: 'upcoming' },
+  ],
+  e2: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'Business plan finalized', phase: 'Preparation', status: 'upcoming' },
+    { title: 'Investment funds documented', phase: 'Preparation', status: 'upcoming' },
+    { title: 'E-2 visa application filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'Consular interview scheduled', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'E-2 visa approved', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+    { title: 'E-2 renewal preparation', phase: 'Residency', status: 'upcoming' },
+  ],
+  tn: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'Job offer letter obtained', phase: 'Preparation', status: 'upcoming' },
+    { title: 'TN application prepared', phase: 'Filing', status: 'upcoming' },
+    { title: 'TN approved at port of entry', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+    { title: 'TN renewal preparation', phase: 'Residency', status: 'upcoming' },
+  ],
+  l1: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'L-1 petition filed by employer', phase: 'Filing', status: 'upcoming' },
+    { title: 'L-1 petition approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+    { title: 'L-1 extension or green card process started', phase: 'Residency', status: 'upcoming' },
+  ],
+  h1b: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'H-1B lottery registration submitted', phase: 'Filing', status: 'upcoming' },
+    { title: 'H-1B lottery selected', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'H-1B petition filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'H-1B petition approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+  ],
+  o1: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'Extraordinary ability evidence compiled', phase: 'Preparation', status: 'upcoming' },
+    { title: 'O-1 petition filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'O-1 petition approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+  ],
+  k1: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'I-129F petition filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'I-129F approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'K-1 visa interview', phase: 'Documentation', status: 'upcoming' },
+    { title: 'K-1 visa approved', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Marriage within 90 days', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'I-485 adjustment of status filed', phase: 'Residency', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+    { title: 'Green card received', phase: 'Residency', status: 'upcoming' },
+  ],
+  eb2niw: [
+    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
+    { title: 'National interest waiver evidence compiled', phase: 'Preparation', status: 'upcoming' },
+    { title: 'I-140 petition filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'I-140 approved', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'Priority date current', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'I-485 adjustment of status filed', phase: 'Filing', status: 'upcoming' },
+    { title: 'I-765 / I-131 (EAD / AP) approved', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'Green card interview', phase: 'USCIS Processing', status: 'upcoming' },
+    { title: 'Green card received', phase: 'Approval & Entry', status: 'upcoming' },
+    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
+    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
+  ],
+}
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
 function TabBar({ active }) {
@@ -107,12 +205,16 @@ function AlertCard({ alert, onDismiss }) {
 }
 
 // ── Milestone row ─────────────────────────────────────────────────────────────
-function MilestoneRow({ milestone, isLast }) {
+function MilestoneRow({ milestone, isLast, onClick }) {
   const isDone   = milestone.status === 'done'
   const isActive = milestone.status === 'active'
 
   return (
-    <div className="flex gap-3">
+    <div
+      className="flex gap-3"
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <div className="flex flex-col items-center flex-shrink-0" style={{ width: 20 }}>
         <div
           className="rounded-full flex items-center justify-center flex-shrink-0"
@@ -224,6 +326,9 @@ export default function J1Dashboard() {
 
   const [profile, setProfile] = useState(null)       // null = loading, false = no session (demo)
   const [milestones, setMilestones] = useState(null) // null = loading
+  const [confirmModal, setConfirmModal] = useState(null) // { id, title }
+  const [saving, setSaving] = useState(false)
+  const [dismissedAlertIds, setDismissedAlertIds] = useState([])
 
   async function handleLogout() {
     try {
@@ -236,21 +341,45 @@ export default function J1Dashboard() {
     navigate('/')
   }
 
+  async function seedMilestones(userId, visaType) {
+    const templates = SEED_MILESTONES[visaType] || SEED_MILESTONES['eb5']
+    const rows = templates.map((t) => ({ ...t, user_id: userId }))
+    const { data } = await supabase.from('milestones').insert(rows).select()
+    return data || []
+  }
+
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const user = session?.user ?? null
       if (!user) { setProfile(false); setMilestones([]); return }
       const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
         supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
       ])
-      const displayName = userRow?.name
-        || user.user_metadata?.name
-        || user.email
+      const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
-      setMilestones(mRows || [])
+
+      if ((mRows || []).length === 0 && userRow?.visa_type) {
+        const seeded = await seedMilestones(userId, userRow.visa_type)
+        setMilestones(seeded)
+      } else {
+        setMilestones(mRows || [])
+      }
     })
   }, [])
+
+  async function handleMarkComplete(milestone) {
+    setSaving(true)
+    const today = new Date().toISOString().split('T')[0]
+    const updated = milestones.map((m) =>
+      m.id === milestone.id ? { ...m, status: 'complete', completed_date: today } : m
+    )
+    setMilestones(updated)
+    setConfirmModal(null)
+    await supabase.from('milestones').update({ status: 'complete', completed_date: today }).eq('id', milestone.id)
+    setSaving(false)
+  }
 
   const isDemo = profile === false
 
@@ -264,96 +393,100 @@ export default function J1Dashboard() {
 
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const [alerts, setAlerts] = useState(() => {
-    const list = [
-      isCanada
-        ? {
-            id: 'auto-insurance',
-            title: 'Auto Insurance — Act Now',
-            body: 'You have been in Florida for 5 months. Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles. Arrange US coverage this week.',
-            urgent: true,
-            dismissed: false,
-            actions: [
-              { label: 'Find insurance →', onPress: () => navigate('/j6') },
-              { label: 'Dismiss' },
-            ],
-          }
-        : {
-            id: 'auto-insurance',
-            title: 'Auto Insurance — Confirm Your Coverage',
-            body: 'Confirm whether your home country auto insurance policy remains valid in the US and for how long. Coverage often voids sooner than expected. Arrange US coverage before any gap occurs.',
-            urgent: true,
-            dismissed: false,
-            actions: [
-              { label: 'Find insurance →', onPress: () => navigate('/j6') },
-              { label: 'Dismiss' },
-            ],
-          },
-      ...(isCanada ? [{
-        id: 'plates',
-        title: 'Canadian Plate Registration',
-        body: 'Most provinces void vehicle registration after 6 months abroad. Driving on expired Canadian plates in Florida is a legal exposure. Check your province\'s rules now.',
-        urgent: true,
-        dismissed: false,
-        actions: [
-          { label: 'Learn more →' },
-          { label: 'Dismiss' },
-        ],
-      }] : []),
-      {
+  // Compute progress from real data
+  const { progressPct, completedPhases } = useMemo(() => {
+    if (isDemo || !milestones || milestones.length === 0) {
+      return { progressPct: 62, completedPhases: 4 }
+    }
+    const total = milestones.length
+    const complete = milestones.filter((m) => m.status === 'complete').length
+    const pct = total > 0 ? Math.round((complete / total) * 100) : 0
+    const filled = Math.round((complete / total) * PHASES.length)
+    return { progressPct: pct, completedPhases: filled }
+  }, [milestones, isDemo])
+
+  // Compute data-driven alerts
+  const computedAlerts = useMemo(() => {
+    if (isDemo || !milestones || !profile) return []
+    const today = new Date()
+    const caseStart = profile.case_start_date ? new Date(profile.case_start_date) : null
+    const daysSinceStart = caseStart ? Math.floor((today - caseStart) / (1000 * 60 * 60 * 24)) : null
+    const monthsSinceStart = daysSinceStart !== null ? daysSinceStart / 30 : null
+
+    const alerts = []
+
+    // SSN alert
+    const ssnMilestone = milestones.find((m) => m.title?.toLowerCase().includes('ssn'))
+    if (ssnMilestone && ssnMilestone.status !== 'complete' && daysSinceStart !== null && daysSinceStart > 30) {
+      alerts.push({
         id: 'ssn',
         title: 'SSN Follow-Up Needed',
-        body: 'You applied 3 weeks ago. Call to confirm no documentation issues — errors can go undetected for months and affect healthcare and employment eligibility.',
+        body: 'Your SSN milestone is not yet complete. Call the Social Security Administration to confirm no documentation issues — errors can go undetected for months and affect healthcare and employment eligibility.',
         urgent: false,
-        dismissed: false,
         actions: [
-          { label: 'Mark as done' },
-          { label: 'Call now' },
-        ],
-      },
-      isCanada
-        ? {
-            id: 'rrsp',
-            title: 'RRSP / TFSA Decision Window',
-            body: 'Key decisions about your Canadian registered accounts must be made around your departure date — not after. If you haven\'t engaged a cross-border accountant yet, do this now.',
-            urgent: false,
-            dismissed: false,
-            actions: [
-              { label: 'Find a cross-border accountant →', onPress: () => navigate('/j5', { state: { filter: 'cpas' } }) },
-              { label: 'Dismiss' },
-            ],
-          }
-        : {
-            id: 'home-accounts',
-            title: 'Home Country Financial Accounts',
-            body: 'Review all tax-advantaged accounts in your home country with a cross-border financial advisor before establishing US residency. Treatment under US tax law varies significantly by account type and country.',
-            urgent: false,
-            dismissed: false,
-            actions: [
-              { label: 'Find a financial advisor →', onPress: () => navigate('/j5') },
-              { label: 'Dismiss' },
-            ],
-          },
-      {
-        id: 'credit',
-        title: 'US Credit History — Start the Clock',
-        body: 'You have no US credit history yet. Every month you delay costs you later. Open a secured credit card or use Nova Credit to transfer your home country credit score.',
-        urgent: false,
-        dismissed: false,
-        actions: [
-          { label: 'Learn how →' },
+          { label: 'Mark done', onPress: () => setConfirmModal(ssnMilestone) },
           { label: 'Dismiss' },
         ],
-      },
-    ]
-    return list
-  })
+      })
+    }
+
+    // Auto insurance alert
+    const insuranceMilestone = milestones.find((m) => m.title?.toLowerCase().includes('auto insurance') || m.title?.toLowerCase().includes('us auto'))
+    const insuranceDone = insuranceMilestone?.status === 'complete'
+    if (!insuranceDone && monthsSinceStart !== null && monthsSinceStart > 5) {
+      alerts.push({
+        id: 'auto-insurance',
+        title: isCanada ? 'Auto Insurance — Act Now' : 'Auto Insurance — Confirm Your Coverage',
+        body: isCanada
+          ? 'You have been in the US for over 5 months. Canadian auto insurance typically voids at 6 months on Canadian-registered vehicles. Arrange US coverage this week.'
+          : 'Confirm whether your home country auto insurance policy remains valid in the US and for how long. Coverage often voids sooner than expected. Arrange US coverage before any gap occurs.',
+        urgent: true,
+        actions: [
+          { label: 'Find insurance →', onPress: () => navigate('/j6') },
+          { label: 'Dismiss' },
+        ],
+      })
+    }
+
+    // Overdue alerts
+    milestones.forEach((m) => {
+      if (m.status !== 'complete' && m.due_date) {
+        const due = new Date(m.due_date)
+        if (due < today) {
+          alerts.push({
+            id: `overdue-${m.id}`,
+            title: `Overdue: ${m.title}`,
+            body: `This milestone was due ${due.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} and is not yet complete.`,
+            urgent: true,
+            actions: [
+              { label: 'Mark done', onPress: () => setConfirmModal(m) },
+              { label: 'Dismiss' },
+            ],
+          })
+        }
+      }
+    })
+
+    return alerts
+  }, [milestones, profile, isDemo, isCanada])
+
+  const activeAlerts = computedAlerts.filter((a) => !dismissedAlertIds.includes(a.id))
 
   function dismissAlert(id) {
-    setAlerts((prev) => prev.map((a) => a.id === id ? { ...a, dismissed: true } : a))
+    setDismissedAlertIds((prev) => [...prev, id])
   }
 
-  const activeAlerts = alerts.filter((a) => !a.dismissed)
+  // Map DB row to display shape for MilestoneRow
+  function rowToDisplay(m) {
+    const statusMap = { complete: 'done', in_progress: 'active', upcoming: 'upcoming' }
+    return {
+      id: m.id,
+      label: m.title,
+      status: statusMap[m.status] ?? 'upcoming',
+      date: m.completed_date || m.due_date || null,
+      raw: m,
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
@@ -499,15 +632,15 @@ export default function J1Dashboard() {
             <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>
               Overall Progress
             </span>
-            <span className="text-sm font-extrabold" style={{ color: '#F0A500' }}>62%</span>
+            <span className="text-sm font-extrabold" style={{ color: '#F0A500' }}>{progressPct}%</span>
           </div>
           <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-            <div className="h-2 rounded-full" style={{ width: '62%', backgroundColor: '#F0A500' }} />
+            <div className="h-2 rounded-full" style={{ width: `${progressPct}%`, backgroundColor: '#F0A500' }} />
           </div>
           <div className="flex justify-between mt-2">
             {PHASES.map((_, i) => (
               <div key={i} className="h-1 rounded-full flex-1 mx-0.5"
-                style={{ backgroundColor: i < 4 ? '#4A9FD4' : 'rgba(255,255,255,0.15)' }} />
+                style={{ backgroundColor: i < completedPhases ? '#4A9FD4' : 'rgba(255,255,255,0.15)' }} />
             ))}
           </div>
         </div>
@@ -549,7 +682,7 @@ export default function J1Dashboard() {
             <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#DC2626' }}>
               🚨 Action Required
             </p>
-            {alerts.map((alert) => (
+            {activeAlerts.map((alert) => (
               <AlertCard key={alert.id} alert={alert} onDismiss={dismissAlert} />
             ))}
           </div>
@@ -573,8 +706,8 @@ export default function J1Dashboard() {
             <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
               Case Milestones
             </p>
-            {MILESTONES.map((m, i) => (
-              <MilestoneRow key={m.id} milestone={m} isLast={i === MILESTONES.length - 1} />
+            {DEMO_MILESTONES.map((m, i) => (
+              <MilestoneRow key={m.id} milestone={m} isLast={i === DEMO_MILESTONES.length - 1} />
             ))}
           </div>
         ) : milestones === null ? (
@@ -588,13 +721,17 @@ export default function J1Dashboard() {
             <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
               Case Milestones
             </p>
-            {milestones.map((m, i) => (
-              <MilestoneRow
-                key={m.id}
-                milestone={{ id: m.id, label: m.title, status: m.status === 'complete' ? 'done' : m.status === 'in_progress' ? 'active' : 'upcoming', date: m.completed_date || m.due_date || null }}
-                isLast={i === milestones.length - 1}
-              />
-            ))}
+            {milestones.map((m, i) => {
+              const display = rowToDisplay(m)
+              return (
+                <MilestoneRow
+                  key={m.id}
+                  milestone={display}
+                  isLast={i === milestones.length - 1}
+                  onClick={display.status !== 'done' ? () => setConfirmModal(m) : undefined}
+                />
+              )
+            })}
           </div>
         )}
 
@@ -638,6 +775,48 @@ export default function J1Dashboard() {
           className="fixed inset-0 z-40"
           onClick={() => setMenuOpen(false)}
         />
+      )}
+
+      {/* Mark complete modal */}
+      {confirmModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setConfirmModal(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl px-6 py-6 flex flex-col gap-4"
+            style={{ backgroundColor: '#FFFFFF' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>Mark Complete</p>
+              <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>
+                Mark "{confirmModal.title}" as complete with today's date?
+              </p>
+            </div>
+            <p className="text-sm font-semibold" style={{ color: '#4A9FD4' }}>
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold transition-all active:scale-95"
+                style={{ backgroundColor: '#F1F5F9', color: '#475569' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleMarkComplete(confirmModal)}
+                disabled={saving}
+                className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+                style={{ backgroundColor: '#1A7A4A', color: '#FFFFFF', opacity: saving ? 0.6 : 1 }}
+              >
+                {saving ? 'Saving…' : 'Mark Complete ✓'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
