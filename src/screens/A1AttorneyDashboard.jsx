@@ -271,66 +271,178 @@ function AddClientModal({ onClose }) {
   )
 }
 
-// ─── Urgent client card ───────────────────────────────────────────────────────
+// ─── Morning Briefing ────────────────────────────────────────────────────────
 
-function UrgentCard({ client }) {
-  const isRed = client.level === 'red'
-  const bg     = isRed ? '#FEF2F2' : '#FFFBEB'
-  const border = isRed ? '#DC2626' : '#F0A500'
-  const nameColor  = isRed ? '#991B1B' : '#92400E'
-  const alertColor = isRed ? '#DC2626' : '#92400E'
-  const bodyColor  = isRed ? '#7F1D1D' : '#78350F'
-  const btnBg      = isRed ? '#DC2626' : '#F0A500'
-  const btnColor   = isRed ? '#FFFFFF' : '#0D2B4E'
+const BRIEFING_DATE = 'June 10, 2026'
 
+function ActionButton({ label, primary }) {
   return (
-    <div className="rounded-2xl px-4 py-4 flex flex-col gap-3"
-      style={{ backgroundColor: bg, border: `2px solid ${border}` }}>
+    <button
+      className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+      style={{
+        backgroundColor: primary ? '#0D2B4E' : 'rgba(0,0,0,0.06)',
+        color: primary ? '#FFFFFF' : '#0D2B4E',
+      }}
+    >
+      {label}
+    </button>
+  )
+}
 
-      {/* Identity row */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {isRed && (
-              <span className="text-xs font-extrabold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}>
-                🚨 URGENT
-              </span>
-            )}
-            <p className="text-base font-extrabold" style={{ color: nameColor }}>{client.name}</p>
-          </div>
-          <p className="text-xs mt-0.5 font-semibold" style={{ color: alertColor }}>
-            {client.visa} · {client.filed}
+function MorningBriefing() {
+  return (
+    <div className="flex flex-col gap-4">
+
+      {/* Briefing header */}
+      <div>
+        <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: '#0D2B4E' }}>
+          MORNING BRIEFING — {BRIEFING_DATE}
+        </p>
+        <p className="text-xs mt-0.5 font-medium" style={{ color: '#64748B' }}>
+          Across your 23 active clients
+        </p>
+      </div>
+
+      {/* ── SECTION 1: Critical ───────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #DC2626' }}>
+        {/* Section label */}
+        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#DC2626' }}>
+          <span className="text-sm">🚨</span>
+          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
+            Critical — Act this week
           </p>
+        </div>
+
+        {/* Patel card */}
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FEF2F2' }}>
+          {/* Name + badge */}
+          <div className="flex items-start gap-2 flex-wrap">
+            <span className="text-xs font-extrabold px-2 py-0.5 rounded-full flex-shrink-0"
+              style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}>
+              AGE-OUT IMMINENT
+            </span>
+            <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#7F1D1D' }}>
+              PATEL FAMILY
+            </p>
+          </div>
+
+          {/* Countdown — most prominent element */}
+          <div className="rounded-xl px-4 py-3" style={{ backgroundColor: '#FFFFFF', border: '2px solid #DC2626' }}>
+            <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#DC2626' }}>
+              ⏱ Maya Patel turns 21 in
+            </p>
+            <p className="font-extrabold leading-none" style={{ fontSize: 42, color: '#7F1D1D' }}>
+              47 <span style={{ fontSize: 20 }}>days</span>
+            </p>
+            <p className="text-xs mt-1 font-semibold" style={{ color: '#991B1B' }}>
+              CSPA age calculation: 20 years, 318 days
+            </p>
+          </div>
+
+          {/* Details */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#7F1D1D' }}>
+              I-526 still pending at Vermont Service Center.
+            </p>
+            <div className="flex items-start gap-2 rounded-xl px-3 py-2.5"
+              style={{ backgroundColor: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)' }}>
+              <span className="text-sm flex-shrink-0">⚡</span>
+              <p className="text-xs font-extrabold leading-snug" style={{ color: '#7F1D1D' }}>
+                Recommended action: File separate I-539 for Maya immediately to preserve status.
+              </p>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2">
+            <ActionButton label="Draft Action Plan" primary={true} />
+            <ActionButton label="View Case" primary={false} />
+          </div>
         </div>
       </div>
 
-      {/* Alert(s) */}
-      {isRed && client.alert && (
-        <div className="rounded-xl px-3 py-3"
-          style={{ backgroundColor: '#FFFFFF', border: '2px solid #DC2626' }}>
-          <p className="text-sm font-extrabold leading-snug" style={{ color: '#7F1D1D' }}>
-            {client.alert}
+      {/* ── SECTION 2: Important ─────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #D97706' }}>
+        {/* Section label */}
+        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#D97706' }}>
+          <span className="text-sm">⚠️</span>
+          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
+            Important — Act this month
           </p>
         </div>
-      )}
-      {!isRed && client.alerts && (
-        <div className="flex flex-col gap-1.5">
-          {client.alerts.map((a, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="text-xs">⚠️</span>
-              <p className="text-sm font-semibold" style={{ color: bodyColor }}>{a}</p>
-            </div>
-          ))}
-        </div>
-      )}
 
-      {/* Action button */}
-      <button
-        className="w-full py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-        style={{ backgroundColor: btnBg, color: btnColor }}>
-        {client.primaryAction} →
-      </button>
+        {/* Chen Family */}
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FFFBEB', borderBottom: '1px solid rgba(217,119,6,0.2)' }}>
+          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#92400E' }}>
+            CHEN FAMILY — MEDICAL EXAM EXPIRING
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
+              Sarah Chen medical exam expires Aug 12.
+            </p>
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
+              I-485 interview not yet scheduled.
+            </p>
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
+              Exam renewal required before interview.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <ActionButton label="Send Client Reminder" primary={true} />
+            <ActionButton label="View Case" primary={false} />
+          </div>
+        </div>
+
+        {/* Morrison James */}
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FFFBEB' }}>
+          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#92400E' }}>
+            MORRISON JAMES — CLIENT INACTIVE
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
+              Has not logged in 14 days.
+            </p>
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
+              Last activity: Document upload June 1.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <ActionButton label="Send Nudge Email" primary={true} />
+            <ActionButton label="View Case" primary={false} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── SECTION 3: Monitor ───────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #1B5FA8' }}>
+        {/* Section label */}
+        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#1B5FA8' }}>
+          <span className="text-sm">👁</span>
+          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
+            Monitor — Watch
+          </p>
+        </div>
+
+        {/* Singh Family */}
+        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#EBF4FB' }}>
+          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#1E3A5F' }}>
+            SINGH FAMILY — PRIORITY DATE MOVEMENT
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#1E3A5F' }}>
+              Latest visa bulletin moved EB-5 priority date forward 3 months.
+            </p>
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#1E3A5F' }}>
+              May be eligible to file I-485 earlier than projected.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <ActionButton label="View Analysis" primary={true} />
+            <ActionButton label="View Case" primary={false} />
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }
@@ -397,19 +509,8 @@ export default function A1AttorneyDashboard() {
 
         <div className="flex flex-col gap-4 px-4 pt-4 pb-16">
 
-          {/* Needs Attention */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#DC2626' }}>
-                Needs Attention
-              </p>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: '#FEE2E2', color: '#DC2626' }}>
-                3 clients
-              </span>
-            </div>
-            {URGENT_CLIENTS.map(c => <UrgentCard key={c.id} client={c} />)}
-          </div>
+          {/* Morning Briefing */}
+          <MorningBriefing />
 
           {/* On Track */}
           <div className="flex flex-col gap-3">
@@ -449,14 +550,18 @@ export default function A1AttorneyDashboard() {
           </div>
 
           {/* Monthly metrics */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#4A5568' }}>
+          <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <p className="text-xs font-extrabold uppercase tracking-widest px-4 pt-4 pb-3" style={{ color: '#4A5568' }}>
               This Month
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              {METRICS.map((m) => (
-                <div key={m.label} className="rounded-2xl px-4 py-4"
-                  style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+            <div className="grid grid-cols-2 divide-x divide-y" style={{ borderColor: '#F1F5F9' }}>
+              {[
+                { label: 'New clients',          value: '4'   },
+                { label: 'Milestones completed', value: '12'  },
+                { label: 'Avg progress',         value: '58%' },
+                { label: 'Docs flagged',         value: '5'   },
+              ].map((m) => (
+                <div key={m.label} className="px-4 py-4">
                   <p className="text-2xl font-extrabold" style={{ color: '#0D2B4E' }}>{m.value}</p>
                   <p className="text-xs mt-0.5 leading-tight" style={{ color: '#4A5568' }}>{m.label}</p>
                 </div>
