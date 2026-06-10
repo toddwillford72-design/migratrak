@@ -67,55 +67,13 @@ function TabBar({ active }) {
 }
 
 export default function JResourcesScreen() {
-  return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
-
-      <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          CLIENT PORTAL
-        </p>
-        <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Resources</h1>
-        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          Official links and reference material
-        </p>
+  try {
+    return (
+      <div style={{ padding: 20 }}>
+        <p>Resources screen loading test</p>
       </div>
-
-      <div className="flex flex-col gap-5 px-4 pt-5 pb-40">
-        {LINKS.map(group => (
-          <div key={group.section}>
-            <p className="text-xs font-extrabold uppercase tracking-widest mb-2" style={{ color: '#4A5568' }}>
-              {group.section}
-            </p>
-            <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-              {group.items.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start justify-between gap-3 px-4 py-3 transition-opacity active:opacity-60"
-                  style={{ borderBottom: i < group.items.length - 1 ? '1px solid #F1F5F9' : 'none', textDecoration: 'none' }}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold" style={{ color: '#1B5FA8' }}>{item.label}</p>
-                    {item.note && <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>{item.note}</p>}
-                  </div>
-                  <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A9FD4" strokeWidth="2.5">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" />
-                    <path d="M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))}
-
-        <p className="text-xs text-center" style={{ color: '#A0AEC0' }}>
-          All links open official government or industry sites.{'\n'}MigraTrak is not affiliated with any of these organizations.
-        </p>
-      </div>
-
-      <TabBar active="resources" />
-    </div>
-  )
+    )
+  } catch (e) {
+    return <div>Error: {e.message}</div>
+  }
 }
