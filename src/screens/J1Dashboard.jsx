@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { MILESTONE_TEMPLATES } from '../data/config'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 
@@ -42,103 +43,6 @@ const CHECKLIST_PREVIEW = [
   { id: 'accountant',label: 'Cross-border accountant',  note: 'Not engaged yet',              urgency: 'amber' },
   { id: 'health',    label: 'US health insurance',      note: 'Not enrolled',                 urgency: 'amber' },
 ]
-
-// Seed milestone templates per visa type
-const SEED_MILESTONES = {
-  eb5: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'Investment funds transferred to escrow', phase: 'Preparation', status: 'upcoming' },
-    { title: 'I-526 petition filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'I-526 approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'DS-260 / NVC processing', phase: 'Documentation', status: 'upcoming' },
-    { title: 'I-485 or consular interview', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'I-765 / I-131 (EAD / AP) approved', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Conditional green card received', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-    { title: 'I-829 petition to remove conditions', phase: 'Residency', status: 'upcoming' },
-    { title: 'Permanent green card received', phase: 'Residency', status: 'upcoming' },
-  ],
-  e2: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'Business plan finalized', phase: 'Preparation', status: 'upcoming' },
-    { title: 'Investment funds documented', phase: 'Preparation', status: 'upcoming' },
-    { title: 'E-2 visa application filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'Consular interview scheduled', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'E-2 visa approved', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-    { title: 'E-2 renewal preparation', phase: 'Residency', status: 'upcoming' },
-  ],
-  tn: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'Job offer letter obtained', phase: 'Preparation', status: 'upcoming' },
-    { title: 'TN application prepared', phase: 'Filing', status: 'upcoming' },
-    { title: 'TN approved at port of entry', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-    { title: 'TN renewal preparation', phase: 'Residency', status: 'upcoming' },
-  ],
-  l1: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'L-1 petition filed by employer', phase: 'Filing', status: 'upcoming' },
-    { title: 'L-1 petition approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-    { title: 'L-1 extension or green card process started', phase: 'Residency', status: 'upcoming' },
-  ],
-  h1b: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'H-1B lottery registration submitted', phase: 'Filing', status: 'upcoming' },
-    { title: 'H-1B lottery selected', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'H-1B petition filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'H-1B petition approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-  ],
-  o1: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'Extraordinary ability evidence compiled', phase: 'Preparation', status: 'upcoming' },
-    { title: 'O-1 petition filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'O-1 petition approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'Visa stamp obtained', phase: 'Documentation', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-  ],
-  k1: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'I-129F petition filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'I-129F approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'K-1 visa interview', phase: 'Documentation', status: 'upcoming' },
-    { title: 'K-1 visa approved', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Entry to US', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Marriage within 90 days', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'I-485 adjustment of status filed', phase: 'Residency', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-    { title: 'Green card received', phase: 'Residency', status: 'upcoming' },
-  ],
-  eb2niw: [
-    { title: 'Immigration attorney engaged', phase: 'Preparation', status: 'upcoming' },
-    { title: 'National interest waiver evidence compiled', phase: 'Preparation', status: 'upcoming' },
-    { title: 'I-140 petition filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'I-140 approved', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'Priority date current', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'I-485 adjustment of status filed', phase: 'Filing', status: 'upcoming' },
-    { title: 'I-765 / I-131 (EAD / AP) approved', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'Green card interview', phase: 'USCIS Processing', status: 'upcoming' },
-    { title: 'Green card received', phase: 'Approval & Entry', status: 'upcoming' },
-    { title: 'SSN application submitted', phase: 'Residency', status: 'upcoming' },
-    { title: 'US auto insurance arranged', phase: 'Residency', status: 'upcoming' },
-  ],
-}
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
 function TabBar({ active }) {
@@ -342,8 +246,10 @@ export default function J1Dashboard() {
   }
 
   async function seedMilestones(userId, visaType) {
-    const templates = SEED_MILESTONES[visaType] || SEED_MILESTONES['eb5']
-    const rows = templates.map((t) => ({ ...t, user_id: userId }))
+    const key = (visaType || '').toLowerCase().replace(/[-\s]/g, '')
+    const templates = MILESTONE_TEMPLATES[key]
+    if (!templates || templates.length === 0) return []
+    const rows = templates.map((t) => ({ user_id: userId, title: t.title, phase: t.phase, status: 'upcoming' }))
     const { data } = await supabase.from('milestones').insert(rows).select()
     return data || []
   }
