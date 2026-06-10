@@ -485,8 +485,14 @@ export default function A1AttorneyDashboard() {
               </button>
               <button
                 onClick={async () => { await supabase.auth.signOut(); navigate('/') }}
-                className="text-xs font-semibold transition-opacity active:opacity-60"
-                style={{ color: 'rgba(255,255,255,0.55)' }}
+                className="text-xs font-semibold transition-all active:scale-95"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.12)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: '#FFFFFF',
+                  borderRadius: 8,
+                  padding: '5px 12px',
+                }}
               >
                 Sign out
               </button>
