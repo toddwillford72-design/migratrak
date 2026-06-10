@@ -84,7 +84,7 @@ function Layout({ authReady, authedPath }) {
         <Route path="/j4" element={<ProtectedRoute allowedRole="client"><J4Coach /></ProtectedRoute>} />
         <Route path="/j5" element={<ProtectedRoute allowedRole="client"><J5Directory /></ProtectedRoute>} />
         <Route path="/j6" element={<ProtectedRoute allowedRole="client"><J6Essentials /></ProtectedRoute>} />
-        <Route path="/resources" element={<ProtectedRoute allowedRole="client"><JResourcesScreen /></ProtectedRoute>} />
+        <Route path="/resources" element={<JResourcesScreen />} />
         <Route path="/a1" element={<ProtectedRoute allowedRole="attorney"><A1AttorneyDashboard /></ProtectedRoute>} />
         <Route path="/a2" element={<ProtectedRoute allowedRole="attorney"><A2Coming /></ProtectedRoute>} />
         <Route path="/a3" element={<ProtectedRoute allowedRole="attorney"><A3Invite /></ProtectedRoute>} />
