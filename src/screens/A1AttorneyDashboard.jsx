@@ -276,28 +276,36 @@ function AddClientModal({ onClose }) {
 
 const BRIEFING_DATE = 'June 10, 2026'
 
-function AlertCard({ borderColor, name, summary, children, buttons }) {
+function AlertCard({ borderColor, tintColor, name, summary, children, buttons }) {
   const [open, setOpen] = useState(false)
   return (
     <div
-      className="rounded-2xl overflow-hidden transition-shadow"
+      className="rounded-2xl overflow-hidden"
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: tintColor,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        borderLeft: `3px solid ${borderColor}`,
         border: '1px solid #E2E8F0',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-        borderLeft: `4px solid ${borderColor}`,
+        borderLeft: `3px solid ${borderColor}`,
       }}
       onClick={() => setOpen(o => !o)}
     >
       {/* Collapsed row — always visible */}
-      <div className="flex items-center gap-3 px-4 py-3.5" style={{ cursor: 'pointer' }}>
+      <div className="flex items-center gap-3 px-4" style={{ paddingTop: 14, paddingBottom: 14, cursor: 'pointer' }}>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold leading-snug" style={{ color: '#0D2B4E' }}>{name}</p>
-          <p className="text-xs mt-0.5 leading-snug" style={{ color: '#64748B' }}>{summary}</p>
+          <p className="font-bold leading-snug" style={{ fontSize: 15, color: '#0D2B4E' }}>{name}</p>
+          <p className="mt-0.5 leading-snug" style={{ fontSize: 13, color: '#64748B' }}>{summary}</p>
         </div>
         <span
-          className="flex-shrink-0 text-lg font-bold transition-transform duration-200"
-          style={{ color: '#94A3B8', transform: open ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}
+          className="flex-shrink-0 font-bold"
+          style={{
+            color: borderColor,
+            fontSize: 20,
+            lineHeight: 1,
+            display: 'inline-block',
+            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease',
+          }}
         >
           ›
         </span>
@@ -305,7 +313,11 @@ function AlertCard({ borderColor, name, summary, children, buttons }) {
 
       {/* Expanded content */}
       {open && (
-        <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid #F1F5F9' }} onClick={e => e.stopPropagation()}>
+        <div
+          className="flex flex-col gap-3 px-4 pb-4"
+          style={{ borderTop: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}
+          onClick={e => e.stopPropagation()}
+        >
           <div className="flex flex-col gap-1.5 pt-3">
             {children}
           </div>
@@ -313,8 +325,10 @@ function AlertCard({ borderColor, name, summary, children, buttons }) {
             {buttons.map((btn, i) => (
               <button
                 key={i}
-                className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+                className="flex-1 py-2 rounded-xl text-center transition-all active:scale-95"
                 style={{
+                  fontSize: 12,
+                  fontWeight: 700,
                   backgroundColor: '#FFFFFF',
                   color: '#0D2B4E',
                   border: '1.5px solid #CBD5E0',
@@ -330,14 +344,16 @@ function AlertCard({ borderColor, name, summary, children, buttons }) {
   )
 }
 
-function SectionHeader({ color, label }) {
+function SectionHeader({ bgColor, label }) {
   return (
-    <p
-      className="text-xs font-extrabold uppercase tracking-widest px-1"
-      style={{ color }}
+    <div
+      className="px-4 py-2 rounded-xl"
+      style={{ backgroundColor: bgColor }}
     >
-      {label}
-    </p>
+      <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
+        {label}
+      </p>
+    </div>
   )
 }
 
@@ -347,62 +363,66 @@ function MorningBriefing() {
 
       {/* Briefing header */}
       <div>
-        <p className="text-xs font-extrabold uppercase tracking-[0.16em]" style={{ color: '#0D2B4E' }}>
+        <p className="font-extrabold uppercase tracking-[0.16em]" style={{ fontSize: 13, color: '#0D2B4E' }}>
           MORNING BRIEFING — {BRIEFING_DATE}
         </p>
-        <p className="text-xs mt-0.5 font-medium" style={{ color: '#64748B' }}>
+        <p className="mt-0.5 font-medium" style={{ fontSize: 12, color: '#64748B' }}>
           Across your 23 active clients
         </p>
       </div>
 
       {/* ── SECTION 1: Critical ───────────────────────────────────── */}
       <div className="flex flex-col gap-2">
-        <SectionHeader color="#DC2626" label="🚨 Critical — Act this week" />
+        <SectionHeader bgColor="#DC2626" label="🚨 Critical — Act this week" />
         <AlertCard
           borderColor="#DC2626"
+          tintColor="#FFF5F5"
           name="PATEL FAMILY"
           summary={<>Maya turns 21 in <span style={{ color: '#DC2626', fontWeight: 700 }}>47 days</span></>}
           buttons={['Draft Action Plan', 'View Case']}
         >
-          <p className="text-xs font-semibold" style={{ color: '#64748B' }}>CSPA age calculation: 20 years, 318 days</p>
-          <p className="text-xs" style={{ color: '#64748B' }}>I-526 pending at Vermont Service Center.</p>
-          <p className="text-xs" style={{ color: '#64748B' }}>⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.</p>
+          <p style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>CSPA age calculation: 20 years, 318 days</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>I-526 pending at Vermont Service Center.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.</p>
         </AlertCard>
       </div>
 
       {/* ── SECTION 2: Important ─────────────────────────────────── */}
       <div className="flex flex-col gap-2">
-        <SectionHeader color="#D97706" label="⚠️ Important — Act this month" />
+        <SectionHeader bgColor="#D97706" label="⚠️ Important — Act this month" />
         <AlertCard
           borderColor="#D97706"
+          tintColor="#FFFBEB"
           name="CHEN FAMILY"
           summary="Medical exam expires Aug 12"
           buttons={['Send Client Reminder', 'View Case']}
         >
-          <p className="text-xs" style={{ color: '#64748B' }}>I-485 interview not yet scheduled.</p>
-          <p className="text-xs" style={{ color: '#64748B' }}>Exam renewal required before interview.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>I-485 interview not yet scheduled.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>Exam renewal required before interview.</p>
         </AlertCard>
         <AlertCard
           borderColor="#D97706"
+          tintColor="#FFFBEB"
           name="MORRISON JAMES"
           summary="Inactive 14 days"
           buttons={['Send Nudge Email', 'View Case']}
         >
-          <p className="text-xs" style={{ color: '#64748B' }}>Last activity: Document upload June 1.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>Last activity: Document upload June 1.</p>
         </AlertCard>
       </div>
 
       {/* ── SECTION 3: Monitor ───────────────────────────────────── */}
       <div className="flex flex-col gap-2">
-        <SectionHeader color="#1B5FA8" label="👁 Monitor — Watch" />
+        <SectionHeader bgColor="#1B5FA8" label="👁 Monitor — Watch" />
         <AlertCard
           borderColor="#1B5FA8"
+          tintColor="#EBF4FB"
           name="SINGH FAMILY"
           summary="Priority date moved forward"
           buttons={['View Analysis', 'View Case']}
         >
-          <p className="text-xs" style={{ color: '#64748B' }}>Latest visa bulletin moved EB-5 priority date forward 3 months.</p>
-          <p className="text-xs" style={{ color: '#64748B' }}>May be eligible to file I-485 earlier than projected.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>Latest visa bulletin moved EB-5 priority date forward 3 months.</p>
+          <p style={{ fontSize: 13, color: '#374151' }}>May be eligible to file I-485 earlier than projected.</p>
         </AlertCard>
       </div>
 
@@ -423,19 +443,15 @@ export default function A1AttorneyDashboard() {
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
 
         {/* Header */}
-        <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#1A4A2E' }}>
+        <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-widest mb-0.5" style={{ color: '#FFFFFF', letterSpacing: '0.14em' }}>
+              <p className="font-extrabold uppercase mb-1" style={{ fontSize: 11, color: '#4A9FD4', letterSpacing: '0.14em' }}>
                 ATTORNEY PORTAL
               </p>
-              <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Maimone Legal</h1>
-              <p className="text-xs mt-0.5 font-medium" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Maimone Law — Powered by MigraTrak
-              </p>
-              <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)' }}>
+              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }}>Maimone Legal</h1>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className="font-bold px-2.5 py-0.5 rounded-full" style={{ fontSize: 12, backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
                   Active clients: 23
                 </span>
               </div>
@@ -443,22 +459,16 @@ export default function A1AttorneyDashboard() {
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
               <button
                 onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95"
-                style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-extrabold transition-all active:scale-95"
+                style={{ fontSize: 14, backgroundColor: '#F0A500', color: '#0D2B4E' }}
               >
-                <span className="text-base leading-none font-bold">+</span>
+                <span style={{ fontSize: 16, fontWeight: 700, lineHeight: 1 }}>+</span>
                 Add Client
               </button>
               <button
                 onClick={async () => { await supabase.auth.signOut(); navigate('/') }}
-                className="text-xs font-semibold transition-all active:scale-95"
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.12)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: '#FFFFFF',
-                  borderRadius: 8,
-                  padding: '5px 12px',
-                }}
+                className="transition-opacity active:opacity-60"
+                style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Sign out
               </button>
@@ -487,7 +497,7 @@ export default function A1AttorneyDashboard() {
               style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
               {ON_TRACK_CLIENTS.map((c, i) => (
                 <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3"
-                  style={{ borderBottom: i < ON_TRACK_CLIENTS.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                  style={{ borderBottom: i < ON_TRACK_CLIENTS.length - 1 ? '1px solid #F1F5F9' : 'none', borderLeft: '3px solid #1A7A4A' }}>
                   <div>
                     <p className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{c.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: '#4A9FD4' }}>{c.detail}</p>
