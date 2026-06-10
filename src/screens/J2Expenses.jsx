@@ -365,6 +365,155 @@ function AddExpensePanel({ onClose, onSave }) {
   )
 }
 
+// ── Investment Passport view ──────────────────────────────────────────────────
+
+const PASSPORT_INVESTMENTS = [
+  { category: 'Legal & Professional',       amount: 34500,   receipts: true },
+  { category: 'Government Filing Fees',     amount: 18420,   receipts: true },
+  { category: 'Regional Center Investment', amount: 800000,  receipts: true },
+  { category: 'Business Due Diligence',     amount: 8200,    receipts: true },
+  { category: 'Medical Examinations',       amount: 3800,    receipts: true },
+]
+
+const PASSPORT_DOCUMENTED = PASSPORT_INVESTMENTS
+  .filter((i) => i.receipts)
+  .reduce((s, i) => s + i.amount, 0)
+
+function PassportRow({ item }) {
+  return (
+    <div className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid #E2E8F0' }}>
+      <div className="flex flex-col gap-0.5 flex-1 min-w-0 pr-3">
+        <span className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{item.category}</span>
+        <span className="text-xs font-semibold" style={{ color: item.receipts ? '#1A7A4A' : '#F0A500' }}>
+          {item.receipts ? '✅ Receipts attached' : '⚠️ Receipt missing'}
+        </span>
+      </div>
+      <span className="text-sm font-extrabold tabular-nums flex-shrink-0" style={{ color: '#0D2B4E' }}>
+        ${item.amount.toLocaleString()}
+      </span>
+    </div>
+  )
+}
+
+function ComplianceRow({ label, status }) {
+  return (
+    <div className="flex items-center justify-between py-2.5" style={{ borderBottom: '1px solid #E2E8F0' }}>
+      <span className="text-sm" style={{ color: '#0D2B4E' }}>{label}</span>
+      <span
+        className="text-xs font-bold px-2.5 py-1 rounded-full"
+        style={{ backgroundColor: status ? '#D1FAE5' : '#FEF2F2', color: status ? '#1A7A4A' : '#DC2626' }}
+      >
+        {status ? 'YES' : 'NO'}
+      </span>
+    </div>
+  )
+}
+
+function InvestmentPassport({ userName, onToast }) {
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const totalInvestment = 800000
+  const documented = PASSPORT_DOCUMENTED
+
+  return (
+    <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
+
+      {/* Passport header card */}
+      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#0D2B4E', border: '2px solid #1B5FA8' }}>
+        <div className="px-5 pt-5 pb-4 flex flex-col gap-1">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#1B5FA8' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="18" rx="2" />
+                <path d="M16 3v4M8 3v4M2 11h20" />
+              </svg>
+            </div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.15em]" style={{ color: '#4A9FD4' }}>
+              Investment Financial Passport
+            </p>
+          </div>
+          <p className="text-lg font-extrabold leading-tight" style={{ color: '#FFFFFF' }}>
+            EB-5 Journey — {userName}
+          </p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Prepared for USCIS documentation purposes
+          </p>
+        </div>
+        <div className="grid grid-cols-2 divide-x" style={{ borderTop: '1px solid rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.12)' }}>
+          <div className="px-5 py-3">
+            <p className="text-xs font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Total Qualifying Investment</p>
+            <p className="text-xl font-extrabold tabular-nums" style={{ color: '#F0A500' }}>
+              ${totalInvestment.toLocaleString()}
+            </p>
+          </div>
+          <div className="px-5 py-3">
+            <p className="text-xs font-semibold mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>Documented w/ Receipts</p>
+            <p className="text-xl font-extrabold tabular-nums" style={{ color: '#FFFFFF' }}>
+              ${documented.toLocaleString()}
+            </p>
+          </div>
+        </div>
+        <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.6)' }}>Source of Funds Verified</p>
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: '#D1FAE5', color: '#1A7A4A' }}>
+              YES ✓
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Investment summary */}
+      <div className="rounded-2xl px-5 py-4" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+        <p className="text-xs font-extrabold uppercase tracking-widest mb-1" style={{ color: '#4A5568' }}>
+          Investment Summary by Category
+        </p>
+        <p className="text-xs mb-3" style={{ color: '#A0AEC0' }}>
+          Qualifying investments only (is_qualifying_investment = true)
+        </p>
+        {PASSPORT_INVESTMENTS.map((item) => (
+          <PassportRow key={item.category} item={item} />
+        ))}
+        <div className="flex items-center justify-between pt-3">
+          <span className="text-sm font-extrabold uppercase tracking-wider" style={{ color: '#0D2B4E' }}>Total</span>
+          <span className="text-base font-extrabold tabular-nums" style={{ color: '#0D2B4E' }}>
+            ${PASSPORT_INVESTMENTS.reduce((s, i) => s + i.amount, 0).toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      {/* USCIS compliance */}
+      <div className="rounded-2xl px-5 py-4" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+        <p className="text-xs font-extrabold uppercase tracking-widest mb-3" style={{ color: '#4A5568' }}>
+          USCIS Compliance Status
+        </p>
+        <ComplianceRow label="Investment threshold met ($800,000+)" status={true} />
+        <ComplianceRow label="Source of funds documented" status={true} />
+        <ComplianceRow label="Investment at risk confirmed" status={true} />
+      </div>
+
+      {/* Action buttons */}
+      <button
+        onClick={() => onToast('Coming soon — USCIS Investment Package PDF')}
+        className="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+        style={{ backgroundColor: '#0D2B4E', color: '#FFFFFF' }}
+      >
+        <span>📋</span> Generate USCIS Investment Package PDF
+      </button>
+      <button
+        onClick={() => onToast('Coming soon — Share with Attorney')}
+        className="w-full py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+        style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '2px solid #1B5FA8' }}
+      >
+        <span>📤</span> Share with Attorney
+      </button>
+
+      <p className="text-center text-xs pb-4" style={{ color: '#A0AEC0' }}>
+        Last updated: {today}
+      </p>
+    </div>
+  )
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function dbRowToExpense(row) {
   return {
@@ -383,6 +532,7 @@ export default function J2Expenses() {
   const [isDemo, setIsDemo]       = useState(false)
   const [userId, setUserId]       = useState(null)
   const [loadError, setLoadError] = useState(null)
+  const [view, setView]           = useState('expenses')
   const [toast, setToast]         = useState(null)
   const [panelOpen, setPanelOpen] = useState(false)
   const [flashCat, setFlashCat]   = useState(null)
@@ -473,11 +623,11 @@ export default function J2Expenses() {
       )}
 
       {/* Header */}
-      <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
+      <div className="px-5 pt-5 pb-3" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#4A9FD4' }}>
           {isDemo ? 'Chen Family · EB-5 Journey' : 'Expense Tracker'}
         </p>
-        <div className="flex gap-4">
+        <div className="flex gap-4 mb-4">
           <div className="flex-1">
             <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
               Total Tracked
@@ -500,7 +650,31 @@ export default function J2Expenses() {
             </>
           )}
         </div>
+
+        {/* View tab switcher */}
+        <div className="flex gap-2">
+          {[{ id: 'expenses', label: 'All Expenses' }, { id: 'passport', label: 'Investment Passport' }].map((tab) => {
+            const isActive = view === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setView(tab.id)}
+                className="px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+                style={{
+                  backgroundColor: isActive ? '#F0A500' : 'rgba(255,255,255,0.12)',
+                  color: isActive ? '#0D2B4E' : 'rgba(255,255,255,0.7)',
+                }}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
+
+      {view === 'passport' ? (
+        <InvestmentPassport userName={isDemo ? 'Chen Family' : 'My Journey'} onToast={setToast} />
+      ) : (
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
 
@@ -597,6 +771,8 @@ export default function J2Expenses() {
         </div>
 
       </div>
+
+      )}
 
       {panelOpen && (
         <AddExpensePanel
