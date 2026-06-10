@@ -261,14 +261,15 @@ export default function J1Dashboard() {
       const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
-        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
+        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('id'),
       ])
       const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
         const seeded = await seedMilestones(userId, userRow.visa_type)
-        setMilestones(seeded)
+        const sorted = [...seeded].sort((a, b) => a.phase - b.phase || a.id - b.id)
+        setMilestones(sorted)
       } else {
         setMilestones(mRows || [])
       }
