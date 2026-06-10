@@ -38,6 +38,13 @@ const QUESTIONS = [
       'Yes — over 21',
     ],
     alertOption: 'Yes — aged 18, 19, or 20',
+    showIf: (answers) => answers.household === 'Me, spouse, and children',
+  },
+  {
+    id: 'num_children',
+    text: 'How many children are coming with you?',
+    options: ['1', '2', '3', '4', '5 or more'],
+    showIf: (answers) => answers.children?.startsWith('Yes'),
   },
   {
     id: 'budget',
@@ -81,9 +88,29 @@ export default function D2Assessment() {
   const [selected, setSelected] = useState(null)
 
   const q = QUESTIONS[step]
-  const total = QUESTIONS.length
-  const displayStep = step + 1
-  const isLast = step === total - 1
+
+  // Visible questions are those whose showIf passes (or have no showIf)
+  const visibleQuestions = QUESTIONS.filter((q) => !q.showIf || q.showIf(answers))
+  const visibleIndex = visibleQuestions.findIndex((vq) => vq.id === q.id)
+  const total = visibleQuestions.length
+  const displayStep = visibleIndex + 1
+  const isLast = visibleIndex === total - 1
+
+  function nextStep(fromStep, newAnswers) {
+    let next = fromStep + 1
+    while (next < QUESTIONS.length && QUESTIONS[next].showIf && !QUESTIONS[next].showIf(newAnswers)) {
+      next++
+    }
+    return next
+  }
+
+  function prevStep(fromStep) {
+    let prev = fromStep - 1
+    while (prev > 0 && QUESTIONS[prev].showIf && !QUESTIONS[prev].showIf(answers)) {
+      prev--
+    }
+    return prev
+  }
 
   function handleSelect(option) {
     setSelected(option)
@@ -98,8 +125,14 @@ export default function D2Assessment() {
       try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch (_) {}
       navigate('/d3', { state: { answers: newAnswers } })
     } else {
-      setStep(step + 1)
-      setSelected(null)
+      const next = nextStep(step, newAnswers)
+      if (next >= QUESTIONS.length) {
+        try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch (_) {}
+        navigate('/d3', { state: { answers: newAnswers } })
+      } else {
+        setStep(next)
+        setSelected(newAnswers[QUESTIONS[next].id] ?? null)
+      }
     }
   }
 
@@ -107,8 +140,9 @@ export default function D2Assessment() {
     if (step === 0) {
       navigate('/')
     } else {
-      setStep(step - 1)
-      setSelected(answers[QUESTIONS[step - 1].id] ?? null)
+      const prev = prevStep(step)
+      setStep(prev)
+      setSelected(answers[QUESTIONS[prev].id] ?? null)
     }
   }
 
