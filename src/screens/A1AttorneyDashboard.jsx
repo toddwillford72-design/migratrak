@@ -276,17 +276,68 @@ function AddClientModal({ onClose }) {
 
 const BRIEFING_DATE = 'June 10, 2026'
 
-function ActionButton({ label, primary }) {
+function AlertCard({ borderColor, name, summary, children, buttons }) {
+  const [open, setOpen] = useState(false)
   return (
-    <button
-      className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+    <div
+      className="rounded-2xl overflow-hidden transition-shadow"
       style={{
-        backgroundColor: primary ? '#0D2B4E' : 'rgba(0,0,0,0.06)',
-        color: primary ? '#FFFFFF' : '#0D2B4E',
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+        borderLeft: `4px solid ${borderColor}`,
       }}
+      onClick={() => setOpen(o => !o)}
+    >
+      {/* Collapsed row — always visible */}
+      <div className="flex items-center gap-3 px-4 py-3.5" style={{ cursor: 'pointer' }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold leading-snug" style={{ color: '#0D2B4E' }}>{name}</p>
+          <p className="text-xs mt-0.5 leading-snug" style={{ color: '#64748B' }}>{summary}</p>
+        </div>
+        <span
+          className="flex-shrink-0 text-lg font-bold transition-transform duration-200"
+          style={{ color: '#94A3B8', transform: open ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}
+        >
+          ›
+        </span>
+      </div>
+
+      {/* Expanded content */}
+      {open && (
+        <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid #F1F5F9' }} onClick={e => e.stopPropagation()}>
+          <div className="flex flex-col gap-1.5 pt-3">
+            {children}
+          </div>
+          <div className="flex gap-2 pt-1">
+            {buttons.map((btn, i) => (
+              <button
+                key={i}
+                className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 text-center"
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#0D2B4E',
+                  border: '1.5px solid #CBD5E0',
+                }}
+              >
+                {btn}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SectionHeader({ color, label }) {
+  return (
+    <p
+      className="text-xs font-extrabold uppercase tracking-widest px-1"
+      style={{ color }}
     >
       {label}
-    </button>
+    </p>
   )
 }
 
@@ -305,139 +356,54 @@ function MorningBriefing() {
       </div>
 
       {/* ── SECTION 1: Critical ───────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #DC2626' }}>
-        {/* Section label */}
-        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#DC2626' }}>
-          <span className="text-sm">🚨</span>
-          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
-            Critical — Act this week
-          </p>
-        </div>
-
-        {/* Patel card */}
-        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FEF2F2' }}>
-          {/* Name + badge */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-extrabold px-2 py-0.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}>
-              AGE-OUT IMMINENT
-            </span>
-            <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#7F1D1D' }}>
-              PATEL FAMILY
-            </p>
-          </div>
-
-          {/* Countdown */}
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#DC2626' }}>
-              ⏱ Maya Patel turns 21 in
-            </p>
-            <p className="font-extrabold leading-none" style={{ fontSize: 42, color: '#7F1D1D' }}>
-              47 <span style={{ fontSize: 20 }}>days</span>
-            </p>
-            <p className="text-xs mt-1 font-semibold" style={{ color: '#991B1B' }}>
-              CSPA age calculation: 20 years, 318 days
-            </p>
-          </div>
-
-          {/* Details */}
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#7F1D1D' }}>
-              I-526 still pending at Vermont Service Center.
-            </p>
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#7F1D1D' }}>
-              ⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.
-            </p>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-2">
-            <ActionButton label="Draft Action Plan" primary={true} />
-            <ActionButton label="View Case" primary={false} />
-          </div>
-        </div>
+      <div className="flex flex-col gap-2">
+        <SectionHeader color="#DC2626" label="🚨 Critical — Act this week" />
+        <AlertCard
+          borderColor="#DC2626"
+          name="PATEL FAMILY"
+          summary={<>Maya turns 21 in <span style={{ color: '#DC2626', fontWeight: 700 }}>47 days</span></>}
+          buttons={['Draft Action Plan', 'View Case']}
+        >
+          <p className="text-xs font-semibold" style={{ color: '#64748B' }}>CSPA age calculation: 20 years, 318 days</p>
+          <p className="text-xs" style={{ color: '#64748B' }}>I-526 pending at Vermont Service Center.</p>
+          <p className="text-xs" style={{ color: '#64748B' }}>⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.</p>
+        </AlertCard>
       </div>
 
       {/* ── SECTION 2: Important ─────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #D97706' }}>
-        {/* Section label */}
-        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#D97706' }}>
-          <span className="text-sm">⚠️</span>
-          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
-            Important — Act this month
-          </p>
-        </div>
-
-        {/* Chen Family */}
-        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FFFBEB', borderBottom: '1px solid rgba(217,119,6,0.2)' }}>
-          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#92400E' }}>
-            CHEN FAMILY — MEDICAL EXAM EXPIRING
-          </p>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
-              Sarah Chen medical exam expires Aug 12.
-            </p>
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
-              I-485 interview not yet scheduled.
-            </p>
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
-              Exam renewal required before interview.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <ActionButton label="Send Client Reminder" primary={true} />
-            <ActionButton label="View Case" primary={false} />
-          </div>
-        </div>
-
-        {/* Morrison James */}
-        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FFFBEB' }}>
-          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#92400E' }}>
-            MORRISON JAMES — CLIENT INACTIVE
-          </p>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
-              Has not logged in 14 days.
-            </p>
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#78350F' }}>
-              Last activity: Document upload June 1.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <ActionButton label="Send Nudge Email" primary={true} />
-            <ActionButton label="View Case" primary={false} />
-          </div>
-        </div>
+      <div className="flex flex-col gap-2">
+        <SectionHeader color="#D97706" label="⚠️ Important — Act this month" />
+        <AlertCard
+          borderColor="#D97706"
+          name="CHEN FAMILY"
+          summary="Medical exam expires Aug 12"
+          buttons={['Send Client Reminder', 'View Case']}
+        >
+          <p className="text-xs" style={{ color: '#64748B' }}>I-485 interview not yet scheduled.</p>
+          <p className="text-xs" style={{ color: '#64748B' }}>Exam renewal required before interview.</p>
+        </AlertCard>
+        <AlertCard
+          borderColor="#D97706"
+          name="MORRISON JAMES"
+          summary="Inactive 14 days"
+          buttons={['Send Nudge Email', 'View Case']}
+        >
+          <p className="text-xs" style={{ color: '#64748B' }}>Last activity: Document upload June 1.</p>
+        </AlertCard>
       </div>
 
       {/* ── SECTION 3: Monitor ───────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #1B5FA8' }}>
-        {/* Section label */}
-        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#1B5FA8' }}>
-          <span className="text-sm">👁</span>
-          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#FFFFFF' }}>
-            Monitor — Watch
-          </p>
-        </div>
-
-        {/* Singh Family */}
-        <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#EBF4FB' }}>
-          <p className="text-sm font-extrabold uppercase tracking-wide" style={{ color: '#1E3A5F' }}>
-            SINGH FAMILY — PRIORITY DATE MOVEMENT
-          </p>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#1E3A5F' }}>
-              Latest visa bulletin moved EB-5 priority date forward 3 months.
-            </p>
-            <p className="text-sm font-semibold leading-snug" style={{ color: '#1E3A5F' }}>
-              May be eligible to file I-485 earlier than projected.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <ActionButton label="View Analysis" primary={true} />
-            <ActionButton label="View Case" primary={false} />
-          </div>
-        </div>
+      <div className="flex flex-col gap-2">
+        <SectionHeader color="#1B5FA8" label="👁 Monitor — Watch" />
+        <AlertCard
+          borderColor="#1B5FA8"
+          name="SINGH FAMILY"
+          summary="Priority date moved forward"
+          buttons={['View Analysis', 'View Case']}
+        >
+          <p className="text-xs" style={{ color: '#64748B' }}>Latest visa bulletin moved EB-5 priority date forward 3 months.</p>
+          <p className="text-xs" style={{ color: '#64748B' }}>May be eligible to file I-485 earlier than projected.</p>
+        </AlertCard>
       </div>
 
     </div>
