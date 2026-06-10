@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 
@@ -107,9 +108,11 @@ function CategoryBar({ category, amount, max, flash }) {
 
 // ── Add expense panel ─────────────────────────────────────────────────────────
 function AddExpensePanel({ onClose, onSave }) {
-  const [stage, setStage] = useState('pick')   // pick | loading | form | done
-  const [form, setForm]   = useState({ ...NEW_EXPENSE })
-  const timerRef          = useRef(null)
+  const [stage, setStage]       = useState('pick')   // pick | loading | form | done
+  const [form, setForm]         = useState({ ...NEW_EXPENSE })
+  const [saving, setSaving]     = useState(false)
+  const [saveError, setSaveError] = useState(null)
+  const timerRef                = useRef(null)
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
@@ -118,9 +121,18 @@ function AddExpensePanel({ onClose, onSave }) {
     timerRef.current = setTimeout(() => setStage('form'), 2000)
   }
 
-  function handleSave() {
-    setStage('done')
-    setTimeout(() => { onSave(form); onClose() }, 800)
+  async function handleSave() {
+    setSaveError(null)
+    setSaving(true)
+    try {
+      await onSave(form)
+      setStage('done')
+      setTimeout(onClose, 800)
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save expense. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -244,14 +256,22 @@ function AddExpensePanel({ onClose, onSave }) {
               </select>
             </div>
 
+            {/* Save error */}
+            {saveError && (
+              <p className="text-sm font-semibold px-1" style={{ color: '#DC2626' }}>
+                {saveError}
+              </p>
+            )}
+
             {/* Buttons */}
             <div className="flex gap-3 pt-1">
               <button
                 onClick={handleSave}
+                disabled={saving}
                 className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-                style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+                style={{ backgroundColor: '#F0A500', color: '#0D2B4E', opacity: saving ? 0.6 : 1 }}
               >
-                Confirm and Save
+                {saving ? 'Saving…' : 'Confirm and Save'}
               </button>
               <button
                 onClick={() => setStage('pick')}
@@ -280,49 +300,126 @@ function AddExpensePanel({ onClose, onSave }) {
   )
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function dbRowToExpense(row) {
+  return {
+    id:       row.id,
+    category: row.category ?? 'Professional Services',
+    amount:   parseFloat(row.amount) || 0,
+    label:    row.description || row.vendor || 'Expense',
+    date:     row.expense_date ?? row.created_at?.slice(0, 10) ?? '—',
+    isNew:    false,
+  }
+}
+
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J2Expenses() {
-  const [expenses, setExpenses]   = useState(INITIAL_EXPENSES)
+  const [expenses, setExpenses]   = useState(null) // null = loading
+  const [isDemo, setIsDemo]       = useState(false)
+  const [userId, setUserId]       = useState(null)
+  const [loadError, setLoadError] = useState(null)
+  const [toast, setToast]         = useState(null)
   const [panelOpen, setPanelOpen] = useState(false)
   const [flashCat, setFlashCat]   = useState(null)
 
-  const totals = expenses.reduce((acc, e) => {
-    acc[e.category] = (acc[e.category] ?? 0) + e.amount
-    return acc
-  }, {})
-
-  const grandTotal = expenses.reduce((s, e) => s + e.amount, 0)
-  const maxCat     = Math.max(...Object.values(totals))
-
-  function handleSave(form) {
-    const amount = parseFloat(form.amount.replace(/,/g, '')) || 0
-    const next = {
-      id: Date.now(),
-      category: form.category,
-      amount,
-      label: form.description || form.vendor,
-      date: form.date,
-      isNew: true,
+  async function fetchExpenses(uid) {
+    try {
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', uid)
+        .order('expense_date', { ascending: false })
+      if (error) throw error
+      return (data || []).map(dbRowToExpense)
+    } catch (err) {
+      throw new Error(err.message || 'Failed to load expenses')
     }
-    setExpenses((prev) => [...prev, next])
+  }
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) {
+        setIsDemo(true)
+        setExpenses(INITIAL_EXPENSES)
+        return
+      }
+      setUserId(user.id)
+      try {
+        const rows = await fetchExpenses(user.id)
+        setExpenses(rows)
+      } catch (err) {
+        setLoadError(err.message)
+        setExpenses([])
+      }
+    })
+  }, [])
+
+  async function handleSave(form) {
+    const amount = parseFloat(form.amount.replace(/,/g, '')) || 0
+    // Parse date — accept "June 3, 2026" or ISO
+    let expense_date = null
+    if (form.date) {
+      const parsed = new Date(form.date)
+      if (!isNaN(parsed)) expense_date = parsed.toISOString().slice(0, 10)
+    }
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert({
+        user_id:      userId,
+        amount,
+        currency:     'USD',
+        category:     form.category,
+        vendor:       form.vendor,
+        description:  form.description,
+        expense_date,
+        is_qualifying_investment: false,
+      })
+      .select()
+      .single()
+    if (error) throw new Error(error.message || 'Insert failed')
+    // Refetch full list so totals are accurate
+    const rows = await fetchExpenses(userId)
+    setExpenses(rows)
+    // Flash the newly inserted category
     setFlashCat(form.category)
     setTimeout(() => setFlashCat(null), 2000)
   }
 
-  // Rebuild totals after potential new expense
-  const updatedTotals = expenses.reduce((acc, e) => {
+  function handleExportPDF() {
+    setToast('PDF export coming soon')
+    setTimeout(() => setToast(null), 2500)
+  }
+
+  const displayExpenses = expenses ?? []
+
+  // Rebuild totals
+  const updatedTotals = displayExpenses.reduce((acc, e) => {
     acc[e.category] = (acc[e.category] ?? 0) + e.amount
     return acc
   }, {})
-  const updatedMax = Math.max(...Object.values(updatedTotals))
+  const updatedMax = Object.values(updatedTotals).length
+    ? Math.max(...Object.values(updatedTotals))
+    : 1
+
+  const grandTotal = displayExpenses.reduce((s, e) => s + e.amount, 0)
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
 
+      {/* Toast */}
+      {toast && (
+        <div
+          className="fixed top-4 left-1/2 z-50 px-5 py-3 rounded-xl text-sm font-semibold shadow-lg"
+          style={{ transform: 'translateX(-50%)', backgroundColor: '#0D2B4E', color: '#FFFFFF', whiteSpace: 'nowrap' }}
+        >
+          {toast}
+        </div>
+      )}
+
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#4A9FD4' }}>
-          Chen Family · EB-5 Journey
+          {isDemo ? 'Chen Family · EB-5 Journey' : 'Expense Tracker'}
         </p>
         <div className="flex gap-4">
           <div className="flex-1">
@@ -330,18 +427,22 @@ export default function J2Expenses() {
               Total Tracked
             </p>
             <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#FFFFFF' }}>
-              ${grandTotal.toLocaleString()}
+              {expenses === null ? '—' : `$${grandTotal.toLocaleString()}`}
             </p>
           </div>
-          <div className="w-px" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
-          <div className="flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              EB-5 Investment
-            </p>
-            <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#F0A500' }}>
-              $800,000
-            </p>
-          </div>
+          {isDemo && (
+            <>
+              <div className="w-px" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  EB-5 Investment
+                </p>
+                <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#F0A500' }}>
+                  $800,000
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -374,45 +475,64 @@ export default function J2Expenses() {
           </div>
         </div>
 
-        {/* Recent entries */}
+        {/* Load error */}
+        {loadError && (
+          <div className="rounded-2xl px-4 py-4" style={{ backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5' }}>
+            <p className="text-sm font-semibold" style={{ color: '#DC2626' }}>
+              Could not load expenses: {loadError}
+            </p>
+          </div>
+        )}
+
+        {/* Entries */}
         <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
           <p className="text-xs font-extrabold uppercase tracking-widest px-4 pt-4 pb-2" style={{ color: '#4A5568' }}>
             Entries
           </p>
-          <div className="divide-y" style={{ borderColor: '#F1F5F9' }}>
-            {[...expenses].reverse().map((e) => (
-              <div
-                key={e.id}
-                className="flex items-center justify-between px-4 py-3 transition-all duration-700"
-                style={{ backgroundColor: e.isNew ? '#D1FAE580' : 'transparent' }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: CAT_COLORS[e.category] ?? '#4A5568' }}
-                  />
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{e.label}</p>
-                    <p className="text-xs" style={{ color: '#A0AEC0' }}>{e.category} · {e.date}</p>
+          {expenses === null ? (
+            <p className="px-4 pb-4 text-sm" style={{ color: '#A0AEC0' }}>Loading…</p>
+          ) : displayExpenses.length === 0 && !isDemo ? (
+            <p className="px-4 pb-4 text-sm" style={{ color: '#A0AEC0' }}>
+              No expenses tracked yet. Tap + Add Expense to start.
+            </p>
+          ) : (
+            <div className="divide-y" style={{ borderColor: '#F1F5F9' }}>
+              {[...displayExpenses].map((e) => (
+                <div
+                  key={e.id}
+                  className="flex items-center justify-between px-4 py-3 transition-all duration-700"
+                  style={{ backgroundColor: e.isNew ? '#D1FAE580' : 'transparent' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: CAT_COLORS[e.category] ?? '#4A5568' }}
+                    />
+                    <div>
+                      <p className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{e.label}</p>
+                      <p className="text-xs" style={{ color: '#A0AEC0' }}>{e.category} · {e.date}</p>
+                    </div>
                   </div>
+                  <span className="text-sm font-extrabold tabular-nums flex-shrink-0" style={{ color: '#0D2B4E' }}>
+                    ${e.amount.toLocaleString()}
+                  </span>
                 </div>
-                <span className="text-sm font-extrabold tabular-nums flex-shrink-0" style={{ color: '#0D2B4E' }}>
-                  ${e.amount.toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Export buttons */}
         <div className="flex gap-3">
           <button
+            onClick={handleExportPDF}
             className="flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
             style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}
           >
             <span>📋</span> Export PDF for attorney
           </button>
           <button
+            onClick={handleExportPDF}
             className="flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
             style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}
           >
@@ -425,7 +545,16 @@ export default function J2Expenses() {
       {panelOpen && (
         <AddExpensePanel
           onClose={() => setPanelOpen(false)}
-          onSave={handleSave}
+          onSave={isDemo ? (form) => {
+            // Demo (logged-out) fallback — local only
+            const amount = parseFloat(form.amount.replace(/,/g, '')) || 0
+            setExpenses(prev => [...(prev || []), {
+              id: Date.now(), category: form.category, amount,
+              label: form.description || form.vendor, date: form.date, isNew: true,
+            }])
+            setFlashCat(form.category)
+            setTimeout(() => setFlashCat(null), 2000)
+          } : handleSave}
         />
       )}
 
