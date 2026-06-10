@@ -49,6 +49,23 @@ export default function JResourcesScreen() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F7F9FC', paddingBottom: 80 }}>
       <div style={{ backgroundColor: '#0D2B4E', padding: '20px 16px' }}>
+        <button
+          onClick={() => navigate('/j1')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer',
+            padding: '0 0 12px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          ← Back to Dashboard
+        </button>
         <p style={{ color: '#4A9FD4', fontSize: 11, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 4 }}>
           CLIENT PORTAL
         </p>
