@@ -381,17 +381,92 @@ export default function J1Dashboard() {
           <span className="text-sm font-bold tracking-widest uppercase" style={{ color: '#4A9FD4' }}>
             MigraTrak
           </span>
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-opacity active:opacity-60"
-            style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}
-            aria-label="Profile menu"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            </svg>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(v => !v)}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-opacity active:opacity-80 flex-shrink-0"
+              style={{ backgroundColor: '#0D2B4E', border: '2px solid rgba(255,255,255,0.25)' }}
+              aria-label="Profile menu"
+            >
+              <span className="text-xs font-extrabold" style={{ color: '#FFFFFF' }}>
+                {isDemo ? 'CF' : initials(profile?.name)}
+              </span>
+            </button>
+            {menuOpen && (
+              <div
+                className="absolute right-0 top-11 z-50 rounded-xl flex flex-col"
+                style={{ backgroundColor: '#FFFFFF', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid #E2E8F0', minWidth: 240 }}
+                onClick={e => e.stopPropagation()}
+              >
+                {/* User info */}
+                <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E8F0' }}>
+                  <p className="text-sm font-extrabold leading-tight" style={{ color: '#0D2B4E' }}>
+                    {isDemo ? 'Chen Family' : (profile?.name || '—')}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
+                    {isDemo ? 'demo@migratrak.app' : (profile?.email || '')}
+                  </p>
+                  {(isDemo || profile?.visa_type) && (
+                    <p className="text-xs mt-0.5 font-medium" style={{ color: '#4A9FD4' }}>
+                      {isDemo ? 'EB-5 Investor' : (VISA_LABELS[profile.visa_type] ?? profile.visa_type)}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1A7A4A' }} />
+                    <span className="text-xs font-semibold" style={{ color: '#1A7A4A' }}>Active</span>
+                  </div>
+                </div>
+                {/* Menu rows */}
+                <a
+                  href="https://egov.uscis.gov/casestatus/landing.do"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 transition-colors active:bg-gray-50"
+                  style={{ minHeight: 44, color: '#0D2B4E', textDecoration: 'none', borderBottom: '1px solid #F1F5F9' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" />
+                    <path d="M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span className="text-sm font-medium">USCIS Status</span>
+                </a>
+                <button
+                  onClick={() => { navigate('/j4'); setMenuOpen(false) }}
+                  className="flex items-center gap-3 px-4 text-left transition-colors active:bg-gray-50"
+                  style={{ minHeight: 44, color: '#0D2B4E', borderBottom: '1px solid #F1F5F9' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                  </svg>
+                  <span className="text-sm font-medium">Help</span>
+                </button>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 text-left transition-colors active:bg-gray-50"
+                  style={{ minHeight: 44, color: '#0D2B4E', borderBottom: '1px solid #E2E8F0' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M1 12h2m18 0h2M12 1v2m0 18v2" />
+                  </svg>
+                  <span className="text-sm font-medium">Settings</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 text-left transition-colors active:bg-gray-50 rounded-b-xl"
+                  style={{ minHeight: 44, color: '#DC2626' }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span className="text-sm font-semibold">Log out</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* User identity row */}
@@ -557,107 +632,12 @@ export default function J1Dashboard() {
 
       <TabBar active="dashboard" />
 
-      {/* Profile menu bottom-sheet */}
+      {/* Backdrop to close dropdown */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          className="fixed inset-0 z-40"
           onClick={() => setMenuOpen(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-t-2xl px-6 pt-6 pb-8 flex flex-col gap-0"
-            style={{ backgroundColor: '#FFFFFF' }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* User info */}
-            <div className="pb-4">
-              <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>
-                {isDemo ? 'Chen Family' : (profile?.name || '—')}
-              </p>
-              <p className="text-sm mt-0.5" style={{ color: '#64748B' }}>
-                {isDemo ? 'demo@migratrak.app' : (profile?.email || '')}
-              </p>
-            </div>
-
-            <div style={{ borderTop: '1px solid #E2E8F0' }} />
-
-            {/* Menu items */}
-            {[
-              {
-                label: 'My Profile',
-                icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                  </svg>
-                ),
-                action: () => setMenuOpen(false),
-              },
-              {
-                label: 'Check USCIS Status',
-                icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4" />
-                    <path d="M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                ),
-                action: () => { window.open('https://egov.uscis.gov/casestatus/landing.do', '_blank'); setMenuOpen(false) },
-              },
-              {
-                label: 'Ask AI Coach',
-                icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                  </svg>
-                ),
-                action: () => { navigate('/j4'); setMenuOpen(false) },
-              },
-              {
-                label: 'Email support',
-                icon: (
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                ),
-                action: () => { window.location.href = 'mailto:hello@migratrak.app'; setMenuOpen(false) },
-              },
-            ].map(item => (
-              <button
-                key={item.label}
-                onClick={item.action}
-                className="flex items-center gap-3 py-3.5 text-left transition-opacity active:opacity-60"
-                style={{ borderBottom: '1px solid #F1F5F9', color: '#0D2B4E' }}
-              >
-                <span style={{ color: '#64748B' }}>{item.icon}</span>
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            ))}
-
-            <div className="mt-1" style={{ borderTop: '1px solid #E2E8F0' }} />
-
-            {/* Log out */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 py-3.5 text-left transition-opacity active:opacity-60"
-              style={{ color: '#DC2626' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-              </svg>
-              <span className="text-sm font-semibold">Log out</span>
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="mt-3 w-full py-3 rounded-xl text-sm font-semibold"
-              style={{ backgroundColor: '#F1F5F9', color: '#475569' }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
+        />
       )}
     </div>
   )

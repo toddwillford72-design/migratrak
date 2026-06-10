@@ -316,15 +316,15 @@ function VisaCard({ card, onCta, onCostEstimate }) {
         )}
       </div>
 
-      {/* Tappable footer cue */}
-      <div
-        className="px-5 py-3 flex items-center justify-between"
-        style={{ backgroundColor: '#F7F9FC', borderTop: '1px solid #E2E8F0' }}
-      >
-        <span className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>See cost estimate</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B5FA8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
+      {/* CTA button */}
+      <div className="px-5 pb-5">
+        <button
+          onClick={(e) => { e.stopPropagation(); onCostEstimate(card.ctaVisa) }}
+          className="w-full py-3 rounded-lg text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+        >
+          See cost estimate →
+        </button>
       </div>
     </div>
   )

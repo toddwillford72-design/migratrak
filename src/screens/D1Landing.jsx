@@ -110,13 +110,15 @@ export default function D1Landing() {
           >
             Start — it's free →
           </button>
-          <div className="w-full h-px" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
+          <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            Already a member?
+          </p>
           <button
             onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
-            className="text-xs transition-opacity active:opacity-60"
-            style={{ color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            className="w-full py-3.5 rounded-lg text-sm font-semibold transition-all active:scale-95"
+            style={{ border: '2px solid rgba(255,255,255,0.9)', color: '#FFFFFF', background: 'none' }}
           >
-            Already using MigraTrak? Sign in →
+            Sign in to your account
           </button>
           <button
             onClick={() => navigate('/a1')}
