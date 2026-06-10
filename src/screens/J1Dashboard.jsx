@@ -638,7 +638,7 @@ export default function J1Dashboard() {
                   key={m.id}
                   milestone={display}
                   isLast={i === milestones.length - 1}
-                  onClick={display.status !== 'done' ? () => setConfirmModal(m) : undefined}
+                  onClick={() => setConfirmModal(m)}
                 />
               )
             })}
@@ -700,14 +700,18 @@ export default function J1Dashboard() {
             onClick={e => e.stopPropagation()}
           >
             <div className="flex flex-col gap-1">
-              <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>Mark Complete</p>
+              <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>
+                {confirmModal.status === 'complete' ? 'Mark as incomplete?' : 'Mark as complete?'}
+              </p>
               <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>
-                Mark "{confirmModal.title}" as complete with today's date?
+                "{confirmModal.title}"
               </p>
             </div>
-            <p className="text-sm font-semibold" style={{ color: '#4A9FD4' }}>
-              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </p>
+            {confirmModal.status !== 'complete' && (
+              <p className="text-sm font-semibold" style={{ color: '#4A9FD4' }}>
+                {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              </p>
+            )}
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmModal(null)}
@@ -720,9 +724,13 @@ export default function J1Dashboard() {
                 onClick={() => handleMarkComplete(confirmModal)}
                 disabled={saving}
                 className="flex-1 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-                style={{ backgroundColor: '#1A7A4A', color: '#FFFFFF', opacity: saving ? 0.6 : 1 }}
+                style={{
+                  backgroundColor: confirmModal.status === 'complete' ? '#64748B' : '#1A7A4A',
+                  color: '#FFFFFF',
+                  opacity: saving ? 0.6 : 1,
+                }}
               >
-                {saving ? 'Saving…' : 'Mark Complete ✓'}
+                {saving ? 'Saving…' : confirmModal.status === 'complete' ? 'Uncheck' : 'Confirm'}
               </button>
             </div>
           </div>
