@@ -63,7 +63,11 @@ function Layout({ authReady, authedPath }) {
   }, [authReady, authedPath, location.pathname])
 
   // Show blank while we figure out where the user should go from /
-  if (!authReady && (location.pathname === '/' || location.pathname === '/resources')) return null
+  if (!authReady) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F7F9FC' }}>
+      <div className="text-sm" style={{ color: '#4A5568' }}>Loading…</div>
+    </div>
+  )
 
   return (
     <>
