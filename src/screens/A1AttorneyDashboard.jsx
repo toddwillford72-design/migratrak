@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -316,7 +317,7 @@ function MorningBriefing() {
         {/* Patel card */}
         <div className="px-4 pt-4 pb-4 flex flex-col gap-3" style={{ backgroundColor: '#FEF2F2' }}>
           {/* Name + badge */}
-          <div className="flex items-start gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-extrabold px-2 py-0.5 rounded-full flex-shrink-0"
               style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}>
               AGE-OUT IMMINENT
@@ -326,8 +327,8 @@ function MorningBriefing() {
             </p>
           </div>
 
-          {/* Countdown — most prominent element */}
-          <div className="rounded-xl px-4 py-3" style={{ backgroundColor: '#FFFFFF', border: '2px solid #DC2626' }}>
+          {/* Countdown */}
+          <div>
             <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#DC2626' }}>
               ⏱ Maya Patel turns 21 in
             </p>
@@ -344,13 +345,9 @@ function MorningBriefing() {
             <p className="text-sm font-semibold leading-snug" style={{ color: '#7F1D1D' }}>
               I-526 still pending at Vermont Service Center.
             </p>
-            <div className="flex items-start gap-2 rounded-xl px-3 py-2.5"
-              style={{ backgroundColor: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)' }}>
-              <span className="text-sm flex-shrink-0">⚡</span>
-              <p className="text-xs font-extrabold leading-snug" style={{ color: '#7F1D1D' }}>
-                Recommended action: File separate I-539 for Maya immediately to preserve status.
-              </p>
-            </div>
+            <p className="text-sm font-semibold leading-snug" style={{ color: '#7F1D1D' }}>
+              ⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.
+            </p>
           </div>
 
           {/* Buttons */}
@@ -475,29 +472,26 @@ export default function A1AttorneyDashboard() {
                   style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)' }}>
                   Active clients: 23
                 </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
-                  Firm tier — up to 300
-                </span>
               </div>
             </div>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95"
-              style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
-            >
-              <span className="text-base leading-none font-bold">+</span>
-              Add Client
-            </button>
+            <div className="flex flex-col items-end gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-extrabold transition-all active:scale-95"
+                style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+              >
+                <span className="text-base leading-none font-bold">+</span>
+                Add Client
+              </button>
+              <button
+                onClick={async () => { await supabase.auth.signOut(); navigate('/') }}
+                className="text-xs font-semibold transition-opacity active:opacity-60"
+                style={{ color: 'rgba(255,255,255,0.55)' }}
+              >
+                Sign out
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Attorney portal banner */}
-        <div className="px-4 py-3 flex items-center gap-2" style={{ backgroundColor: '#1A7A4A' }}>
-          <span className="text-base">⚖️</span>
-          <p className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
-            You are viewing the Attorney Dashboard — this is not the client view
-          </p>
         </div>
 
         {/* Attorney legal disclaimer */}
