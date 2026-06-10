@@ -218,7 +218,6 @@ function EmptyMilestones() {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J1Dashboard() {
   const navigate = useNavigate()
-  const [view, setView] = useState('case')
   const [legalBannerDismissed, setLegalBannerDismissed] = useState(() => {
     try { return localStorage.getItem('migratrak_legal_banner_dismissed') === 'true' } catch (_) { return false }
   })
@@ -561,28 +560,20 @@ export default function J1Dashboard() {
         className="flex gap-2"
         style={{ backgroundColor: '#0D2B4E', paddingBottom: 12, paddingLeft: 16, paddingRight: 16, paddingTop: 8 }}
       >
-        {[{ id: 'case', label: 'My Case' }, { id: 'resources', label: 'Resources' }].map((tab) => {
-          const isActive = view === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setView(tab.id)}
-              className="px-5 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
-              style={
-                isActive
-                  ? { backgroundColor: '#F0A500', color: '#0D2B4E' }
-                  : { backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)' }
-              }
-            >
-              {tab.label}
-            </button>
-          )
-        })}
+        <button
+          className="px-5 py-2 rounded-full text-sm font-bold"
+          style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+        >
+          My Case
+        </button>
+        <button
+          onClick={() => navigate('/resources')}
+          className="px-5 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
+          style={{ backgroundColor: 'transparent', color: 'rgba(255,255,255,0.6)' }}
+        >
+          Resources
+        </button>
       </div>
-
-      {view === 'resources' ? (
-        <ResourcesView />
-      ) : (
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
 
@@ -675,7 +666,6 @@ export default function J1Dashboard() {
 
       </div>
 
-      )} {/* end view === 'case' */}
 
       <TabBar active="dashboard" />
 
