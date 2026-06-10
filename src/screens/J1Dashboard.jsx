@@ -249,7 +249,7 @@ export default function J1Dashboard() {
     const key = (visaType || '').toLowerCase().replace(/[-\s]/g, '')
     const templates = MILESTONE_TEMPLATES[key]
     if (!templates || templates.length === 0) return []
-    const rows = templates.map((t) => ({ user_id: userId, title: t.title, phase: t.phase, status: 'upcoming' }))
+    const rows = templates.map((t, i) => ({ user_id: userId, title: t.title, phase: t.phase, status: 'upcoming', sort_order: i + 1 }))
     const { data } = await supabase.from('milestones').insert(rows).select()
     return data || []
   }
@@ -261,7 +261,7 @@ export default function J1Dashboard() {
       const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
-        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
+        supabase.from('milestones').select('*').eq('user_id', userId).order('sort_order'),
       ])
       const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
