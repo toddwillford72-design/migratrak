@@ -6,10 +6,6 @@ const quotes = [
     text: 'My attorney said she\'d never had a client walk in so prepared. MigraTrak made the difference.',
     author: 'James R., London',
   },
-  {
-    text: 'I finally understood exactly what this move would cost and how long it would take. No more guessing.',
-    author: 'Sarah M., Toronto',
-  },
 ]
 
 // Derived from config — not hardcoded
@@ -27,15 +23,6 @@ export default function D1Landing() {
         paddingBottom: '5.5rem',
       }}
     >
-      {/* Sign in link — top right, always visible */}
-      <button
-        onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
-        className="absolute top-4 right-5 text-xs font-semibold transition-opacity active:opacity-60"
-        style={{ color: 'rgba(255,255,255,0.65)' }}
-      >
-        Sign in
-      </button>
-
       <div className="w-full max-w-sm flex flex-col items-center gap-5">
 
         {/* Logo / wordmark */}
@@ -115,15 +102,14 @@ export default function D1Landing() {
           </p>
           <button
             onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
-            className="w-full py-3.5 rounded-lg text-sm font-semibold transition-all active:scale-95"
-            style={{ border: '2px solid rgba(255,255,255,0.9)', color: '#FFFFFF', background: 'none' }}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: 14 }}
           >
             Sign in to your account
           </button>
           <button
             onClick={() => navigate('/a1')}
-            className="text-xs transition-opacity active:opacity-60"
-            style={{ color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+            className="transition-opacity active:opacity-60"
+            style={{ color: '#4A9FD4', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}
           >
             Immigration specialist? Access your portal →
           </button>
