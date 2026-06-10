@@ -402,7 +402,8 @@ export default function J2Expenses() {
   }
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const user = session?.user ?? null
       if (!user) {
         setIsDemo(true)
         setExpenses(INITIAL_EXPENSES)
