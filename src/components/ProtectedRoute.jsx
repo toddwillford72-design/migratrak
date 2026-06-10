@@ -14,17 +14,20 @@ export default function ProtectedRoute({ children, allowedRole }) {
       }
 
       if (allowedRole) {
-        const { data: userRow } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-
-        const role = userRow?.role || 'client'
-        if (role !== allowedRole) {
-          navigate(role === 'attorney' ? '/a1' : '/j1', { replace: true })
-          return
-        }
+        try {
+          const { data: userRow, error } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+          if (!error) {
+            const role = userRow?.role || 'client'
+            if (role !== allowedRole) {
+              navigate(role === 'attorney' ? '/a1' : '/j1', { replace: true })
+              return
+            }
+          }
+        } catch (_) {}
       }
 
       setChecking(false)
