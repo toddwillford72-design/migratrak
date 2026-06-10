@@ -261,14 +261,14 @@ export default function J1Dashboard() {
       const userId = user.id
       const [{ data: userRow }, { data: mRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
-        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('id'),
+        supabase.from('milestones').select('*').eq('user_id', userId).order('phase').order('created_at'),
       ])
       const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
         const seeded = await seedMilestones(userId, userRow.visa_type)
-        const sorted = [...seeded].sort((a, b) => a.phase - b.phase || a.id - b.id)
+        const sorted = [...seeded].sort((a, b) => a.phase - b.phase)
         setMilestones(sorted)
       } else {
         setMilestones(mRows || [])
@@ -279,12 +279,15 @@ export default function J1Dashboard() {
   async function handleMarkComplete(milestone) {
     setSaving(true)
     const today = new Date().toISOString().split('T')[0]
+    const isComplete = milestone.status === 'complete'
+    const newStatus = isComplete ? 'upcoming' : 'complete'
+    const newDate = isComplete ? null : today
     const updated = milestones.map((m) =>
-      m.id === milestone.id ? { ...m, status: 'complete', completed_date: today } : m
+      m.id === milestone.id ? { ...m, status: newStatus, completed_date: newDate } : m
     )
     setMilestones(updated)
     setConfirmModal(null)
-    await supabase.from('milestones').update({ status: 'complete', completed_date: today }).eq('id', milestone.id)
+    await supabase.from('milestones').update({ status: newStatus, completed_date: newDate }).eq('id', milestone.id)
     setSaving(false)
   }
 
