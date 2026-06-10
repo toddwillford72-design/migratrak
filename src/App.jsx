@@ -50,7 +50,6 @@ async function getDashboardPath(userId) {
 }
 
 function Layout({ authReady, authedPath }) {
-  console.log('Layout rendering', { authReady, authedPath, path: window.location.pathname })
   const location = useLocation()
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
@@ -58,14 +57,17 @@ function Layout({ authReady, authedPath }) {
 
   // Redirect / to dashboard when session exists
   useEffect(() => {
-    console.log('Layout effect:', { authReady, authedPath, pathname: location.pathname })
     if (authReady && authedPath && location.pathname === '/') {
       navigate(authedPath, { replace: true })
     }
   }, [authReady, authedPath, location.pathname])
 
   // Show blank while we figure out where the user should go from /
-  // authReady check temporarily removed for debugging
+  if (!authReady) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F7F9FC' }}>
+      <div className="text-sm" style={{ color: '#4A5568' }}>Loading…</div>
+    </div>
+  )
 
   return (
     <>
@@ -86,7 +88,7 @@ function Layout({ authReady, authedPath }) {
         <Route path="/j4" element={<ProtectedRoute allowedRole="client"><J4Coach /></ProtectedRoute>} />
         <Route path="/j5" element={<ProtectedRoute allowedRole="client"><J5Directory /></ProtectedRoute>} />
         <Route path="/j6" element={<ProtectedRoute allowedRole="client"><J6Essentials /></ProtectedRoute>} />
-        <Route path="/resources" element={<JResourcesScreen />} />
+        <Route path="/resources" element={<ProtectedRoute allowedRole="client"><JResourcesScreen /></ProtectedRoute>} />
         <Route path="/a1" element={<ProtectedRoute allowedRole="attorney"><A1AttorneyDashboard /></ProtectedRoute>} />
         <Route path="/a2" element={<ProtectedRoute allowedRole="attorney"><A2Coming /></ProtectedRoute>} />
         <Route path="/a3" element={<ProtectedRoute allowedRole="attorney"><A3Invite /></ProtectedRoute>} />
