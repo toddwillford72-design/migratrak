@@ -63,7 +63,7 @@ function Layout({ authReady, authedPath }) {
   }, [authReady, authedPath, location.pathname])
 
   // Show blank while we figure out where the user should go from /
-  if (!authReady && location.pathname === '/') return null
+  if (!authReady && (location.pathname === '/' || location.pathname === '/resources')) return null
 
   return (
     <>
