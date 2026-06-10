@@ -57,6 +57,7 @@ function Layout({ authReady, authedPath }) {
 
   // Redirect / to dashboard when session exists
   useEffect(() => {
+    console.log('Layout effect:', { authReady, authedPath, pathname: location.pathname })
     if (authReady && authedPath && location.pathname === '/') {
       navigate(authedPath, { replace: true })
     }
