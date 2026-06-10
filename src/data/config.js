@@ -146,8 +146,8 @@ export const MILESTONE_TEMPLATES = {
   ],
   eb5: [
     { title: 'Choose immigration attorney', phase: 1 },
-    { title: 'Select regional center or direct investment', phase: 1 },
     { title: 'Consider consulting a regional center investment specialist', phase: 1 },
+    { title: 'Select regional center or direct investment', phase: 1 },
     { title: 'Complete investment due diligence', phase: 1 },
     { title: 'Transfer investment funds', phase: 2 },
     { title: 'Document source of funds', phase: 2 },
