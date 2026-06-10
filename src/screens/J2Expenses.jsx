@@ -467,9 +467,6 @@ function InvestmentPassport({ userName, onToast }) {
         <p className="text-xs font-extrabold uppercase tracking-widest mb-1" style={{ color: '#4A5568' }}>
           Investment Summary by Category
         </p>
-        <p className="text-xs mb-3" style={{ color: '#A0AEC0' }}>
-          Qualifying investments only (is_qualifying_investment = true)
-        </p>
         {PASSPORT_INVESTMENTS.map((item) => (
           <PassportRow key={item.category} item={item} />
         ))}
@@ -531,6 +528,7 @@ export default function J2Expenses() {
   const [expenses, setExpenses]   = useState(null) // null = loading
   const [isDemo, setIsDemo]       = useState(false)
   const [userId, setUserId]       = useState(null)
+  const [userName, setUserName]   = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [view, setView]           = useState('expenses')
   const [toast, setToast]         = useState(null)
@@ -560,6 +558,9 @@ export default function J2Expenses() {
         return
       }
       setUserId(user.id)
+      supabase.from('users').select('name').eq('id', user.id).single().then(({ data }) => {
+        if (data?.name) setUserName(data.name)
+      })
       try {
         const rows = await fetchExpenses(user.id)
         setExpenses(rows)
@@ -673,7 +674,7 @@ export default function J2Expenses() {
       </div>
 
       {view === 'passport' ? (
-        <InvestmentPassport userName={isDemo ? 'Chen Family' : 'My Journey'} onToast={setToast} />
+        <InvestmentPassport userName={isDemo ? 'Chen Family' : (userName || '—')} onToast={setToast} />
       ) : (
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
