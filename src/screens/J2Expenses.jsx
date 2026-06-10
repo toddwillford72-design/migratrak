@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
-
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', path: '/j1' },
   { id: 'expenses',  label: 'Expenses',  path: '/j2' },
@@ -44,16 +42,19 @@ const CAT_COLORS = {
   'Professional Services':  '#0D2B4E',
 }
 
-const NEW_EXPENSE = {
-  amount: '3,450.00',
-  date: 'June 3, 2026',
-  vendor: 'Maimone Law',
-  category: 'Legal Fees',
-  description: 'Attorney consultation — I-485 review',
-  receipt: 'IMG_4521.jpg',
+function emptyForm() {
+  return {
+    amount: '',
+    date: new Date().toISOString().slice(0, 10),
+    vendor: '',
+    category: CATEGORIES[0],
+    description: '',
+    isQualifyingInvestment: false,
+    receipt: null,
+  }
 }
 
-// ── Tab bar (shared) ──────────────────────────────────────────────────────────
+// ── Tab bar ───────────────────────────────────────────────────────────────────
 function TabBar({ active }) {
   const navigate = useNavigate()
   return (
@@ -108,21 +109,29 @@ function CategoryBar({ category, amount, max, flash }) {
 
 // ── Add expense panel ─────────────────────────────────────────────────────────
 function AddExpensePanel({ onClose, onSave }) {
-  const [stage, setStage]       = useState('pick')   // pick | loading | form | done
-  const [form, setForm]         = useState({ ...NEW_EXPENSE })
-  const [saving, setSaving]     = useState(false)
+  // 'form' is default; 'capture' | 'loading' are the optional receipt sub-flow
+  const [stage, setStage]         = useState('form')
+  const [form, setForm]           = useState(emptyForm())
+  const [saving, setSaving]       = useState(false)
   const [saveError, setSaveError] = useState(null)
-  const timerRef                = useRef(null)
+  const timerRef                  = useRef(null)
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
-  function handleCapture(mode) {
+  function handleCapture() {
     setStage('loading')
-    timerRef.current = setTimeout(() => setStage('form'), 2000)
+    timerRef.current = setTimeout(() => {
+      setForm(f => ({ ...f, receipt: 'IMG_receipt.jpg' }))
+      setStage('form')
+    }, 2000)
   }
 
   async function handleSave() {
     setSaveError(null)
+    if (!form.amount || isNaN(parseFloat(String(form.amount)))) {
+      setSaveError('Please enter a valid amount.')
+      return
+    }
     setSaving(true)
     try {
       await onSave(form)
@@ -150,13 +159,13 @@ function AddExpensePanel({ onClose, onSave }) {
           <div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#E2E8F0' }} />
         </div>
 
-        {/* STAGE: pick */}
-        {stage === 'pick' && (
+        {/* STAGE: capture (optional receipt sub-flow) */}
+        {stage === 'capture' && (
           <>
-            <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Add Expense</h2>
+            <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Attach Receipt</h2>
             <p className="text-sm" style={{ color: '#4A5568' }}>Capture a receipt or upload from your library</p>
             <button
-              onClick={() => handleCapture('camera')}
+              onClick={handleCapture}
               className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
               style={{ backgroundColor: '#0D2B4E', color: '#FFFFFF' }}
             >
@@ -164,27 +173,24 @@ function AddExpensePanel({ onClose, onSave }) {
               <span className="text-base font-bold">Take photo of receipt</span>
             </button>
             <button
-              onClick={() => handleCapture('library')}
+              onClick={handleCapture}
               className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
               style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '2px solid #1B5FA8' }}
             >
               <span className="text-2xl">🖼️</span>
               <span className="text-base font-bold">Upload from camera roll</span>
             </button>
-            <button onClick={onClose} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
+            <button onClick={() => setStage('form')} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
               Cancel
             </button>
           </>
         )}
 
-        {/* STAGE: loading */}
+        {/* STAGE: loading (simulated OCR) */}
         {stage === 'loading' && (
           <div className="flex flex-col items-center justify-center gap-5 py-10">
             <div className="relative w-16 h-16">
-              <div
-                className="absolute inset-0 rounded-full border-4"
-                style={{ borderColor: '#EBF4FB' }}
-              />
+              <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: '#EBF4FB' }} />
               <div
                 className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin"
                 style={{ borderColor: '#1B5FA8', borderTopColor: 'transparent' }}
@@ -197,58 +203,61 @@ function AddExpensePanel({ onClose, onSave }) {
           </div>
         )}
 
-        {/* STAGE: form */}
+        {/* STAGE: form (primary / default) */}
         {stage === 'form' && (
           <>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#D1FAE5' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 13l4 4L19 7" stroke="#1A7A4A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h2 className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>Receipt read — confirm details</h2>
-            </div>
+            <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Add Expense</h2>
 
-            {/* Receipt preview chip */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
-              <span className="text-lg">🧾</span>
-              <span className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>{form.receipt} — attached</span>
-            </div>
-
-            {/* Fields */}
-            {[
-              { label: 'Amount', key: 'amount', prefix: '$' },
-              { label: 'Date', key: 'date' },
-              { label: 'Vendor', key: 'vendor' },
-              { label: 'Description', key: 'description' },
-            ].map(({ label, key, prefix }) => (
-              <div key={key} className="flex flex-col gap-1">
-                <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>
-                  {label}
-                </label>
-                <div className="flex items-center rounded-xl overflow-hidden" style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC' }}>
-                  {prefix && (
-                    <span className="pl-4 text-sm font-bold" style={{ color: '#4A5568' }}>{prefix}</span>
-                  )}
-                  <input
-                    type="text"
-                    value={form[key]}
-                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                    className="flex-1 px-3 py-3 text-sm bg-transparent outline-none"
-                    style={{ color: '#0D2B4E' }}
-                  />
-                </div>
-              </div>
-            ))}
-
-            {/* Category dropdown */}
+            {/* Amount */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>
-                Category
+                Amount <span style={{ color: '#DC2626' }}>*</span>
               </label>
+              <div className="flex items-center rounded-xl overflow-hidden" style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC' }}>
+                <span className="pl-4 text-sm font-bold" style={{ color: '#4A5568' }}>$</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="0.00"
+                  value={form.amount}
+                  onChange={(e) => setForm(f => ({ ...f, amount: e.target.value }))}
+                  className="flex-1 px-3 py-3 text-sm bg-transparent outline-none"
+                  style={{ color: '#0D2B4E' }}
+                />
+              </div>
+            </div>
+
+            {/* Date */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>Date</label>
+              <input
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm(f => ({ ...f, date: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+              />
+            </div>
+
+            {/* Vendor */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>Vendor</label>
+              <input
+                type="text"
+                placeholder="e.g. Maimone Law"
+                value={form.vendor}
+                onChange={(e) => setForm(f => ({ ...f, vendor: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+              />
+            </div>
+
+            {/* Category */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>Category</label>
               <select
                 value={form.category}
-                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
                 className="w-full px-4 py-3 rounded-xl text-sm outline-none"
                 style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
               >
@@ -256,31 +265,87 @@ function AddExpensePanel({ onClose, onSave }) {
               </select>
             </div>
 
-            {/* Save error */}
-            {saveError && (
-              <p className="text-sm font-semibold px-1" style={{ color: '#DC2626' }}>
-                {saveError}
-              </p>
+            {/* Description */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>
+                Description <span className="font-normal normal-case" style={{ color: '#A0AEC0' }}>(optional)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. I-485 filing fee"
+                value={form.description}
+                onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+              />
+            </div>
+
+            {/* Qualifying investment toggle */}
+            <button
+              onClick={() => setForm(f => ({ ...f, isQualifyingInvestment: !f.isQualifyingInvestment }))}
+              className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors"
+              style={{
+                backgroundColor: form.isQualifyingInvestment ? '#EBF4FB' : '#F7F9FC',
+                border: '2px solid ' + (form.isQualifyingInvestment ? '#1B5FA8' : '#E2E8F0'),
+              }}
+            >
+              <div>
+                <p className="text-sm font-semibold text-left" style={{ color: '#0D2B4E' }}>Qualifying investment</p>
+                <p className="text-xs text-left" style={{ color: '#64748B' }}>Count toward E-2 / EB-5 investment total</p>
+              </div>
+              <div
+                className="flex items-center flex-shrink-0 ml-3 rounded-full transition-colors"
+                style={{
+                  width: 44, height: 24, padding: '2px',
+                  backgroundColor: form.isQualifyingInvestment ? '#1B5FA8' : '#CBD5E0',
+                }}
+              >
+                <div
+                  className="w-5 h-5 rounded-full bg-white transition-transform"
+                  style={{ transform: form.isQualifyingInvestment ? 'translateX(20px)' : 'translateX(0)' }}
+                />
+              </div>
+            </button>
+
+            {/* Receipt attachment (optional) */}
+            {form.receipt ? (
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🧾</span>
+                  <span className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>{form.receipt} — attached</span>
+                </div>
+                <button onClick={() => setForm(f => ({ ...f, receipt: null }))} className="text-xs" style={{ color: '#A0AEC0' }}>
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setStage('capture')}
+                className="text-sm font-semibold text-center transition-opacity active:opacity-60"
+                style={{ color: '#1B5FA8' }}
+              >
+                📎 Attach receipt photo (optional)
+              </button>
             )}
 
-            {/* Buttons */}
-            <div className="flex gap-3 pt-1">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-                style={{ backgroundColor: '#F0A500', color: '#0D2B4E', opacity: saving ? 0.6 : 1 }}
-              >
-                {saving ? 'Saving…' : 'Confirm and Save'}
-              </button>
-              <button
-                onClick={() => setStage('pick')}
-                className="flex-1 py-3.5 rounded-xl text-sm font-bold"
-                style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
-              >
-                Edit details
-              </button>
-            </div>
+            {/* Save error */}
+            {saveError && (
+              <p className="text-sm font-semibold px-1" style={{ color: '#DC2626' }}>{saveError}</p>
+            )}
+
+            {/* Save button */}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95"
+              style={{ backgroundColor: '#F0A500', color: '#0D2B4E', opacity: saving ? 0.6 : 1 }}
+            >
+              {saving ? 'Saving…' : 'Save Expense'}
+            </button>
+
+            <button onClick={onClose} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
+              Cancel
+            </button>
           </>
         )}
 
@@ -355,32 +420,23 @@ export default function J2Expenses() {
   }, [])
 
   async function handleSave(form) {
-    const amount = parseFloat(form.amount.replace(/,/g, '')) || 0
-    // Parse date — accept "June 3, 2026" or ISO
-    let expense_date = null
-    if (form.date) {
-      const parsed = new Date(form.date)
-      if (!isNaN(parsed)) expense_date = parsed.toISOString().slice(0, 10)
-    }
-    const { data, error } = await supabase
+    const amount = parseFloat(String(form.amount).replace(/,/g, '')) || 0
+    const expense_date = form.date || null
+    const { error } = await supabase
       .from('expenses')
       .insert({
-        user_id:      userId,
+        user_id:                 userId,
         amount,
-        currency:     'USD',
-        category:     form.category,
-        vendor:       form.vendor,
-        description:  form.description,
+        currency:                'USD',
+        category:                form.category,
+        vendor:                  form.vendor || null,
+        description:             form.description || null,
         expense_date,
-        is_qualifying_investment: false,
+        is_qualifying_investment: form.isQualifyingInvestment ?? false,
       })
-      .select()
-      .single()
     if (error) throw new Error(error.message || 'Insert failed')
-    // Refetch full list so totals are accurate
     const rows = await fetchExpenses(userId)
     setExpenses(rows)
-    // Flash the newly inserted category
     setFlashCat(form.category)
     setTimeout(() => setFlashCat(null), 2000)
   }
@@ -392,7 +448,6 @@ export default function J2Expenses() {
 
   const displayExpenses = expenses ?? []
 
-  // Rebuild totals
   const updatedTotals = displayExpenses.reduce((acc, e) => {
     acc[e.category] = (acc[e.category] ?? 0) + e.amount
     return acc
@@ -545,16 +600,19 @@ export default function J2Expenses() {
       {panelOpen && (
         <AddExpensePanel
           onClose={() => setPanelOpen(false)}
-          onSave={isDemo ? (form) => {
-            // Demo (logged-out) fallback — local only
-            const amount = parseFloat(form.amount.replace(/,/g, '')) || 0
-            setExpenses(prev => [...(prev || []), {
-              id: Date.now(), category: form.category, amount,
-              label: form.description || form.vendor, date: form.date, isNew: true,
-            }])
-            setFlashCat(form.category)
-            setTimeout(() => setFlashCat(null), 2000)
-          } : handleSave}
+          onSave={isDemo
+            ? (form) => {
+                const amount = parseFloat(String(form.amount).replace(/,/g, '')) || 0
+                setExpenses(prev => [...(prev || []), {
+                  id: Date.now(), category: form.category, amount,
+                  label: form.description || form.vendor || 'Expense',
+                  date: form.date || '—', isNew: true,
+                }])
+                setFlashCat(form.category)
+                setTimeout(() => setFlashCat(null), 2000)
+              }
+            : handleSave
+          }
         />
       )}
 
