@@ -76,6 +76,9 @@ export default function JResourcesScreen() {
       </div>
 
       <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <p style={{ fontSize: 11, color: '#A0AEC0', fontStyle: 'italic', textAlign: 'center', margin: '0 0 4px 0' }}>
+          ↗ Tip: Links open in a new tab — close it to return here.
+        </p>
         {LINKS.map(group => (
           <div key={group.section}>
             <p style={{ color: '#4A5568', fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>
