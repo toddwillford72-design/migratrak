@@ -47,6 +47,10 @@ function AddClientModal({ onClose, onClientAdded, attorneyId }) {
   async function handleSend(e) {
     e.preventDefault()
     setError('')
+    if (!attorneyId) {
+      setError('Session error — please sign out and sign back in.')
+      return
+    }
     if (!form.firstName.trim() || !form.lastName.trim()) {
       setError('Please enter first and last name.')
       return
@@ -609,7 +613,8 @@ export default function A1AttorneyDashboard() {
   // Determine what to show: real clients if any, else demo fallback
   const displayClients = clients && clients.length > 0 ? clients : DEMO_CLIENTS
   const isDemo = !clients || clients.length === 0
-  const activeCount = clients && clients.length > 0 ? clients.length : 23
+  // null = still loading, [] = loaded but empty → fallback to 23, [...]  = real count
+  const activeCount = clients !== null && clients.length > 0 ? clients.length : 23
   const realClientsForBriefing = clients || []
 
   // Overflow count for "+N more" row
