@@ -563,58 +563,17 @@ export default function A1AttorneyDashboard() {
 
   const loadClients = useCallback(async (uid) => {
     try {
-      console.log('loadClients called with uid:', uid)
-      // Fetch attorney_clients rows
-      const { data: links, error: linksErr } = await supabase
-        .from('attorney_clients')
-        .select('client_id')
-        .eq('attorney_id', uid)
-        .eq('status', 'active')
-      console.log('attorney_clients fetch:', { uid, links, linksErr })
-
-      if (linksErr) throw linksErr
-      if (!links || links.length === 0) { setClients([]); return }
-
-      const clientIds = links.map(l => l.client_id)
-
-      // Fetch user rows for name, visa_type, dependent_ages
-      const { data: userRows, error: usersErr } = await supabase
-        .from('users')
-        .select('id, name, visa_type, dependent_ages, last_sign_in_at')
-        .in('id', clientIds)
-      console.log('users fetch:', { userRows, usersErr })
-
-      if (usersErr) throw usersErr
-
-      // Fetch milestone progress per client
-      const progressMap = {}
-      await Promise.all(clientIds.map(async (cid) => {
-        try {
-          const { data: ms } = await supabase
-            .from('milestones')
-            .select('status')
-            .eq('user_id', cid)
-          if (ms && ms.length > 0) {
-            const done = ms.filter(m => m.status === 'complete' || m.status === 'completed').length
-            progressMap[cid] = Math.round((done / ms.length) * 100)
-          } else {
-            progressMap[cid] = 0
-          }
-        } catch (_) {
-          progressMap[cid] = 0
-        }
-      }))
-
-      const enriched = (userRows || []).map(u => ({
-        ...u,
-        progress: progressMap[u.id] ?? 0,
-        detail: u.visa_type ? `${u.visa_type} · ${progressMap[u.id] ?? 0}% complete` : `${progressMap[u.id] ?? 0}% complete`,
-      }))
-
-      setClients(enriched)
+      const response = await fetch('/api/get-clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attorneyId: uid }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to load clients')
+      setClients(data.clients || [])
     } catch (err) {
       console.error('Failed to load clients:', err)
-      setClients([]) // show demo fallback on error
+      setClients([])
     }
   }, [])
 
