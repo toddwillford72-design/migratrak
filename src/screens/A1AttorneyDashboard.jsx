@@ -568,7 +568,9 @@ export default function A1AttorneyDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ attorneyId: uid }),
       })
+      console.log('get-clients response status:', response.status)
       const data = await response.json()
+      console.log('get-clients data:', data)
       if (!response.ok) throw new Error(data.error || 'Failed to load clients')
       setClients(data.clients || [])
     } catch (err) {
