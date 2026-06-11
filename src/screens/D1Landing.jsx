@@ -97,22 +97,20 @@ export default function D1Landing() {
           >
             Start — it's free →
           </button>
-          <p className="text-xs text-center" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Already a member?
-          </p>
-          <button
-            onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'rgba(255,255,255,0.7)', fontSize: 14 }}
-          >
-            Sign in to your account
-          </button>
-          <button
-            onClick={() => navigate('/a1')}
-            className="transition-opacity active:opacity-60"
-            style={{ color: '#4A9FD4', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}
-          >
-            Immigration specialist? Access your portal →
-          </button>
+          <div className="flex flex-col items-center" style={{ gap: 12 }}>
+            <button
+              onClick={() => navigate('/auth', { state: { mode: 'signin' } })}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#FFFFFF', fontSize: 14, fontWeight: 700 }}
+            >
+              Already a member? Sign in →
+            </button>
+            <button
+              onClick={() => navigate('/a1')}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#4A9FD4', fontSize: 14, fontWeight: 700 }}
+            >
+              Immigration specialist? Access your portal →
+            </button>
+          </div>
         </div>
 
       </div>
