@@ -58,15 +58,17 @@ function AddClientModal({ onClose, onClientAdded, attorneyId }) {
 
     setLoading(true)
     try {
+      const newClientId = crypto.randomUUID()
       // Insert pending client record — they will complete sign-up via invitation link
       const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`
       const dependentAgesArr = form.dependentAges
         ? form.dependentAges.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n))
         : []
 
-      const { data: newUser, error: insertErr } = await supabase
+      const { error: insertErr } = await supabase
         .from('users')
         .insert({
+          id: newClientId,
           email: form.email.trim().toLowerCase(),
           name: fullName,
           role: 'client',
@@ -76,8 +78,6 @@ function AddClientModal({ onClose, onClientAdded, attorneyId }) {
           case_start_date: form.startDate || null,
           status: 'pending_invite',
         })
-        .select('id')
-        .single()
 
       if (insertErr) throw insertErr
 
@@ -86,7 +86,7 @@ function AddClientModal({ onClose, onClientAdded, attorneyId }) {
         .from('attorney_clients')
         .insert({
           attorney_id: attorneyId,
-          client_id: newUser.id,
+          client_id: newClientId,
           status: 'active',
         })
 
