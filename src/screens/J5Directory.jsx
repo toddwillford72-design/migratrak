@@ -31,7 +31,7 @@ const PROFESSIONALS = [
     canadian: 'Extensive experience',
     bio: 'Canadian-born immigration attorney. Founder of the Canadians Moving to Florida and USA community (80,000+ members). Has personally navigated the same journey her clients are on.',
     note: null,
-    badge: 'Founding Partner',
+    badge: null,
     category: 'Attorneys',
     stars: 5,
     reviews: null,
@@ -395,7 +395,7 @@ function ProfessionalCard({ pro, initialOpen }) {
       className="rounded-2xl overflow-hidden shadow-sm"
       style={{
         backgroundColor: '#FFFFFF',
-        border: pro.badge ? '2px solid #1B5FA8' : '1px solid #E2E8F0',
+        border: '1px solid #E2E8F0',
       }}
     >
       {/* Card header — always visible */}
@@ -408,7 +408,7 @@ function ProfessionalCard({ pro, initialOpen }) {
             {/* Avatar */}
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl font-bold"
-              style={{ backgroundColor: pro.badge ? '#0D2B4E' : '#EBF4FB', color: pro.badge ? '#F0A500' : '#1B5FA8' }}
+              style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
             >
               {pro.name.charAt(0)}
             </div>
@@ -417,14 +417,6 @@ function ProfessionalCard({ pro, initialOpen }) {
                 <p className="text-base font-extrabold leading-tight" style={{ color: '#0D2B4E' }}>
                   {pro.name}
                 </p>
-                {pro.badge && (
-                  <span
-                    className="text-xs font-bold px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
-                  >
-                    {pro.badge}
-                  </span>
-                )}
               </div>
               <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>
                 {pro.title}{pro.firm ? ` · ${pro.firm}` : ''}
