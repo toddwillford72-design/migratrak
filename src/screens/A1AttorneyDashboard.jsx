@@ -553,6 +553,7 @@ export default function A1AttorneyDashboard() {
         .select('client_id')
         .eq('attorney_id', uid)
         .eq('status', 'active')
+      console.log('attorney_clients fetch:', { uid, links, linksErr })
 
       if (linksErr) throw linksErr
       if (!links || links.length === 0) { setClients([]); return }
@@ -564,6 +565,7 @@ export default function A1AttorneyDashboard() {
         .from('users')
         .select('id, name, visa_type, dependent_ages, last_sign_in_at')
         .in('id', clientIds)
+      console.log('users fetch:', { userRows, usersErr })
 
       if (usersErr) throw usersErr
 
