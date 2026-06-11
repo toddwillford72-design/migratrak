@@ -51,7 +51,7 @@ export default function D1Landing() {
             className="text-sm leading-relaxed"
             style={{ color: '#EBF4FB' }}
           >
-            Answer 5 questions. See your realistic visa options, true costs,
+            Answer a few quick questions. See your realistic visa options, true costs,
             and timeline — before you call anyone.
           </p>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
