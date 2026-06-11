@@ -96,6 +96,20 @@ function AddClientModal({ onClose, onClientAdded, attorneyId }) {
 
       if (linkErr) throw linkErr
 
+      // Send invitation email (best-effort — don't block success if it fails)
+      try {
+        await fetch('/api/send-invite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientEmail: form.email.trim().toLowerCase(),
+            clientName: fullName,
+            attorneyName: 'Mena Maimone',
+            firmName: 'Maimone Legal',
+          }),
+        })
+      } catch (_) { /* email failure is non-fatal */ }
+
       setSent(true)
       onClientAdded?.()
     } catch (err) {
