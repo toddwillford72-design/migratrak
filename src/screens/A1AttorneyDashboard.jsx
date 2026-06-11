@@ -573,10 +573,10 @@ export default function A1AttorneyDashboard() {
         try {
           const { data: ms } = await supabase
             .from('milestones')
-            .select('completed')
+            .select('status')
             .eq('user_id', cid)
           if (ms && ms.length > 0) {
-            const done = ms.filter(m => m.completed).length
+            const done = ms.filter(m => m.status === 'complete' || m.status === 'completed').length
             progressMap[cid] = Math.round((done / ms.length) * 100)
           } else {
             progressMap[cid] = 0
