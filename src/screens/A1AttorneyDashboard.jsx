@@ -547,6 +547,7 @@ export default function A1AttorneyDashboard() {
 
   const loadClients = useCallback(async (uid) => {
     try {
+      console.log('loadClients called with uid:', uid)
       // Fetch attorney_clients rows
       const { data: links, error: linksErr } = await supabase
         .from('attorney_clients')
@@ -616,7 +617,7 @@ export default function A1AttorneyDashboard() {
   const displayClients = clients && clients.length > 0 ? clients : DEMO_CLIENTS
   const isDemo = !clients || clients.length === 0
   // null = still loading, [] = loaded but empty → fallback to 23, [...]  = real count
-  const activeCount = clients !== null && clients.length > 0 ? clients.length : 23
+  const activeCount = clients !== null ? clients.length : 23
   const realClientsForBriefing = clients || []
 
   // Overflow count for "+N more" row
