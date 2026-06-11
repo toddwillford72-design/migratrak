@@ -105,10 +105,10 @@ export default function D1Landing() {
               Already a member? Sign in →
             </button>
             <button
-              onClick={() => navigate('/a1')}
+              onClick={() => navigate('/auth', { state: { role: 'attorney' } })}
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#4A9FD4', fontSize: 14, fontWeight: 700 }}
             >
-              Immigration specialist? Access your portal →
+              Immigration Specialist — Sign in →
             </button>
           </div>
         </div>

@@ -18,6 +18,7 @@ export default function AuthScreen() {
   const location = useLocation()
 
   const prefill = location.state || {}
+  const isAttorneyPortal = prefill.role === 'attorney'
   const [mode, setMode] = useState(prefill.mode || 'signin') // 'signin' | 'signup'
   const [userType, setUserType] = useState('client') // 'client' | 'attorney'
 
@@ -125,6 +126,13 @@ export default function AuthScreen() {
           {mode === 'signup' ? 'Start tracking your US immigration journey' : 'Sign in to MigraTrak'}
         </p>
       </div>
+
+      {/* Attorney portal label */}
+      {isAttorneyPortal && (
+        <p className="text-center mt-4 text-xs font-semibold tracking-widest uppercase" style={{ color: '#4A9FD4' }}>
+          Attorney Portal Login
+        </p>
+      )}
 
       {/* Mode toggle */}
       <div className="flex mx-5 mt-5 rounded-xl overflow-hidden border" style={{ borderColor: '#E2E8F0' }}>
