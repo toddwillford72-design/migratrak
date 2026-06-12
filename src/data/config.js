@@ -136,7 +136,7 @@ export const MILESTONE_TEMPLATES = {
     { title: 'Document investment source of funds', phase: 2 },
     { title: 'Transfer investment funds to escrow', phase: 2 },
     { title: 'Prepare business plan', phase: 2 },
-    { title: 'File E-2 visa application — US Consulate Toronto', phase: 3 },
+    { title: 'File E-2 visa application — US Consulate Toronto (all first-time Canadian E-2s)', phase: 3 },
     { title: 'Attend visa interview', phase: 3 },
     { title: 'Receive E-2 approval', phase: 3 },
     { title: 'Close business purchase — release escrow funds', phase: 3 },
