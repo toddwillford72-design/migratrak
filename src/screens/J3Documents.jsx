@@ -422,7 +422,11 @@ export default function J3Documents() {
   }
 
   async function seedDocs(uid, visaType) {
-    const templates = SEED_DOCS[visaType] ?? SEED_DOCS['eb5']
+    const visaKey = (visaType || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+    const templates = SEED_DOCS[visaKey] || (() => {
+      console.warn(`seedDocs: no document set for visa key "${visaKey}" (raw: "${visaType}") — falling back to eb5`)
+      return SEED_DOCS['eb5']
+    })()
     const rows = templates.map(t => ({
       user_id: uid,
       name:    t.name,
