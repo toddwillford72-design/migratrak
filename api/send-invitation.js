@@ -14,6 +14,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Email service not configured' })
   }
 
+  const inviteLink = `https://migratrak.vercel.app/auth?invite=1&email=${encodeURIComponent(clientEmail)}`
+
   const emailBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background-color: #0D2B4E; padding: 24px; text-align: center;">
@@ -34,13 +36,13 @@ export default async function handler(req, res) {
           <li>Ask immigration questions to an AI coach anytime</li>
           <li>Access vetted professionals and essential services</li>
         </ul>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="https://migratrak.vercel.app/auth"
-             style="background-color: #F0A500; color: #0D2B4E; padding: 14px 32px;
-                    text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-            Access Your MigraTrak Account →
-          </a>
-        </div>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px auto;">
+          <tr>
+            <td style="border-radius: 8px; background-color: #1E40AF;">
+              <a href="${inviteLink}" target="_blank" style="display: inline-block; padding: 14px 32px; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; color: #FFFFFF; text-decoration: none; border-radius: 8px;">Access Your Account</a>
+            </td>
+          </tr>
+        </table>
         <p style="color: #A0AEC0; font-size: 13px; line-height: 1.6;">
           MigraTrak provides educational information only — not legal advice.
           Always consult your immigration attorney for guidance specific to your situation.

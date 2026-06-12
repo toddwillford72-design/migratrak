@@ -19,13 +19,20 @@ export default function AuthScreen() {
 
   const prefill = location.state || {}
   const isAttorneyPortal = prefill.role === 'attorney'
-  const [mode, setMode] = useState(prefill.mode || 'signin') // 'signin' | 'signup'
+
+  // Read query params for invite flow
+  const params = new URLSearchParams(window.location.search)
+  const isInvite = params.get('invite') === '1'
+  const inviteEmail = params.get('email') || ''
+
+  const [mode, setMode] = useState(isInvite ? 'signup' : (prefill.mode || 'signin'))
   const [userType, setUserType] = useState('client') // 'client' | 'attorney'
 
   // Shared fields
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(isInvite ? inviteEmail : '')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   // Client-only fields
   const [visaType, setVisaType] = useState(prefill.visa_type || '')
@@ -177,15 +184,29 @@ export default function AuthScreen() {
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
-                autoComplete="current-password"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                  style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF', paddingRight: 44 }}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0' }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -275,15 +296,29 @@ export default function AuthScreen() {
 
             <div>
               <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="At least 8 characters"
-                className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
-                autoComplete="new-password"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="At least 8 characters"
+                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                  style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF', paddingRight: 44 }}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0' }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Client-specific fields */}
@@ -317,12 +352,12 @@ export default function AuthScreen() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Destination state</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Destination state (optional)</label>
                   <input
                     type="text"
                     value={destinationState}
                     onChange={e => setDestinationState(e.target.value)}
-                    placeholder="e.g. Florida"
+                    placeholder="Not sure yet"
                     className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
                     style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
                   />
