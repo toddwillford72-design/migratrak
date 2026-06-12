@@ -559,23 +559,24 @@ export default function A1AttorneyDashboard() {
   const [showModal, setShowModal] = useState(false)
   const [attorneyId, setAttorneyId] = useState(null)
   const [clients, setClients] = useState(null) // null = loading, [] = empty real, [...] = real data
+  const [clientsError, setClientsError] = useState(false)
   const navigate = useNavigate()
 
   const loadClients = useCallback(async (uid) => {
+    setClientsError(false)
     try {
       const response = await fetch('/api/get-clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ attorneyId: uid }),
       })
-      console.log('get-clients response status:', response.status)
       const data = await response.json()
-      console.log('get-clients data:', data)
       if (!response.ok) throw new Error(data.error || 'Failed to load clients')
       setClients(data.clients || [])
     } catch (err) {
       console.error('Failed to load clients:', err)
-      setClients([])
+      setClientsError(true)
+      setClients(null) // keep loading state so demo isn't shown to logged-in users
     }
   }, [])
 
@@ -590,10 +591,12 @@ export default function A1AttorneyDashboard() {
     })
   }, [loadClients])
 
-  // Determine what to show: real clients if any, else demo fallback
-  const displayClients = clients && clients.length > 0 ? clients : DEMO_CLIENTS
-  const isDemo = !clients || clients.length === 0
-  // null = still loading, [] = loaded but empty → fallback to 23, [...]  = real count
+  // Logged-out with no data → demo fallback. Logged-in → show real data only.
+  const isLoggedIn = !!attorneyId
+  const displayClients = isLoggedIn
+    ? (clients || [])
+    : (clients && clients.length > 0 ? clients : DEMO_CLIENTS)
+  const isDemo = !isLoggedIn && (!clients || clients.length === 0)
   const activeCount = Array.isArray(clients) ? clients.length : 0
   const realClientsForBriefing = clients || []
 
@@ -661,13 +664,28 @@ export default function A1AttorneyDashboard() {
             <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#1A7A4A' }}>
               {isDemo ? 'On Track' : 'Active Clients'}
             </p>
+            {clientsError && (
+              <div className="flex items-center justify-between px-4 py-3 rounded-2xl mb-1"
+                style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA' }}>
+                <p className="text-sm font-semibold" style={{ color: '#DC2626' }}>
+                  Couldn't load your clients.
+                </p>
+                <button
+                  onClick={() => attorneyId && loadClients(attorneyId)}
+                  className="text-sm font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95"
+                  style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
             <div className="rounded-2xl overflow-hidden"
               style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-              {clients === null ? (
+              {!clientsError && clients === null ? (
                 <div className="px-4 py-4">
                   <p className="text-sm" style={{ color: '#94A3B8' }}>Loading clients…</p>
                 </div>
-              ) : (
+              ) : clientsError ? null : (
                 displayClients.slice(0, visibleCount).map((c, i) => (
                   <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3"
                     style={{ borderBottom: i < Math.min(visibleCount, displayClients.length) - 1 ? '1px solid #F1F5F9' : 'none', borderLeft: '3px solid #1A7A4A' }}>

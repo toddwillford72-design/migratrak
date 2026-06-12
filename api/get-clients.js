@@ -1,21 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
-  const debug = {
-    hasSecretKey: !!process.env.SUPABASE_SECRET_KEY,
-    hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    keyPrefix: ((process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) || 'MISSING').slice(0, 14),
-    urlPresent: !!(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL),
-  }
-  console.error('get-clients debug:', debug)
-
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed', debug })
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
   const { attorneyId } = req.body
   if (!attorneyId) {
-    return res.status(400).json({ error: 'Missing attorneyId', debug })
+    return res.status(400).json({ error: 'Missing attorneyId' })
   }
 
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -32,7 +24,7 @@ export default async function handler(req, res) {
 
     if (linksErr) throw linksErr
     if (!links || links.length === 0) {
-      return res.status(200).json({ clients: [], debug })
+      return res.status(200).json({ clients: [] })
     }
 
     const clientIds = links.map(l => l.client_id)
@@ -68,11 +60,8 @@ export default async function handler(req, res) {
         : `${progressMap[u.id] ?? 0}% complete`,
     }))
 
-    return res.status(200).json({ clients: enriched, debug })
+    return res.status(200).json({ clients: enriched })
   } catch (err) {
-    return res.status(500).json({
-      error: err.message || 'Failed to load clients',
-      debug,
-    })
+    return res.status(500).json({ error: err.message || 'Failed to load clients' })
   }
 }
