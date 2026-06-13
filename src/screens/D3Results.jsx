@@ -36,7 +36,7 @@ const FUND_SOURCE_NOTES = {
     'Where your funds come from — and proving they were lawfully obtained — is one of the most scrutinized parts of any investor visa case. This is exactly the kind of thing worth mapping out with an attorney early.',
 }
 function hasFamilyChildren(answers) {
-  return answers.household === 'Me, spouse, and children' || answers.children?.startsWith('Yes')
+  return answers.household === 'Me, spouse, and children' || answers.household === 'Me and my children (no spouse or partner)' || answers.children?.startsWith('Yes')
 }
 function budgetLabel(answers) {
   const map = {
@@ -54,7 +54,16 @@ function buildCards(answers) {
   const canada   = isCanada(answers)
   const budget   = answers.budget
   const children = hasFamilyChildren(answers)
-  const dependentNote = children ? 'Dependent family members add processing steps and fees to each stage.' : null
+  const DEPENDENT_NOTES = {
+    e2: 'Your spouse can apply for work authorization on E-2 dependent status — your children can attend school but cannot work.',
+    eb5: 'Your spouse and children receive conditional permanent residence alongside you — full work authorization from day one, no separate dependent visa needed.',
+    tn: 'Your spouse and children enter on TD status — they can live in the US and your children can attend school, but your spouse generally cannot work.',
+    l1: 'Your spouse can apply for work authorization on L-2 status — for many L-2 spouses this is now issued automatically alongside their status.',
+    o1: 'Your spouse and children enter on O-3 status — they can live in the US and attend school, but your spouse cannot work.',
+    h1b: 'Your spouse and children enter on H-4 status. Your spouse generally cannot work unless you have an approved I-140 immigrant petition, which can qualify them for an H-4 work permit (EAD).',
+    k1: 'Children entering with you on K-2 status can apply for work authorization after you marry and file for adjustment of status.',
+  }
+  function dependentNoteFor(visaId) { return children ? DEPENDENT_NOTES[visaId] : null }
 
   const e2Card = {
     id: 'e2', title: 'E-2 Investor Visa', lead: false,
@@ -68,7 +77,7 @@ function buildCards(answers) {
     greenCard: 'Not directly — requires a separate petition later', greenCardPath: false,
     renewable: 'Yes, indefinitely while business operates',
     rightFor: 'You want to buy or start a business and be actively involved in running it',
-    warning: 'Does not by itself lead to permanent residency or citizenship', dependentNote,
+    warning: 'Does not by itself lead to permanent residency or citizenship', dependentNote: dependentNoteFor('e2'),
     expandLabel: 'Learn more about E-2', ctaLabel: 'Get my cost estimate', ctaVisa: 'e2',
     expandContent: [
       'The E-2 requires you to invest a "substantial" amount in a US business — USCIS does not specify a minimum, but $100,000–$500,000 is typical in practice.',
@@ -89,7 +98,7 @@ function buildCards(answers) {
     renewable: 'N/A — leads to permanent residence',
     rightFor: 'Long-term US residency and a pathway to citizenship is your ultimate goal',
     warning: 'Higher investment threshold and longer wait — but leads directly to permanent residency. Processing times have improved significantly since 2023.',
-    dependentNote, expandLabel: 'Learn more about EB-5', ctaLabel: 'Get my cost estimate', ctaVisa: 'eb5',
+    dependentNote: dependentNoteFor('eb5'), expandLabel: 'Learn more about EB-5', ctaLabel: 'Get my cost estimate', ctaVisa: 'eb5',
     expandContent: [
       'The $800,000 threshold applies to investments in Targeted Employment Areas (TEA). Non-TEA investments require $1,050,000.',
       'The investment must create at least 10 full-time US jobs.',
@@ -108,7 +117,7 @@ function buildCards(answers) {
     renewable: 'Yes, annually (no maximum period)',
     rightFor: 'You work in a qualifying profession and have a US employer offering you a position',
     warning: 'Only available to Canadian and Mexican citizens. Requires a job offer from a US employer in a qualifying occupation. Does not lead to permanent residency.',
-    dependentNote, expandLabel: 'Check qualifying occupations', ctaLabel: 'Get my cost estimate', ctaVisa: 'tn',
+    dependentNote: dependentNoteFor('tn'), expandLabel: 'Check qualifying occupations', ctaLabel: 'Get my cost estimate', ctaVisa: 'tn',
     expandContent: [
       'TN qualifying occupations include: accountants, engineers, lawyers, pharmacists, scientists, teachers, and many more — over 60 categories.',
       'You apply at the port of entry (land border or airport) or via DS-160 at a US consulate.',
@@ -127,7 +136,7 @@ function buildCards(answers) {
     renewable: 'Up to 7 years (L-1A managers); up to 5 years (L-1B specialists)',
     rightFor: "You've worked for your employer for at least 1 year and are being transferred to a US office",
     warning: "Tied to your employer — if you leave the company your status is affected. Confirm details with your employer's immigration counsel.",
-    dependentNote, expandLabel: 'Learn more about L-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'l1',
+    dependentNote: dependentNoteFor('l1'), expandLabel: 'Learn more about L-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'l1',
     expandContent: [
       'L-1A is for managers and executives; L-1B is for employees with specialized knowledge.',
       'You must have worked for the company for at least 1 continuous year within the past 3 years.',
@@ -146,7 +155,7 @@ function buildCards(answers) {
     renewable: 'Renewable in 1-year increments, no maximum',
     rightFor: 'You have documented evidence of extraordinary achievement — major awards, significant media coverage, critical roles, high remuneration, published work, or similar',
     warning: 'The evidentiary bar is genuinely high — USCIS requires at least 3 of 8 specific criteria (or comparable evidence). An attorney can assess whether your background is strong enough before you invest time building a petition.',
-    dependentNote, expandLabel: 'Learn more about O-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'o1',
+    dependentNote: dependentNoteFor('o1'), expandLabel: 'Learn more about O-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'o1',
     expandContent: [
       'O-1 requires evidence of sustained acclaim — examples include major awards, published material about you, judging others\u2019 work, high salary relative to your field, or original contributions of major significance.',
       'You need a US petitioner (employer, agent, or organization) — but no employer sponsorship in the traditional H-1B sense.',
@@ -166,7 +175,7 @@ function buildCards(answers) {
     renewable: 'Up to 6 years; extendable with green card petition',
     rightFor: 'You have a job offer from a US employer in a role requiring a bachelor\u2019s degree or higher',
     warning: 'Subject to an annual lottery with limited spots — not guaranteed even with a valid job offer. Your employer files the petition on your behalf.',
-    dependentNote, expandLabel: 'Learn more about H-1B', ctaLabel: 'Get my cost estimate', ctaVisa: 'h1b',
+    dependentNote: dependentNoteFor('h1b'), expandLabel: 'Learn more about H-1B', ctaLabel: 'Get my cost estimate', ctaVisa: 'h1b',
     expandContent: [
       'The H-1B has an annual cap, and most years receive far more applications than available slots — selection is by random lottery each March/April.',
       'Your employer must file the petition (Form I-129) — you cannot self-petition.',
@@ -179,7 +188,7 @@ function buildCards(answers) {
 
   const k1Card = {
     id: 'k1', title: 'K-1 Fianc\u00e9(e) Visa', lead: false,
-    relationshipNote: answers.household !== 'Just me'
+    relationshipNote: (answers.household === 'Me and my spouse or partner' || answers.household === 'Me, spouse, and children')
       ? "K-1 is for couples who are engaged but not yet married. If you're already married or in a long-term relationship with someone other than your US citizen fianc\u00e9(e), your situation may call for a different pathway — this is worth clarifying with an attorney right away."
       : null,
     opener: "Since you're engaged to a US citizen and planning to marry within 90 days of arriving, the K-1 fianc\u00e9 visa is the pathway built for exactly this situation.",
@@ -189,7 +198,7 @@ function buildCards(answers) {
     renewable: 'Single-entry — leads directly to a green card after marriage',
     rightFor: 'You are engaged to a US citizen and plan to marry within 90 days of entering the US',
     warning: 'You must marry your US citizen sponsor within 90 days of entry, or you are required to leave the US. The relationship and engagement must be well-documented for USCIS.',
-    dependentNote, expandLabel: 'Learn more about K-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'k1',
+    dependentNote: dependentNoteFor('k1'), expandLabel: 'Learn more about K-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'k1',
     expandContent: [
       'Your US citizen fianc\u00e9(e) files Form I-129F on your behalf — the process starts in the US, not at the consulate.',
       'You must have met your fianc\u00e9(e) in person within the last 2 years (with limited exceptions).',

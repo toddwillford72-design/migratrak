@@ -25,6 +25,7 @@ const QUESTIONS = [
     options: [
       'Just me',
       'Me and my spouse or partner',
+      'Me and my children (no spouse or partner)',
       'Me, spouse, and children',
     ],
   },
@@ -38,7 +39,7 @@ const QUESTIONS = [
       'Yes — over 21',
     ],
     alertOption: 'Yes — aged 18, 19, or 20',
-    showIf: (answers) => answers.household === 'Me, spouse, and children',
+    showIf: (answers) => answers.household === 'Me, spouse, and children' || answers.household === 'Me and my children (no spouse or partner)',
   },
   {
     id: 'num_children',
