@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import NavFooter from '../components/NavFooter'
 import { supabase } from '../lib/supabase'
 
 const VISA_LABELS = {
@@ -292,6 +291,7 @@ export default function J6Essentials() {
   const [answers,  setAnswers]  = useState(() => loadAnswers())
   const [profile,  setProfile]  = useState(null) // null = loading, false = no session (demo)
   const [completedIds, setCompletedIds] = useState(new Set())
+  const [saveError, setSaveError] = useState(null)
 
   useEffect(() => { setAnswers(loadAnswers()) }, [])
 
@@ -327,16 +327,25 @@ export default function J6Essentials() {
 
     const { data: { session } } = await supabase.auth.getSession()
     const userId = session?.user?.id
-    if (!userId) return
-    try {
-      await supabase.from('essentials_progress').upsert({
-        user_id: userId,
-        item_id: id,
-        completed: !wasCompleted,
-        completed_date: !wasCompleted ? new Date().toISOString().split('T')[0] : null,
-      }, { onConflict: 'user_id,item_id' })
-    } catch (err) {
-      console.error('Failed to save essentials progress', err)
+    if (!userId) {
+      setCompletedIds(completedIds) // revert
+      setSaveError('Not signed in — your progress on this item was not saved.')
+      return
+    }
+
+    const { error } = await supabase.from('essentials_progress').upsert({
+      user_id: userId,
+      item_id: id,
+      completed: !wasCompleted,
+      completed_date: !wasCompleted ? new Date().toISOString().split('T')[0] : null,
+    }, { onConflict: 'user_id,item_id' })
+
+    if (error) {
+      console.error('Failed to save essentials progress', error)
+      setCompletedIds(completedIds) // revert optimistic update
+      setSaveError(`Couldn't save — ${error.message || 'please try again'}`)
+    } else {
+      setSaveError(null)
     }
   }
 
@@ -397,6 +406,13 @@ export default function J6Essentials() {
           </div>
         </div>
       </div>
+
+      {saveError && (
+        <div className="mx-4 mt-4 px-4 py-3 rounded-xl flex items-start gap-2" style={{ backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5' }}>
+          <span className="text-sm flex-shrink-0">⚠️</span>
+          <p className="text-xs leading-relaxed" style={{ color: '#991B1B' }}>{saveError}</p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 px-4 pt-4 pb-40">
 
@@ -512,7 +528,6 @@ export default function J6Essentials() {
       </div>
 
       <TabBar active="essentials" />
-      <NavFooter backPath="/j1" />
     </div>
   )
 }
