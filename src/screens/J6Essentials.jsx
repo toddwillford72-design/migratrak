@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
+import { supabase } from '../lib/supabase'
+
+const VISA_LABELS = {
+  eb5: 'EB-5 Investor', e2: 'E-2 Treaty Investor', tn: 'TN Visa',
+  l1: 'L-1 Transfer', h1b: 'H-1B', o1: 'O-1', k1: 'K-1 Fiancé(e)', eb2niw: 'EB-2 NIW',
+}
 
 // ─── Tab bar (no attorney link) ───────────────────────────────────────────────
 
@@ -317,8 +323,23 @@ export default function J6Essentials() {
   const navigate  = useNavigate()
   const [category, setCategory] = useState(null)
   const [answers,  setAnswers]  = useState(() => loadAnswers())
+  const [profile,  setProfile]  = useState(null) // null = loading, false = no session (demo)
 
   useEffect(() => { setAnswers(loadAnswers()) }, [])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const user = session?.user ?? null
+      if (!user) { setProfile(false); return }
+      const { data: userRow } = await supabase.from('users').select('name, visa_type').eq('id', user.id).single()
+      const displayName = userRow?.name || user.user_metadata?.name || user.email
+      setProfile({ name: displayName, visa_type: userRow?.visa_type ?? null })
+    })
+  }, [])
+
+  const isDemo = profile === false
+  const headerName = isDemo ? 'Chen Family' : (profile?.name || '—')
+  const headerVisa = isDemo ? 'EB-5' : (VISA_LABELS[profile?.visa_type] ?? profile?.visa_type ?? '')
 
   const withChildren = hasChildren(answers)
   const withAgeOut   = hasAgeOutChildren(answers)
@@ -348,7 +369,7 @@ export default function J6Essentials() {
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          Chen Family · EB-5 Journey
+          {headerName}{headerVisa ? ` · ${headerVisa} Journey` : ''}
         </p>
         <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Essentials</h1>
         <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>

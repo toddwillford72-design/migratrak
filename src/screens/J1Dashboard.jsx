@@ -642,7 +642,7 @@ export default function J1Dashboard() {
             <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>Life Setup Checklist</p>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full"
               style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
-              12 / 34
+              2 / 38
             </span>
           </div>
           <p className="text-xs mb-3" style={{ color: '#4A5568' }}>
@@ -650,7 +650,7 @@ export default function J1Dashboard() {
           </p>
           {/* Progress bar */}
           <div className="w-full h-1.5 rounded-full mb-4" style={{ backgroundColor: '#F1F5F9' }}>
-            <div className="h-1.5 rounded-full" style={{ width: '35%', backgroundColor: '#F0A500' }} />
+            <div className="h-1.5 rounded-full" style={{ width: '5%', backgroundColor: '#F0A500' }} />
           </div>
           {CHECKLIST_PREVIEW.map((item) => (
             <ChecklistItem key={item.id} item={item} />
