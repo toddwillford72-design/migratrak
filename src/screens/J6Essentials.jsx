@@ -169,82 +169,49 @@ function BankingScreen({ onBack }) {
 
 // ─── Checklist item components ────────────────────────────────────────────────
 
-function DoneItem({ label }) {
-  return (
-    <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid #F1F5F9' }}>
-      <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#1A7A4A' }}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
-      </div>
-      <span className="text-sm line-through" style={{ color: '#A0AEC0' }}>{label}</span>
-    </div>
-  )
-}
-
-function TodoItem({ label, actionLabel, onAction, last }) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-2.5"
-      style={{ borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-6 h-6 rounded-full border-2 flex-shrink-0" style={{ borderColor: '#CBD5E0' }} />
-        <span className="text-sm" style={{ color: '#0D2B4E' }}>{label}</span>
-      </div>
-      {actionLabel && (
-        <button onClick={onAction}
-          className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}>
-          {actionLabel}
-        </button>
-      )}
-    </div>
-  )
-}
-
-function UrgentItem({ label, urgencyNote, actionLabel, onAction, last }) {
+function ChecklistItem({ id, label, actionLabel, onAction, urgencyNote, last, completed, onToggle }) {
+  const isUrgent = !!urgencyNote && !completed
   return (
     <div className="py-2.5 flex flex-col gap-1.5"
       style={{ borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
       <div className="flex items-start gap-3">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-          style={{ backgroundColor: '#FEE2E2', border: '2px solid #DC2626' }}>
-          <span className="text-xs font-bold" style={{ color: '#DC2626' }}>!</span>
-        </div>
+        <button onClick={() => onToggle(id)} aria-label="Toggle complete"
+          className="flex-shrink-0 mt-0.5 transition-transform active:scale-90">
+          {completed ? (
+            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#1A7A4A' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </div>
+          ) : isUrgent ? (
+            <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ backgroundColor: '#FEE2E2', border: '2px solid #DC2626' }}>
+              <span className="text-xs font-bold" style={{ color: '#DC2626' }}>!</span>
+            </div>
+          ) : (
+            <div className="w-6 h-6 rounded-full border-2" style={{ borderColor: '#CBD5E0' }} />
+          )}
+        </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold" style={{ color: '#991B1B' }}>{label}</p>
-          {urgencyNote && <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#DC2626' }}>{urgencyNote}</p>}
+          <p className="text-sm" style={{
+            color: completed ? '#A0AEC0' : (isUrgent ? '#991B1B' : '#0D2B4E'),
+            fontWeight: isUrgent ? '700' : '400',
+            textDecoration: completed ? 'line-through' : 'none',
+          }}>
+            {label}
+          </p>
+          {urgencyNote && !completed && (
+            <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#DC2626' }}>{urgencyNote}</p>
+          )}
         </div>
       </div>
-      {actionLabel && (
+      {actionLabel && !completed && (
         <div className="pl-9">
           <button onClick={onAction}
             className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-            style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}>
+            style={isUrgent
+              ? { backgroundColor: '#DC2626', color: '#FFFFFF' }
+              : { backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}>
             {actionLabel}
           </button>
         </div>
-      )}
-    </div>
-  )
-}
-
-function OngoingItem({ label, actionLabel, onAction, last }) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-2.5"
-      style={{ borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: '#EBF4FB', border: '2px solid #4A9FD4' }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1B5FA8" strokeWidth="2.5" strokeLinecap="round">
-            <path d="M21 12a9 9 0 11-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
-          </svg>
-        </div>
-        <span className="text-sm" style={{ color: '#0D2B4E' }}>{label}</span>
-      </div>
-      {actionLabel && (
-        <button onClick={onAction}
-          className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-          style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}>
-          {actionLabel}
-        </button>
       )}
     </div>
   )
@@ -324,22 +291,54 @@ export default function J6Essentials() {
   const [category, setCategory] = useState(null)
   const [answers,  setAnswers]  = useState(() => loadAnswers())
   const [profile,  setProfile]  = useState(null) // null = loading, false = no session (demo)
+  const [completedIds, setCompletedIds] = useState(new Set())
 
   useEffect(() => { setAnswers(loadAnswers()) }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
-      if (!user) { setProfile(false); return }
-      const { data: userRow } = await supabase.from('users').select('name, visa_type').eq('id', user.id).single()
+      if (!user) {
+        setProfile(false)
+        // Chen Family demo: bank account + cell phone already set up
+        setCompletedIds(new Set(['s2_05', 's2_06']))
+        return
+      }
+      const [{ data: userRow }, { data: progressRows }] = await Promise.all([
+        supabase.from('users').select('name, visa_type').eq('id', user.id).single(),
+        supabase.from('essentials_progress').select('item_id').eq('user_id', user.id).eq('completed', true),
+      ])
       const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ name: displayName, visa_type: userRow?.visa_type ?? null })
+      setCompletedIds(new Set((progressRows || []).map((r) => r.item_id)))
     })
   }, [])
 
   const isDemo = profile === false
   const headerName = isDemo ? 'Chen Family' : (profile?.name || '—')
   const headerVisa = isDemo ? 'EB-5' : (VISA_LABELS[profile?.visa_type] ?? profile?.visa_type ?? '')
+
+  async function toggleItem(id) {
+    if (isDemo) return // Chen Family demo checklist is static, matching other demo screens
+    const wasCompleted = completedIds.has(id)
+    const next = new Set(completedIds)
+    if (wasCompleted) next.delete(id); else next.add(id)
+    setCompletedIds(next)
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const userId = session?.user?.id
+    if (!userId) return
+    try {
+      await supabase.from('essentials_progress').upsert({
+        user_id: userId,
+        item_id: id,
+        completed: !wasCompleted,
+        completed_date: !wasCompleted ? new Date().toISOString().split('T')[0] : null,
+      }, { onConflict: 'user_id,item_id' })
+    } catch (err) {
+      console.error('Failed to save essentials progress', err)
+    }
+  }
 
   const withChildren = hasChildren(answers)
   const withAgeOut   = hasAgeOutChildren(answers)
@@ -352,13 +351,24 @@ export default function J6Essentials() {
   if (category === 'auto-insurance') return <AutoInsuranceScreen onBack={() => setCategory(null)} />
   if (category === 'banking')        return <BankingScreen        onBack={() => setCategory(null)} />
 
-  // Item counts per section (done items hardcoded for Chen demo)
-  const s1Done = 0, s1Total = withChildren ? 11 : 9
-  const s2Done = 2, s2Total = 8
-  const s3Done = 0, s3Total = withChildren ? 9 : 7
-  const s4Done = 0, s4Total = withChildren ? 6 : 5
-  const s5Done = 0, s5Total = 4
-  const s6Done = 0, s6Total = 5
+  // Item IDs per section — drives both rendering (completed state) and the
+  // header/section progress counts. Conditional items (children, age-out)
+  // are still given stable IDs even when not shown for this user.
+  const S1_IDS = ['s1_01','s1_02','s1_03','s1_04','s1_05','s1_06','s1_07','s1_08', ...(withChildren ? ['s1_09','s1_10'] : []), 's1_11']
+  const S2_IDS = ['s2_01','s2_02','s2_03','s2_04','s2_05','s2_06','s2_07','s2_08']
+  const S3_IDS = ['s3_01','s3_02','s3_03','s3_04','s3_05','s3_06', ...(withChildren ? ['s3_07','s3_08'] : []), 's3_09']
+  const S4_IDS = ['s4_01','s4_02','s4_03','s4_04','s4_05', ...(withChildren ? ['s4_06'] : [])]
+  const S5_IDS = ['s5_01','s5_02','s5_03','s5_04']
+  const S6_IDS = ['s6_01','s6_02','s6_03','s6_04','s6_05']
+
+  const countDone = (ids) => ids.filter((id) => completedIds.has(id)).length
+
+  const s1Done = countDone(S1_IDS), s1Total = S1_IDS.length
+  const s2Done = countDone(S2_IDS), s2Total = S2_IDS.length
+  const s3Done = countDone(S3_IDS), s3Total = S3_IDS.length
+  const s4Done = countDone(S4_IDS), s4Total = S4_IDS.length
+  const s5Done = countDone(S5_IDS), s5Total = S5_IDS.length
+  const s6Done = countDone(S6_IDS), s6Total = S6_IDS.length
   const totalDone  = s1Done + s2Done + s3Done + s4Done + s5Done + s6Done
   const totalItems = s1Total + s2Total + s3Total + s4Total + s5Total + s6Total
   const pct = Math.round((totalDone / totalItems) * 100)
@@ -394,21 +404,21 @@ export default function J6Essentials() {
         <Section title="Before You Arrive" subtitle="Do these before leaving your home country"
           open={open.s1} onToggle={() => toggle('s1')} doneCount={s1Done} totalCount={s1Total}>
           <div className="pt-1">
-            <TodoItem label="Sell or transfer your TFSA before becoming a US tax resident" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Engage cross-border accountant" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <TodoItem label="File home country departure return" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Cancel or update provincial health coverage (e.g. OHIP)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Wind down remaining home country accounts (RRSP can stay — treaty protected)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Obtain medical records from home country doctors" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Arrange pet relocation — vaccinations and health certificate" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Set up mail forwarding with Canada Post" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_01" completed={completedIds.has('s1_01')} onToggle={toggleItem} label="Sell or transfer your TFSA before becoming a US tax resident" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_02" completed={completedIds.has('s1_02')} onToggle={toggleItem} label="Engage cross-border accountant" actionLabel="Find one" onAction={() => navigate('/j5')} />
+            <ChecklistItem id="s1_03" completed={completedIds.has('s1_03')} onToggle={toggleItem} label="File home country departure return" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_04" completed={completedIds.has('s1_04')} onToggle={toggleItem} label="Cancel or update provincial health coverage (e.g. OHIP)" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_05" completed={completedIds.has('s1_05')} onToggle={toggleItem} label="Review which home country accounts to keep vs. close (RRSP can stay — treaty protected)" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_06" completed={completedIds.has('s1_06')} onToggle={toggleItem} label="Obtain medical records from home country doctors" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_07" completed={completedIds.has('s1_07')} onToggle={toggleItem} label="Arrange pet relocation — vaccinations and health certificate" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s1_08" completed={completedIds.has('s1_08')} onToggle={toggleItem} label="Set up mail forwarding with Canada Post" actionLabel="Learn more" onAction={() => {}} />
             {withChildren && (
               <>
-                <TodoItem label="Request school transcripts from home country" actionLabel="Learn how" onAction={() => {}} />
-                <TodoItem label="Obtain immunization records from home country" actionLabel="Check requirements" onAction={() => {}} />
+                <ChecklistItem id="s1_09" completed={completedIds.has('s1_09')} onToggle={toggleItem} label="Request school transcripts from home country" actionLabel="Learn how" onAction={() => {}} />
+                <ChecklistItem id="s1_10" completed={completedIds.has('s1_10')} onToggle={toggleItem} label="Obtain immunization records from home country" actionLabel="Check requirements" onAction={() => {}} />
               </>
             )}
-            <TodoItem label="Request prescription history from home country pharmacy" actionLabel="Learn more" onAction={() => {}} last />
+            <ChecklistItem id="s1_11" completed={completedIds.has('s1_11')} onToggle={toggleItem} label="Request prescription history from home country pharmacy" actionLabel="Learn more" onAction={() => {}} last />
           </div>
         </Section>
 
@@ -416,14 +426,15 @@ export default function J6Essentials() {
         <Section title="Week 1 — Do Immediately" subtitle="Your first 7 days in the US"
           badge="urgent" open={open.s2} onToggle={() => toggle('s2')} doneCount={s2Done} totalCount={s2Total}>
           <div className="pt-1">
-            <TodoItem label="Research US auto insurance options — you can typically keep Canadian plates and insurance until around the 6-month mark" actionLabel="Browse options" onAction={() => setCategory('auto-insurance')} />
-            <TodoItem label="Set up homeowners or renters insurance for your new home" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Know your emergency healthcare options before coverage starts" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Note your home country vehicle plate/registration expiry date" actionLabel="Learn more" onAction={() => {}} />
-            <DoneItem label="Open US bank account" />
-            <DoneItem label="Set up US cell phone plan" />
-            <TodoItem label="Set up utilities (electric, internet, water)" actionLabel="Learn more" onAction={() => {}} />
-            <UrgentItem
+            <ChecklistItem id="s2_01" completed={completedIds.has('s2_01')} onToggle={toggleItem} label="Research US auto insurance options — you can typically keep Canadian plates and insurance until around the 6-month mark" actionLabel="Browse options" onAction={() => setCategory('auto-insurance')} />
+            <ChecklistItem id="s2_02" completed={completedIds.has('s2_02')} onToggle={toggleItem} label="Set up homeowners or renters insurance for your new home" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s2_03" completed={completedIds.has('s2_03')} onToggle={toggleItem} label="Know your emergency healthcare options before coverage starts" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s2_04" completed={completedIds.has('s2_04')} onToggle={toggleItem} label="Note your home country vehicle plate/registration expiry date" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s2_05" completed={completedIds.has('s2_05')} onToggle={toggleItem} label="Open US bank account" actionLabel="Find one" onAction={() => setCategory('banking')} />
+            <ChecklistItem id="s2_06" completed={completedIds.has('s2_06')} onToggle={toggleItem} label="Set up US cell phone plan" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s2_07" completed={completedIds.has('s2_07')} onToggle={toggleItem} label="Set up utilities (electric, internet, water)" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem
+              id="s2_08" completed={completedIds.has('s2_08')} onToggle={toggleItem}
               label="Check I-94 for errors"
               urgencyNote="Errors on this record can delay healthcare, banking, and SSN applications — verify immediately"
               actionLabel="Check now"
@@ -437,20 +448,20 @@ export default function J6Essentials() {
         <Section title="Month 1" subtitle="Complete within your first 30 days"
           open={open.s3} onToggle={() => toggle('s3')} doneCount={s3Done} totalCount={s3Total}>
           <div className="pt-1">
-            <TodoItem label="Enroll in US health insurance" actionLabel="Find options" onAction={() => {}} />
-            <TodoItem label="Apply for SSN (when eligible for your visa type)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Update your address with USCIS (Form AR-11)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Engage financial advisor" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <TodoItem label="Get Florida driver's licence (required within 30 days of establishing residency)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Build US credit history — open secured credit card or use Nova Credit" actionLabel="Learn how" onAction={() => {}} />
+            <ChecklistItem id="s3_01" completed={completedIds.has('s3_01')} onToggle={toggleItem} label="Enroll in US health insurance" actionLabel="Find options" onAction={() => {}} />
+            <ChecklistItem id="s3_02" completed={completedIds.has('s3_02')} onToggle={toggleItem} label="Apply for SSN once eligible — eligibility and timing vary significantly by visa type" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s3_03" completed={completedIds.has('s3_03')} onToggle={toggleItem} label="Update your address with USCIS (Form AR-11)" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s3_04" completed={completedIds.has('s3_04')} onToggle={toggleItem} label="Engage financial advisor" actionLabel="Find one" onAction={() => navigate('/j5')} />
+            <ChecklistItem id="s3_05" completed={completedIds.has('s3_05')} onToggle={toggleItem} label="Get Florida driver's licence once required — timing depends on your visa type and residency status" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s3_06" completed={completedIds.has('s3_06')} onToggle={toggleItem} label="Build US credit history — open secured credit card or use Nova Credit" actionLabel="Learn how" onAction={() => {}} />
             {withChildren && (
               <>
                 {withAgeOut && <AgeOutAwarenessItem onCoach={() => navigate('/j4')} />}
-                <TodoItem label="Research school districts in your destination area" actionLabel="Research" onAction={() => {}} />
-                <TodoItem label="Register children in school" actionLabel="Learn more" onAction={() => {}} />
+                <ChecklistItem id="s3_07" completed={completedIds.has('s3_07')} onToggle={toggleItem} label="Research school districts in your destination area" actionLabel="Research" onAction={() => {}} />
+                <ChecklistItem id="s3_08" completed={completedIds.has('s3_08')} onToggle={toggleItem} label="Register children in school" actionLabel="Learn more" onAction={() => {}} />
               </>
             )}
-            <TodoItem label="Update home country address with tax authority and banks" actionLabel="Learn more" onAction={() => {}} last />
+            <ChecklistItem id="s3_09" completed={completedIds.has('s3_09')} onToggle={toggleItem} label="Update home country address with tax authority and banks" actionLabel="Learn more" onAction={() => {}} last />
           </div>
         </Section>
 
@@ -458,13 +469,13 @@ export default function J6Essentials() {
         <Section title="Months 1–3" subtitle="Complete within your first 90 days"
           open={open.s4} onToggle={() => toggle('s4')} doneCount={s4Done} totalCount={s4Total}>
           <div className="pt-1">
-            <TodoItem label="SSN follow-up (3 weeks after applying)" actionLabel="Track status" onAction={() => {}} />
-            <TodoItem label="Find primary care physician" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <TodoItem label="Find dentist" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <TodoItem label="Transfer prescription records" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Register imported vehicle in Florida (use tax due on vehicle value)" actionLabel="Learn more" onAction={() => {}} last={!withChildren} />
+            <ChecklistItem id="s4_01" completed={completedIds.has('s4_01')} onToggle={toggleItem} label="SSN follow-up (3 weeks after applying)" actionLabel="Track status" onAction={() => {}} />
+            <ChecklistItem id="s4_02" completed={completedIds.has('s4_02')} onToggle={toggleItem} label="Find primary care physician" actionLabel="Find one" onAction={() => navigate('/j5')} />
+            <ChecklistItem id="s4_03" completed={completedIds.has('s4_03')} onToggle={toggleItem} label="Find dentist" actionLabel="Find one" onAction={() => navigate('/j5')} />
+            <ChecklistItem id="s4_04" completed={completedIds.has('s4_04')} onToggle={toggleItem} label="Transfer prescription records" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s4_05" completed={completedIds.has('s4_05')} onToggle={toggleItem} label="Register imported vehicle in Florida (use tax due on vehicle value)" actionLabel="Learn more" onAction={() => {}} last={!withChildren} />
             {withChildren && (
-              <TodoItem label="Enroll children in school (if not done in Month 1)" actionLabel="Find your district" onAction={() => {}} last />
+              <ChecklistItem id="s4_06" completed={completedIds.has('s4_06')} onToggle={toggleItem} label="Enroll children in school (if not done in Month 1)" actionLabel="Find your district" onAction={() => {}} last />
             )}
           </div>
         </Section>
@@ -473,15 +484,16 @@ export default function J6Essentials() {
         <Section title="Months 3–6" subtitle="Time-sensitive items approaching"
           open={open.s5} onToggle={() => toggle('s5')} doneCount={s5Done} totalCount={s5Total}>
           <div className="pt-1">
-            <UrgentItem
+            <ChecklistItem
+              id="s5_01" completed={completedIds.has('s5_01')} onToggle={toggleItem}
               label="Confirm auto insurance covers you beyond 6 months"
-              urgencyNote="5 months elapsed — Canadian coverage may void at 6 months"
+              urgencyNote={isDemo ? "5 months elapsed — Canadian coverage may void at 6 months" : "Canadian coverage typically voids around the 6-month mark — confirm with your insurer before then"}
               actionLabel="Check now"
               onAction={() => setCategory('auto-insurance')}
             />
-            <TodoItem label="Renew or cancel home country vehicle plates/registration before it expires" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Review US credit score progress" actionLabel="Check score" onAction={() => {}} />
-            <TodoItem label="File FBAR for the prior tax year if foreign accounts exceeded $10K (due the following April 15)" actionLabel="Learn more" onAction={() => {}} last />
+            <ChecklistItem id="s5_02" completed={completedIds.has('s5_02')} onToggle={toggleItem} label="Renew or cancel home country vehicle plates/registration before it expires" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s5_03" completed={completedIds.has('s5_03')} onToggle={toggleItem} label="Review US credit score progress" actionLabel="Check score" onAction={() => {}} />
+            <ChecklistItem id="s5_04" completed={completedIds.has('s5_04')} onToggle={toggleItem} label="File FBAR for the prior tax year if foreign accounts exceeded $10K (due the following April 15)" actionLabel="Learn more" onAction={() => {}} last />
           </div>
         </Section>
 
@@ -489,11 +501,11 @@ export default function J6Essentials() {
         <Section title="Ongoing — Immigration" subtitle="Never miss these milestones"
           open={open.s6} onToggle={() => toggle('s6')} doneCount={s6Done} totalCount={s6Total}>
           <div className="pt-1">
-            <OngoingItem label="Track visa application processing timeline" actionLabel="Track" onAction={() => {}} />
-            <TodoItem label="File USCIS Service Request if processing exceeds normal range" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Contact congressional office if delays persist" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Calendar conditional green card interview (when scheduled)" actionLabel="Set reminder" onAction={() => {}} />
-            <TodoItem label="Calendar I-829 filing window (90 days before 2-year green card expiry)" actionLabel="Set reminder" onAction={() => {}} last />
+            <ChecklistItem id="s6_01" completed={completedIds.has('s6_01')} onToggle={toggleItem} label="Track visa application processing timeline" actionLabel="Track" onAction={() => {}} />
+            <ChecklistItem id="s6_02" completed={completedIds.has('s6_02')} onToggle={toggleItem} label="File USCIS Service Request if processing exceeds normal range" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s6_03" completed={completedIds.has('s6_03')} onToggle={toggleItem} label="Contact congressional office if delays persist" actionLabel="Learn more" onAction={() => {}} />
+            <ChecklistItem id="s6_04" completed={completedIds.has('s6_04')} onToggle={toggleItem} label="Calendar conditional green card interview (when scheduled)" actionLabel="Set reminder" onAction={() => {}} />
+            <ChecklistItem id="s6_05" completed={completedIds.has('s6_05')} onToggle={toggleItem} label="Calendar I-829 filing window (90 days before 2-year green card expiry)" actionLabel="Set reminder" onAction={() => {}} last />
           </div>
         </Section>
 

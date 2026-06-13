@@ -5,6 +5,18 @@ import { MILESTONE_TEMPLATES } from '../data/config'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 
+// ── Essentials checklist helpers (mirrors J6Essentials) ────────────────────────
+function loadAnswers() {
+  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} }
+}
+function hasChildren(a) {
+  return a.household === 'Me, spouse, and children' || (typeof a.children === 'string' && a.children.startsWith('Yes'))
+}
+const ESSENTIALS_TOTAL_NO_CHILDREN = 38
+const ESSENTIALS_TOTAL_WITH_CHILDREN = 43
+// Item IDs shown in the dashboard preview row
+const PREVIEW_ITEM_IDS = { accountant: 's1_02', health: 's3_01', auto: 's5_01' }
+
 const TABS = [
   { id: 'dashboard',  label: 'Dashboard',  path: '/j1' },
   { id: 'expenses',   label: 'Expenses',   path: '/j2' },
@@ -38,10 +50,16 @@ const DEMO_MILESTONES = [
   { id: 10, label: 'Permanent green card',             status: 'upcoming', date: null },
 ]
 
-const CHECKLIST_PREVIEW = [
-  { id: 'auto',      label: 'Auto insurance',           note: 'URGENT — 5 months elapsed',   urgency: 'red' },
-  { id: 'accountant',label: 'Cross-border accountant',  note: 'Not engaged yet',              urgency: 'amber' },
-  { id: 'health',    label: 'US health insurance',      note: 'Not enrolled',                 urgency: 'amber' },
+const CHECKLIST_PREVIEW_DEMO = [
+  { id: 'auto',      essId: PREVIEW_ITEM_IDS.auto,       label: 'Auto insurance',           note: 'URGENT — 5 months elapsed',   urgency: 'red' },
+  { id: 'accountant',essId: PREVIEW_ITEM_IDS.accountant, label: 'Cross-border accountant',  note: 'Not engaged yet',              urgency: 'amber' },
+  { id: 'health',    essId: PREVIEW_ITEM_IDS.health,     label: 'US health insurance',      note: 'Not enrolled',                 urgency: 'amber' },
+]
+
+const CHECKLIST_PREVIEW_REAL = [
+  { id: 'auto',      essId: PREVIEW_ITEM_IDS.auto,       label: 'Auto insurance',           note: 'Confirm before the 6-month mark',  urgency: 'amber' },
+  { id: 'accountant',essId: PREVIEW_ITEM_IDS.accountant, label: 'Cross-border accountant',  note: 'Not engaged yet',                   urgency: 'amber' },
+  { id: 'health',    essId: PREVIEW_ITEM_IDS.health,     label: 'US health insurance',      note: 'Not enrolled',                      urgency: 'amber' },
 ]
 
 // ── Tab bar ───────────────────────────────────────────────────────────────────
@@ -159,8 +177,18 @@ function MilestoneRow({ milestone, isLast, onClick }) {
 }
 
 // ── Checklist preview item ────────────────────────────────────────────────────
-function ChecklistItem({ item }) {
+function ChecklistItem({ item, completed }) {
   const isRed = item.urgency === 'red'
+  if (completed) {
+    return (
+      <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid #F1F5F9' }}>
+        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#1A7A4A' }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </div>
+        <p className="text-sm font-semibold line-through" style={{ color: '#A0AEC0' }}>{item.label}</p>
+      </div>
+    )
+  }
   return (
     <div className="flex items-center gap-3 py-2.5" style={{ borderBottom: '1px solid #F1F5F9' }}>
       <span className="text-sm">{isRed ? '🔴' : '⚠️'}</span>
@@ -228,6 +256,7 @@ export default function J1Dashboard() {
   }
 
   const [profile, setProfile] = useState(null)       // null = loading, false = no session (demo)
+  const [essentialsDoneIds, setEssentialsDoneIds] = useState(new Set())
   const [milestones, setMilestones] = useState(null) // null = loading
   const [confirmModal, setConfirmModal] = useState(null) // { id, title }
   const [saving, setSaving] = useState(false)
@@ -258,10 +287,12 @@ export default function J1Dashboard() {
       const user = session?.user ?? null
       if (!user) { setProfile(false); setMilestones([]); return }
       const userId = user.id
-      const [{ data: userRow }, { data: mRows }] = await Promise.all([
+      const [{ data: userRow }, { data: mRows }, { data: eRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
         supabase.from('milestones').select('*').eq('user_id', userId).order('sort_order'),
+        supabase.from('essentials_progress').select('item_id').eq('user_id', userId).eq('completed', true),
       ])
+      setEssentialsDoneIds(new Set((eRows || []).map((r) => r.item_id)))
       const displayName = userRow?.name || user.user_metadata?.name || user.email
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
@@ -291,6 +322,10 @@ export default function J1Dashboard() {
   }
 
   const isDemo = profile === false
+
+  const essentialsTotal = hasChildren(loadAnswers()) ? ESSENTIALS_TOTAL_WITH_CHILDREN : ESSENTIALS_TOTAL_NO_CHILDREN
+  const essentialsDone  = isDemo ? 2 : essentialsDoneIds.size
+  const essentialsPct   = isDemo ? 5 : Math.round((essentialsDone / essentialsTotal) * 100)
 
   const isCanada = (() => {
     try {
@@ -642,7 +677,7 @@ export default function J1Dashboard() {
             <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>Life Setup Checklist</p>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full"
               style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>
-              2 / 38
+              {essentialsDone} / {essentialsTotal}
             </span>
           </div>
           <p className="text-xs mb-3" style={{ color: '#4A5568' }}>
@@ -650,10 +685,10 @@ export default function J1Dashboard() {
           </p>
           {/* Progress bar */}
           <div className="w-full h-1.5 rounded-full mb-4" style={{ backgroundColor: '#F1F5F9' }}>
-            <div className="h-1.5 rounded-full" style={{ width: '5%', backgroundColor: '#F0A500' }} />
+            <div className="h-1.5 rounded-full" style={{ width: `${essentialsPct}%`, backgroundColor: '#F0A500' }} />
           </div>
-          {CHECKLIST_PREVIEW.map((item) => (
-            <ChecklistItem key={item.id} item={item} />
+          {(isDemo ? CHECKLIST_PREVIEW_DEMO : CHECKLIST_PREVIEW_REAL).map((item) => (
+            <ChecklistItem key={item.id} item={item} completed={!isDemo && essentialsDoneIds.has(item.essId)} />
           ))}
           <button
             onClick={() => navigate('/j6')}
