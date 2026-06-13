@@ -9,6 +9,9 @@ function isEmployerTransfer(answers) { return answers.motivation === 'My employe
 function isLifestyleOrFamily(answers) {
   return answers.motivation === 'Lifestyle — I want a fresh start' || answers.motivation === 'Family reasons'
 }
+function isFamilyNonK1(answers) {
+  return answers.motivation === 'Family reasons' && answers.family_situation !== 'Yes'
+}
 function isLowBudget(answers) { return answers.budget === 'Under $100,000' }
 function isNotSure(answers) { return answers.motivation === 'Not sure yet' }
 function hasAgeOutRisk(answers) { return answers.children === 'Yes — aged 18, 19, or 20' }
@@ -210,19 +213,16 @@ function buildCards(answers) {
       if (canada) cards.push(tnCard)
       return cards
     }
-    const cards = [e2Card, eb5Card]
-    if (canada) cards.push(tnCard)
-    return cards
+    return []
   }
   if (answers.motivation === 'Lifestyle — I want a fresh start') {
     const pb = answers.professional_background
     if (canada && pb === 'I work in a profession on the USMCA professional list (engineer, accountant, teacher, scientist, etc.)') {
-      return [{ ...tnCard, lead: true }, e2Card, eb5Card]
+      return [{ ...tnCard, lead: true }]
     }
     if (pb === 'I have notable achievements, awards, or recognition in my field') {
       const cards = [{ ...o1Card, lead: true }]
       if (canada) cards.push(tnCard)
-      cards.push(e2Card)
       return cards
     }
     if (pb === 'I have a job offer (or strong prospects) from a US employer') {
@@ -277,6 +277,9 @@ function buildHeader(answers) {
     if (pb === 'I have a job offer (or strong prospects) from a US employer') {
       return "Based on your answers — you have a US job offer — the H-1B is the standard pathway, though it's subject to an annual lottery. A faster alternative is included below if it applies to you."
     }
+  }
+  if (isFamilyNonK1(answers)) {
+    return 'Family-sponsored immigration — based on your relationship to a US citizen or permanent resident relative — follows a different process than the work and investment visa pathways covered here. An immigration attorney can map out the right category and timeline for your specific situation.'
   }
   if (isLifestyleOrFamily(answers)) {
     return "Your situation doesn't fit a single obvious visa category — which is actually common. The right path depends on factors an attorney will uncover in a 30-minute consultation. Here's a general overview of the most common options for your profile."
@@ -346,6 +349,24 @@ function LifestyleInfoBox() {
       <p className="text-sm leading-relaxed mt-2" style={{ color: '#4A5568' }}>
         The options below are the most common pathways for people in your situation. A 30-minute consultation with an immigration attorney will clarify which applies to you — most offer this at no charge.
       </p>
+    </div>
+  )
+}
+
+function FamilySponsoredInfoBox({ onFindAttorney }) {
+  return (
+    <div className="mx-4 mb-2 rounded-2xl px-4 py-4" style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}>
+      <p className="text-sm leading-relaxed" style={{ color: '#0D2B4E' }}>
+        Family-sponsored immigration — based on a US citizen or permanent resident parent, sibling, adult child, or spouse — follows immigrant visa categories with their own priority dates, petitions, and timelines.
+      </p>
+      <p className="text-sm leading-relaxed mt-2" style={{ color: '#4A5568' }}>
+        This is a different process than the work and investment visa pathways MigraTrak currently maps out. An immigration attorney can identify the right family-based category for your relationship and walk you through realistic timelines — most offer an initial consultation at no charge.
+      </p>
+      <button onClick={onFindAttorney}
+        className="w-full mt-3 py-2.5 rounded-xl text-sm font-bold transition-opacity active:opacity-80"
+        style={{ backgroundColor: '#1B5FA8', color: '#FFFFFF' }}>
+        Find an immigration attorney →
+      </button>
     </div>
   )
 }
@@ -479,7 +500,8 @@ export default function D3Results() {
   const answers = state?.answers ?? {}
 
   const ageOut           = hasAgeOutRisk(answers)
-  const showLifestyleBox = isLifestyleOrFamily(answers)
+  const showFamilyBox    = isFamilyNonK1(answers)
+  const showLifestyleBox = isLifestyleOrFamily(answers) && !showFamilyBox
   const showLowBudgetBox = isLowBudget(answers)
   const showFundBox      = hasFundSource(answers)
   const cards            = buildCards(answers)
@@ -506,6 +528,7 @@ export default function D3Results() {
       </div>
 
       {showLowBudgetBox  && <LowBudgetInfoBox />}
+      {showFamilyBox     && <FamilySponsoredInfoBox onFindAttorney={goToJ5} />}
       {showLifestyleBox  && <LifestyleInfoBox />}
       {showFundBox       && <FundSourceInfoBox answers={answers} />}
 
