@@ -153,6 +153,7 @@ function buildCards(answers) {
       'No annual cap and no lottery — processing is faster and more predictable than H-1B.',
       'Initial period is up to 3 years, renewable in 1-year increments indefinitely.',
       'Can transition toward an EB-1A green card (extraordinary ability) if your achievements continue.',
+      'Your spouse and unmarried children under 21 can accompany you on O-3 status — same rules as TD: they can live in the US but cannot work.',
     ],
   }
 
@@ -172,11 +173,15 @@ function buildCards(answers) {
       'H-1B status is valid for up to 3 years initially, renewable to a maximum of 6 years (longer if a green card petition is in process).',
       'If your role might qualify as a TN occupation and you\u2019re Canadian, TN has no lottery and may be faster — worth discussing with an attorney.',
       'H-1B can lead to an EB-2 or EB-3 green card if your employer sponsors you.',
+      'Your spouse and unmarried children under 21 can accompany you on H-4 status. H-4 spouses generally cannot work — but may qualify for an H-4 EAD (work permit) once you have an approved I-140 immigrant petition.',
     ],
   }
 
   const k1Card = {
     id: 'k1', title: 'K-1 Fianc\u00e9(e) Visa', lead: false,
+    relationshipNote: answers.household !== 'Just me'
+      ? "K-1 is for couples who are engaged but not yet married. If you're already married or in a long-term relationship with someone other than your US citizen fianc\u00e9(e), your situation may call for a different pathway — this is worth clarifying with an attorney right away."
+      : null,
     opener: "Since you're engaged to a US citizen and planning to marry within 90 days of arriving, the K-1 fianc\u00e9 visa is the pathway built for exactly this situation.",
     whatItIs: 'For the foreign-citizen fianc\u00e9(e) of a US citizen — you enter the US, must marry your sponsor within 90 days, then apply to adjust status to permanent resident.',
     investment: 'None', timeline: '6–9 months',
@@ -455,6 +460,12 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <p className="text-sm" style={{ color: '#0D2B4E' }}>{card.rightFor}</p>
         </div>
         {card.dependentNote && <p className="text-xs italic" style={{ color: '#4A9FD4' }}>{card.dependentNote}</p>}
+        {card.relationshipNote && (
+          <div className="px-3 py-2 rounded-lg flex gap-2" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}>
+            <span className="text-sm flex-shrink-0">ℹ️</span>
+            <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>{card.relationshipNote}</p>
+          </div>
+        )}
         <div className="px-3 py-2 rounded-lg flex gap-2" style={{ backgroundColor: '#FEF3C7' }}>
           <span className="text-sm flex-shrink-0">⚠️</span>
           <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>{card.warning}</p>
