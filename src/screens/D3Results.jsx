@@ -12,6 +12,26 @@ function isLifestyleOrFamily(answers) {
 function isLowBudget(answers) { return answers.budget === 'Under $100,000' }
 function isNotSure(answers) { return answers.motivation === 'Not sure yet' }
 function hasAgeOutRisk(answers) { return answers.children === 'Yes — aged 18, 19, or 20' }
+function hasFundSource(answers) { return !!answers.fund_source }
+function fundReadinessIsLimited(answers) {
+  return !!answers.fund_readiness && answers.fund_readiness !== 'Accessible now — funds are liquid and in hand'
+}
+const FUND_SOURCE_NOTES = {
+  'Savings / cash on hand':
+    'Cash savings are the most straightforward source of funds — keep bank statements showing the accumulation over time, as USCIS and your attorney will want to see where the balance came from.',
+  'Sale of a business':
+    "You'll need the sale agreement, business tax returns, and bank statements showing the proceeds landing — keep these organized from day one.",
+  'Sale of property (e.g., your home)':
+    'Selling property takes time to close, and USCIS will want the purchase and sale agreements plus bank records showing the proceeds — start this process early.',
+  'RRSP, RRIF, or investment accounts':
+    'Withdrawing from an RRSP or RRIF triggers Canadian withholding tax immediately and adds the amount to your taxable income for the year — factor that into your real budget, not just the investment minimum.',
+  'Home equity loan or line of credit (HELOC)':
+    "A HELOC against Canadian property is one of the most common — and best-documented — sources of investor visa funds. You'll need the HELOC agreement and bank records showing the draw.",
+  'Gift or inheritance from family':
+    "Gifted or inherited funds are accepted, but USCIS will also want to see the lawful source of the donor's funds and proof of your relationship — not just a gift letter.",
+  'Not sure yet':
+    'Where your funds come from — and proving they were lawfully obtained — is one of the most scrutinized parts of any investor visa case. This is exactly the kind of thing worth mapping out with an attorney early.',
+}
 function hasFamilyChildren(answers) {
   return answers.household === 'Me, spouse, and children' || answers.children?.startsWith('Yes')
 }
@@ -228,6 +248,25 @@ function LifestyleInfoBox() {
   )
 }
 
+function FundSourceInfoBox({ answers }) {
+  const note = FUND_SOURCE_NOTES[answers.fund_source]
+  if (!note) return null
+  const limited = fundReadinessIsLimited(answers)
+  return (
+    <div className="mx-4 mb-2 rounded-2xl px-4 py-4" style={{ backgroundColor: '#F5F3FF', border: '1px solid #C4B5FD' }}>
+      <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#5B21B6' }}>
+        About Your Investment Funds
+      </p>
+      <p className="text-sm leading-relaxed" style={{ color: '#4C1D95' }}>{note}</p>
+      {limited && (
+        <p className="text-sm leading-relaxed mt-2" style={{ color: '#4C1D95' }}>
+          Since accessing these funds will take some time, an attorney can help you sequence this alongside your visa filing — so you're not waiting on funds when you're ready to file.
+        </p>
+      )}
+    </div>
+  )
+}
+
 function DetailRow({ label, value, highlight }) {
   return (
     <div className="flex items-start justify-between gap-3 py-2" style={{ borderBottom: '1px solid #F1F5F9' }}>
@@ -340,6 +379,7 @@ export default function D3Results() {
   const ageOut           = hasAgeOutRisk(answers)
   const showLifestyleBox = isLifestyleOrFamily(answers)
   const showLowBudgetBox = isLowBudget(answers)
+  const showFundBox      = hasFundSource(answers)
   const cards            = buildCards(answers)
   const headerText       = buildHeader(answers)
   const leadVisa         = cards[0]?.id ?? 'e2'
@@ -365,6 +405,7 @@ export default function D3Results() {
 
       {showLowBudgetBox  && <LowBudgetInfoBox />}
       {showLifestyleBox  && <LifestyleInfoBox />}
+      {showFundBox       && <FundSourceInfoBox answers={answers} />}
 
       <div className="flex flex-col gap-4 px-4 pb-4">
         {cards.map((card) => (

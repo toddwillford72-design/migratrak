@@ -58,6 +58,31 @@ const QUESTIONS = [
     ],
     footnote: `Visa options powered by ${VISA_TYPES.map((v) => v.name).join(', ')}`,
   },
+  {
+    id: 'fund_source',
+    text: 'What is the primary source of your investment funds?',
+    options: [
+      'Savings / cash on hand',
+      'Sale of a business',
+      'Sale of property (e.g., your home)',
+      'RRSP, RRIF, or investment accounts',
+      'Home equity loan or line of credit (HELOC)',
+      'Gift or inheritance from family',
+      'Not sure yet',
+    ],
+    showIf: (answers) => answers.motivation === 'Buying or starting a business',
+  },
+  {
+    id: 'fund_readiness',
+    text: 'Are these funds accessible right now, or would you need to sell, withdraw, or borrow first?',
+    options: [
+      'Accessible now — funds are liquid and in hand',
+      'Mostly accessible — would take some time (e.g., selling property, RRSP withdrawal)',
+      'Not yet — I would need to arrange financing or sell major assets first',
+      'Not sure',
+    ],
+    showIf: (answers) => answers.motivation === 'Buying or starting a business',
+  },
 ]
 
 function ProgressBar({ step, total }) {
