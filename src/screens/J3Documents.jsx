@@ -148,8 +148,8 @@ const SEED_DOCS = {
     { name: 'TN application package',                                           phase: 2 },
     { name: 'Border crossing confirmation',                                     phase: 2 },
     { name: 'I-94 record',                                                      phase: 3 },
-    { name: 'US bank account confirmation',                                     phase: 4 },
-    { name: 'SSN application',                                                  phase: 4 },
+    { name: 'US bank account confirmation',                                     phase: 5 },
+    { name: 'SSN application',                                                  phase: 5 },
   ],
   l1: [
     { name: 'Passport',                               phase: 1 },
