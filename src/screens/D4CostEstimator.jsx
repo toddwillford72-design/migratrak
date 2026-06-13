@@ -85,7 +85,7 @@ const VISA_DATA = {
     title: 'EB-5 Investor Green Card',
     totalLabel: 'Realistic All-In Range',
     totalNote: 'Excluding the $800,000 investment',
-    totalRange: '$60,000 – $115,000',
+    totalRange: '$85,000 – $175,000',
     sections: [
       {
         title: 'Investment Requirement',
@@ -107,7 +107,7 @@ const VISA_DATA = {
         items: [
           { label: 'Immigration attorney', value: '$20,000 – $35,000' },
           { label: 'Business plan preparation', value: '$3,000 – $8,000' },
-          { label: 'Regional center fees', value: '$5,000 – $10,000' },
+          { label: 'Regional center administrative fee', value: '$30,000 – $70,000', note: 'Paid to the regional center / NCE — separate from and on top of your $800K investment. Typically due in full before filing I-526E. Non-refundable.' },
           { label: 'Financial advisor', value: '$2,000 – $5,000' },
           { label: 'Source of funds documentation', value: '$1,000 – $3,000' },
         ],

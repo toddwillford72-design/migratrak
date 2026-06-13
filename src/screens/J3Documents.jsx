@@ -103,6 +103,7 @@ const SEED_DOCS = {
     { name: 'Regional center offering documents (PPM)',                   phase: 2 },
     { name: 'Business plan (direct investment only)',                     phase: 2 },
     { name: 'Regional center subscription agreement',                     phase: 2 },
+    { name: 'Regional center administrative fee receipt (non-refundable)', phase: 2 },
     { name: 'Investment wire transfer confirmation',                      phase: 2 },
     { name: 'Escrow release confirmation',                                phase: 2 },
     { name: 'Medical examination (I-693)',                                phase: 3 },

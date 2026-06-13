@@ -16,6 +16,7 @@ const CATEGORIES = [
   'Legal Fees',
   'Filing Fees',
   'Business / Investment',
+  'Regional Center Fee',
   'Travel & Hotels',
   'Medical Exams',
   'Moving Costs',
@@ -25,7 +26,8 @@ const CATEGORIES = [
 const INITIAL_EXPENSES = [
   { id: 1,  category: 'Legal Fees',              amount: 34500, label: 'Immigration attorney retainer + consultations', date: 'Various' },
   { id: 2,  category: 'Filing Fees',             amount: 18420, label: 'I-526, I-485, I-765, I-131 filing fees',      date: 'Various' },
-  { id: 3,  category: 'Business / Investment',   amount:  8200, label: 'Business plan + regional center fees',         date: 'Various' },
+  { id: 3,  category: 'Business / Investment',   amount:  5500,  label: 'Business plan preparation + due diligence',     date: 'Various' },
+  { id: 8,  category: 'Regional Center Fee',     amount: 60000,  label: 'EB5AN regional center administrative fee — paid upfront with I-526E', date: 'Feb 2025' },
   { id: 4,  category: 'Travel & Hotels',         amount: 12400, label: 'Site visits, consultations, relocation trips', date: 'Various' },
   { id: 5,  category: 'Medical Exams',           amount:  3800, label: 'I-693 medical exams — family of 4',            date: 'Apr 2026' },
   { id: 6,  category: 'Moving Costs',            amount:  9600, label: 'International moving company',                 date: 'Jan 2026' },
@@ -36,6 +38,7 @@ const CAT_COLORS = {
   'Legal Fees':             '#1B5FA8',
   'Filing Fees':            '#4A9FD4',
   'Business / Investment':  '#1A7A4A',
+  'Regional Center Fee':    '#7C3AED',
   'Travel & Hotels':        '#F0A500',
   'Medical Exams':          '#9333EA',
   'Moving Costs':           '#DC2626',
@@ -368,11 +371,12 @@ function AddExpensePanel({ onClose, onSave }) {
 // ── Investment Passport view ──────────────────────────────────────────────────
 
 const PASSPORT_INVESTMENTS = [
-  { category: 'Legal & Professional',       amount: 34500,   receipts: true },
-  { category: 'Government Filing Fees',     amount: 18420,   receipts: true },
-  { category: 'Regional Center Investment', amount: 800000,  receipts: true },
-  { category: 'Business Due Diligence',     amount: 8200,    receipts: true },
-  { category: 'Medical Examinations',       amount: 3800,    receipts: true },
+  { category: 'Legal & Professional',                amount: 34500,   receipts: true },
+  { category: 'Government Filing Fees',              amount: 18420,   receipts: true },
+  { category: 'Regional Center Investment',          amount: 800000,  receipts: true },
+  { category: 'Regional Center Administrative Fee',  amount: 60000,   receipts: true },
+  { category: 'Business Due Diligence',              amount: 5500,    receipts: true },
+  { category: 'Medical Examinations',                amount: 3800,    receipts: true },
 ]
 
 const PASSPORT_DOCUMENTED = PASSPORT_INVESTMENTS
