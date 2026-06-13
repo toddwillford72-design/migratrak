@@ -512,7 +512,7 @@ export default function J6Essentials() {
       </div>
 
       <TabBar active="essentials" />
-      <NavFooter backPath="/j5" />
+      <NavFooter backPath="/j1" />
     </div>
   )
 }
