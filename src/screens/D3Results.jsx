@@ -421,9 +421,8 @@ function VisaCard({ card, onCta, onCostEstimate }) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden shadow-sm cursor-pointer transition-shadow active:shadow-md"
+      className="rounded-2xl overflow-hidden shadow-sm transition-shadow"
       style={{ backgroundColor: '#FFFFFF', border: `2px solid ${borderColor}` }}
-      onClick={() => onCostEstimate(card.ctaVisa)}
     >
       <div className="px-5 py-4" style={{ backgroundColor: headerBg }}>
         <div className="flex items-start justify-between gap-2">
@@ -464,12 +463,12 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <DetailRow label="Green Card" value={card.greenCard} highlight={card.greenCardPath} />
           <DetailRow label="Renewable" value={card.renewable} />
         </div>
-        <div>
+        <div className="px-3 py-2 rounded-lg" style={{ backgroundColor: '#F7F9FC' }}>
           <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#4A5568' }}>Right for you if</p>
           <p className="text-sm" style={{ color: '#0D2B4E' }}>{card.rightFor}</p>
         </div>
         {card.dependentNote && (
-          <div>
+          <div className="px-3 py-2 rounded-lg" style={{ backgroundColor: '#F7F9FC' }}>
             <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#4A5568' }}>For your family</p>
             <p className="text-sm" style={{ color: '#0D2B4E' }}>{card.dependentNote}</p>
           </div>
@@ -485,7 +484,7 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>{card.warning}</p>
         </div>
         <button
-          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
+          onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 text-xs font-semibold transition-opacity active:opacity-60"
           style={{ color: '#1B5FA8' }}
         >
@@ -506,7 +505,7 @@ function VisaCard({ card, onCta, onCostEstimate }) {
       {/* CTA button */}
       <div className="px-5 pb-5">
         <button
-          onClick={(e) => { e.stopPropagation(); onCostEstimate(card.ctaVisa) }}
+          onClick={() => onCostEstimate(card.ctaVisa)}
           className="w-full py-3 rounded-lg text-sm font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
         >
