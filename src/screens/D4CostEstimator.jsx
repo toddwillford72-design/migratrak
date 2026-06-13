@@ -19,6 +19,15 @@ function parseAmount(str) {
   return parseInt(str.replace(/[^0-9]/g, ''), 10)
 }
 
+function rangeMidpoint(totalRange) {
+  const parts = totalRange.split('–').map((s) => parseAmount(s.trim()))
+  if (parts.length !== 2 || parts.some((n) => Number.isNaN(n))) return null
+  const mid = Math.round((parts[0] + parts[1]) / 2)
+  // Round to nearest $1,000 for a cleaner anchor figure
+  const rounded = Math.round(mid / 1000) * 1000
+  return `$${rounded.toLocaleString()}`
+}
+
 // Returns { primary, note } — primary replaces/keeps item.value, note is an
 // optional computed-total line shown when the item is per-person and the
 // family has more than one member.
@@ -617,6 +626,11 @@ export default function D4CostEstimator() {
         <p className="text-xl font-bold" style={{ color: '#FFFFFF' }}>
           to {data.totalRange.split('–')[1]?.trim()}
         </p>
+        {rangeMidpoint(data.totalRange) && (
+          <p className="text-sm mt-1 font-semibold" style={{ color: '#9DC8EC' }}>
+            Most people land around {rangeMidpoint(data.totalRange)}
+          </p>
+        )}
         <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
           {data.totalNote}
         </p>
