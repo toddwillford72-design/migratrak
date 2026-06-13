@@ -468,7 +468,12 @@ function VisaCard({ card, onCta, onCostEstimate }) {
           <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#4A5568' }}>Right for you if</p>
           <p className="text-sm" style={{ color: '#0D2B4E' }}>{card.rightFor}</p>
         </div>
-        {card.dependentNote && <p className="text-xs italic" style={{ color: '#4A9FD4' }}>{card.dependentNote}</p>}
+        {card.dependentNote && (
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wider mb-1" style={{ color: '#4A5568' }}>For your family</p>
+            <p className="text-sm" style={{ color: '#0D2B4E' }}>{card.dependentNote}</p>
+          </div>
+        )}
         {card.relationshipNote && (
           <div className="px-3 py-2 rounded-lg flex gap-2" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}>
             <span className="text-sm flex-shrink-0">ℹ️</span>
