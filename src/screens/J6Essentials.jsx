@@ -332,9 +332,9 @@ export default function J6Essentials() {
   if (category === 'banking')        return <BankingScreen        onBack={() => setCategory(null)} />
 
   // Item counts per section (done items hardcoded for Chen demo)
-  const s1Done = 0, s1Total = withChildren ? 9 : 7
-  const s2Done = 2, s2Total = 6
-  const s3Done = 0, s3Total = withChildren ? 8 : 6
+  const s1Done = 0, s1Total = withChildren ? 11 : 9
+  const s2Done = 2, s2Total = 8
+  const s3Done = 0, s3Total = withChildren ? 9 : 7
   const s4Done = 0, s4Total = withChildren ? 6 : 5
   const s5Done = 0, s5Total = 4
   const s6Done = 0, s6Total = 5
@@ -373,10 +373,14 @@ export default function J6Essentials() {
         <Section title="Before You Arrive" subtitle="Do these before leaving your home country"
           open={open.s1} onToggle={() => toggle('s1')} doneCount={s1Done} totalCount={s1Total}>
           <div className="pt-1">
+            <TodoItem label="Sell or transfer your TFSA before becoming a US tax resident" actionLabel="Learn more" onAction={() => {}} />
             <TodoItem label="Engage cross-border accountant" actionLabel="Find one" onAction={() => navigate('/j5')} />
             <TodoItem label="File home country departure return" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Wind down home country registered accounts" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Cancel or update provincial health coverage (e.g. OHIP)" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Wind down remaining home country accounts (RRSP can stay — treaty protected)" actionLabel="Learn more" onAction={() => {}} />
             <TodoItem label="Obtain medical records from home country doctors" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Arrange pet relocation — vaccinations and health certificate" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Set up mail forwarding with Canada Post" actionLabel="Learn more" onAction={() => {}} />
             {withChildren && (
               <>
                 <TodoItem label="Request school transcripts from home country" actionLabel="Learn how" onAction={() => {}} />
@@ -391,22 +395,20 @@ export default function J6Essentials() {
         <Section title="Week 1 — Do Immediately" subtitle="Your first 7 days in the US"
           badge="urgent" open={open.s2} onToggle={() => toggle('s2')} doneCount={s2Done} totalCount={s2Total}>
           <div className="pt-1">
-            <UrgentItem
-              label="Arrange US auto insurance"
-              urgencyNote="5 months elapsed — Canadian coverage may void at 6 months"
-              actionLabel="Find insurance"
-              onAction={() => setCategory('auto-insurance')}
-            />
-            <UrgentItem
-              label="Confirm home country vehicle registration status"
-              urgencyNote="Check whether your plates and registration remain valid during your US stay"
-              actionLabel="Learn more"
-              onAction={() => {}}
-            />
+            <TodoItem label="Research US auto insurance options — you can typically keep Canadian plates and insurance until around the 6-month mark" actionLabel="Browse options" onAction={() => setCategory('auto-insurance')} />
+            <TodoItem label="Set up homeowners or renters insurance for your new home" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Know your emergency healthcare options before coverage starts" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Note your home country vehicle plate/registration expiry date" actionLabel="Learn more" onAction={() => {}} />
             <DoneItem label="Open US bank account" />
             <DoneItem label="Set up US cell phone plan" />
             <TodoItem label="Set up utilities (electric, internet, water)" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Check I-94 for errors" actionLabel="Check now" onAction={() => {}} last />
+            <UrgentItem
+              label="Check I-94 for errors"
+              urgencyNote="Errors on this record can delay healthcare, banking, and SSN applications — verify immediately"
+              actionLabel="Check now"
+              onAction={() => {}}
+              last
+            />
           </div>
         </Section>
 
@@ -416,6 +418,7 @@ export default function J6Essentials() {
           <div className="pt-1">
             <TodoItem label="Enroll in US health insurance" actionLabel="Find options" onAction={() => {}} />
             <TodoItem label="Apply for SSN (when eligible for your visa type)" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Update your address with USCIS (Form AR-11)" actionLabel="Learn more" onAction={() => {}} />
             <TodoItem label="Engage financial advisor" actionLabel="Find one" onAction={() => navigate('/j5')} />
             <TodoItem label="Get Florida driver's licence (required within 30 days of establishing residency)" actionLabel="Learn more" onAction={() => {}} />
             <TodoItem label="Build US credit history — open secured credit card or use Nova Credit" actionLabel="Learn how" onAction={() => {}} />
@@ -438,11 +441,10 @@ export default function J6Essentials() {
             <TodoItem label="Find primary care physician" actionLabel="Find one" onAction={() => navigate('/j5')} />
             <TodoItem label="Find dentist" actionLabel="Find one" onAction={() => navigate('/j5')} />
             <TodoItem label="Transfer prescription records" actionLabel="Learn more" onAction={() => {}} />
-            <TodoItem label="Contact vehicle import company (if importing home country vehicle)" actionLabel="Learn more" onAction={() => {}} />
+            <TodoItem label="Register imported vehicle in Florida (use tax due on vehicle value)" actionLabel="Learn more" onAction={() => {}} last={!withChildren} />
             {withChildren && (
-              <TodoItem label="Enroll children in school (if not done in Month 1)" actionLabel="Find your district" onAction={() => {}} />
+              <TodoItem label="Enroll children in school (if not done in Month 1)" actionLabel="Find your district" onAction={() => {}} last />
             )}
-            <TodoItem label="File FBAR if applicable (foreign bank accounts over $10K)" actionLabel="Learn more" onAction={() => {}} last />
           </div>
         </Section>
 
@@ -450,10 +452,15 @@ export default function J6Essentials() {
         <Section title="Months 3–6" subtitle="Time-sensitive items approaching"
           open={open.s5} onToggle={() => toggle('s5')} doneCount={s5Done} totalCount={s5Total}>
           <div className="pt-1">
-            <TodoItem label="Confirm auto insurance covers you beyond 6 months" actionLabel="Check now" onAction={() => setCategory('auto-insurance')} />
-            <TodoItem label="Confirm home country vehicle plates/registration status" actionLabel="Learn more" onAction={() => {}} />
+            <UrgentItem
+              label="Confirm auto insurance covers you beyond 6 months"
+              urgencyNote="5 months elapsed — Canadian coverage may void at 6 months"
+              actionLabel="Check now"
+              onAction={() => setCategory('auto-insurance')}
+            />
+            <TodoItem label="Renew or cancel home country vehicle plates/registration before it expires" actionLabel="Learn more" onAction={() => {}} />
             <TodoItem label="Review US credit score progress" actionLabel="Check score" onAction={() => {}} />
-            <TodoItem label="File FBAR if applicable (foreign bank accounts over $10K)" actionLabel="Learn more" onAction={() => {}} last />
+            <TodoItem label="File FBAR for the prior tax year if foreign accounts exceeded $10K (due the following April 15)" actionLabel="Learn more" onAction={() => {}} last />
           </div>
         </Section>
 
