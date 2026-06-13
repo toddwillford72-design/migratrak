@@ -2,6 +2,55 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
+// ── Family size helpers ─────────────────────────────────────────────────────
+
+function getFamilySize(answers) {
+  if (!answers) return 1
+  const { household, num_children } = answers
+  let size = 1
+  if (household === 'Me and my spouse or partner' || household === 'Me, spouse, and children') size += 1
+  if (household === 'Me, spouse, and children' || household === 'Me and my children (no spouse or partner)') {
+    size += num_children === '5 or more' ? 5 : (parseInt(num_children, 10) || 0)
+  }
+  return size
+}
+
+function parseAmount(str) {
+  return parseInt(str.replace(/[^0-9]/g, ''), 10)
+}
+
+// Returns { primary, note } — primary replaces/keeps item.value, note is an
+// optional computed-total line shown when the item is per-person and the
+// family has more than one member.
+function formatItemValue(value, familySize) {
+  // "$X × family size" — e.g. EB-5's I-485, I-765/I-131
+  let m = value.match(/^\$([\d,]+) × family size$/)
+  if (m) {
+    const per = parseAmount(m[1])
+    const total = per * familySize
+    return {
+      primary: `$${total.toLocaleString()}`,
+      note: `$${per.toLocaleString()} × ${familySize} ${familySize === 1 ? 'person' : 'people'}`,
+    }
+  }
+  // "$X – $Y per person" — e.g. medical examinations
+  m = value.match(/^\$([\d,]+) – \$([\d,]+) per person$/)
+  if (m) {
+    if (familySize <= 1) return { primary: value, note: null }
+    const lo = parseAmount(m[1]) * familySize
+    const hi = parseAmount(m[2]) * familySize
+    return { primary: value, note: `= $${lo.toLocaleString()} – $${hi.toLocaleString()} for your family of ${familySize}` }
+  }
+  // "$X per person" — e.g. biometrics, DS-160 fees
+  m = value.match(/^\$([\d,]+) per person$/)
+  if (m) {
+    if (familySize <= 1) return { primary: value, note: null }
+    const total = parseAmount(m[1]) * familySize
+    return { primary: value, note: `= $${total.toLocaleString()} for your family of ${familySize}` }
+  }
+  return { primary: value, note: null }
+}
+
 // ── Cost data per visa ────────────────────────────────────────────────────────
 
 const VISA_DATA = {
@@ -42,8 +91,8 @@ const VISA_DATA = {
         accent: '#4A5568',
         accentBg: '#F7F9FC',
         items: [
-          { label: 'DS-160 application', value: '$205' },
-          { label: 'Consular processing fee', value: '$315' },
+          { label: 'DS-160 application (per person)', value: '$205 per person' },
+          { label: 'Consular processing fee (per person)', value: '$315 per person' },
           { label: 'USCIS (if change of status)', value: '$1,765' },
         ],
       },
@@ -399,7 +448,7 @@ const VISA_DATA = {
         accentBg: '#F7F9FC',
         items: [
           { label: 'Form I-129F petition', value: '$675' },
-          { label: 'DS-160 / K-1 visa fee (consulate)', value: '$265' },
+          { label: 'DS-160 / K-1 visa fee (consulate, per person)', value: '$265 per person' },
           { label: 'Medical exam (panel physician)', value: '$200 – $500' },
         ],
       },
@@ -428,7 +477,7 @@ const VISA_DATA = {
 const TOGGLE_ORDER = ['e2', 'eb5', 'tn', 'l1']
 
 // ── Section card ──────────────────────────────────────────────────────────────
-function CostSection({ section }) {
+function CostSection({ section, familySize }) {
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
       <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: section.accentBg }}>
@@ -438,7 +487,9 @@ function CostSection({ section }) {
         </span>
       </div>
       <div className="px-4 pb-2">
-        {section.items.map((item, i) => (
+        {section.items.map((item, i) => {
+          const { primary, note: familyNote } = formatItemValue(item.value, familySize)
+          return (
           <div
             key={i}
             className="py-2.5 flex items-start justify-between gap-3"
@@ -454,14 +505,22 @@ function CostSection({ section }) {
                 </span>
               )}
             </div>
-            <span
-              className="text-sm flex-shrink-0 tabular-nums"
-              style={{ color: item.bold ? '#1A7A4A' : '#0D2B4E', fontWeight: item.bold ? '700' : '600' }}
-            >
-              {item.value}
-            </span>
+            <div className="flex flex-col items-end flex-shrink-0 gap-0.5">
+              <span
+                className="text-sm tabular-nums"
+                style={{ color: item.bold ? '#1A7A4A' : '#0D2B4E', fontWeight: item.bold ? '700' : '600' }}
+              >
+                {primary}
+              </span>
+              {familyNote && (
+                <span className="text-xs tabular-nums" style={{ color: '#1A7A4A', fontWeight: 600 }}>
+                  {familyNote}
+                </span>
+              )}
+            </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
@@ -493,6 +552,7 @@ export default function D4CostEstimator() {
   }, [initialVisa])
 
   const data = VISA_DATA[activeVisa]
+  const familySize = getFamilySize(state?.answers)
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
@@ -542,7 +602,7 @@ export default function D4CostEstimator() {
         )}
 
         {data.sections.map((section) => (
-          <CostSection key={section.title} section={section} />
+          <CostSection key={section.title} section={section} familySize={familySize} />
         ))}
       </div>
 
@@ -560,6 +620,11 @@ export default function D4CostEstimator() {
         <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
           {data.totalNote}
         </p>
+        {familySize > 1 && (
+          <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Per-person fees above are calculated for your family of {familySize} — this range may run higher for larger families.
+          </p>
+        )}
       </div>
 
       {/* Cost disclaimer */}
