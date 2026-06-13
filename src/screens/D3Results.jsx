@@ -134,6 +134,63 @@ function buildCards(answers) {
     ],
   }
 
+  const o1Card = {
+    id: 'o1', title: 'O-1 Extraordinary Ability Visa', lead: false,
+    opener: 'If you have recognized achievements in your field — awards, media coverage, leadership roles, published work — the O-1 may let you work in the US without a lottery or large investment.',
+    whatItIs: 'For individuals with extraordinary ability in sciences, arts, education, business, or athletics, evidenced by sustained national or international acclaim.',
+    investment: 'None', timeline: '2–4 months',
+    greenCard: 'Yes — can lead to EB-1 green card', greenCardPath: true,
+    renewable: 'Renewable in 1-year increments, no maximum',
+    rightFor: 'You have documented evidence of extraordinary achievement — major awards, significant media coverage, critical roles, high remuneration, published work, or similar',
+    warning: 'The evidentiary bar is genuinely high — USCIS requires at least 3 of 8 specific criteria (or comparable evidence). An attorney can assess whether your background is strong enough before you invest time building a petition.',
+    dependentNote, expandLabel: 'Learn more about O-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'o1',
+    expandContent: [
+      'O-1 requires evidence of sustained acclaim — examples include major awards, published material about you, judging others\u2019 work, high salary relative to your field, or original contributions of major significance.',
+      'You need a US petitioner (employer, agent, or organization) — but no employer sponsorship in the traditional H-1B sense.',
+      'No annual cap and no lottery — processing is faster and more predictable than H-1B.',
+      'Initial period is up to 3 years, renewable in 1-year increments indefinitely.',
+      'Can transition toward an EB-1A green card (extraordinary ability) if your achievements continue.',
+    ],
+  }
+
+  const h1bCard = {
+    id: 'h1b', title: 'H-1B Specialty Occupation Visa', lead: false,
+    opener: "With a US job offer in hand, the H-1B is the standard pathway for specialty-occupation roles — though it's subject to an annual lottery.",
+    whatItIs: "Work authorization for roles requiring at least a bachelor's degree in a specialty field, sponsored by a US employer.",
+    investment: 'None', timeline: '3–6 months (lottery in April)',
+    greenCard: 'Yes — can lead to EB-2/EB-3 green card', greenCardPath: true,
+    renewable: 'Up to 6 years; extendable with green card petition',
+    rightFor: 'You have a job offer from a US employer in a role requiring a bachelor\u2019s degree or higher',
+    warning: 'Subject to an annual lottery with limited spots — not guaranteed even with a valid job offer. Your employer files the petition on your behalf.',
+    dependentNote, expandLabel: 'Learn more about H-1B', ctaLabel: 'Get my cost estimate', ctaVisa: 'h1b',
+    expandContent: [
+      'The H-1B has an annual cap, and most years receive far more applications than available slots — selection is by random lottery each March/April.',
+      'Your employer must file the petition (Form I-129) — you cannot self-petition.',
+      'H-1B status is valid for up to 3 years initially, renewable to a maximum of 6 years (longer if a green card petition is in process).',
+      'If your role might qualify as a TN occupation and you\u2019re Canadian, TN has no lottery and may be faster — worth discussing with an attorney.',
+      'H-1B can lead to an EB-2 or EB-3 green card if your employer sponsors you.',
+    ],
+  }
+
+  const k1Card = {
+    id: 'k1', title: 'K-1 Fianc\u00e9(e) Visa', lead: false,
+    opener: "Since you're engaged to a US citizen and planning to marry within 90 days of arriving, the K-1 fianc\u00e9 visa is the pathway built for exactly this situation.",
+    whatItIs: 'For the foreign-citizen fianc\u00e9(e) of a US citizen — you enter the US, must marry your sponsor within 90 days, then apply to adjust status to permanent resident.',
+    investment: 'None', timeline: '6–9 months',
+    greenCard: 'Yes — apply for green card after marriage', greenCardPath: true,
+    renewable: 'Single-entry — leads directly to a green card after marriage',
+    rightFor: 'You are engaged to a US citizen and plan to marry within 90 days of entering the US',
+    warning: 'You must marry your US citizen sponsor within 90 days of entry, or you are required to leave the US. The relationship and engagement must be well-documented for USCIS.',
+    dependentNote, expandLabel: 'Learn more about K-1', ctaLabel: 'Get my cost estimate', ctaVisa: 'k1',
+    expandContent: [
+      'Your US citizen fianc\u00e9(e) files Form I-129F on your behalf — the process starts in the US, not at the consulate.',
+      'You must have met your fianc\u00e9(e) in person within the last 2 years (with limited exceptions).',
+      'After entering on the K-1, you must marry within 90 days, then file Form I-485 to become a permanent resident.',
+      'Children of the K-1 applicant may be eligible for K-2 visas.',
+      'This is a one-time entry with no renewal — the pathway leads directly toward a green card through marriage.',
+    ],
+  }
+
   if (isLowBudget(answers)) {
     const e2Caution = { ...e2Card, lead: false, caution: true,
       opener: 'The E-2 typically requires a minimum investment of $100,000 or more to demonstrate it is "substantial" under USCIS guidelines. Your current budget may make this pathway difficult without additional capital planning.',
@@ -144,6 +201,36 @@ function buildCards(answers) {
   }
   if (isEmployerTransfer(answers)) {
     const cards = [{ ...l1Card, lead: true }]
+    if (canada) cards.push(tnCard)
+    return cards
+  }
+  if (answers.motivation === 'Family reasons') {
+    if (answers.family_situation === 'Yes') {
+      const cards = [{ ...k1Card, lead: true }]
+      if (canada) cards.push(tnCard)
+      return cards
+    }
+    const cards = [e2Card, eb5Card]
+    if (canada) cards.push(tnCard)
+    return cards
+  }
+  if (answers.motivation === 'Lifestyle — I want a fresh start') {
+    const pb = answers.professional_background
+    if (canada && pb === 'I work in a profession on the USMCA professional list (engineer, accountant, teacher, scientist, etc.)') {
+      return [{ ...tnCard, lead: true }, e2Card, eb5Card]
+    }
+    if (pb === 'I have notable achievements, awards, or recognition in my field') {
+      const cards = [{ ...o1Card, lead: true }]
+      if (canada) cards.push(tnCard)
+      cards.push(e2Card)
+      return cards
+    }
+    if (pb === 'I have a job offer (or strong prospects) from a US employer') {
+      const cards = [{ ...h1bCard, lead: true }]
+      if (canada) cards.push(tnCard)
+      return cards
+    }
+    const cards = [e2Card, eb5Card]
     if (canada) cards.push(tnCard)
     return cards
   }
@@ -175,6 +262,21 @@ function buildCards(answers) {
 function buildHeader(answers) {
   if (isEmployerTransfer(answers)) {
     return "Based on your answers — employer-sponsored move — the L-1 visa is likely your primary pathway. Your employer's immigration counsel will typically lead this process."
+  }
+  if (answers.motivation === 'Family reasons' && answers.family_situation === 'Yes') {
+    return "Based on your answers — engaged to a US citizen and planning to marry within 90 days of arriving — the K-1 fianc\u00e9 visa is likely your primary pathway."
+  }
+  if (answers.motivation === 'Lifestyle — I want a fresh start') {
+    const pb = answers.professional_background
+    if (isCanada(answers) && pb === 'I work in a profession on the USMCA professional list (engineer, accountant, teacher, scientist, etc.)') {
+      return 'Based on your answers — a Canadian citizen in a qualifying profession — the TN visa is likely your fastest pathway, with other options below for context.'
+    }
+    if (pb === 'I have notable achievements, awards, or recognition in my field') {
+      return 'Based on your answers, the O-1 visa may let you work in the US based on your professional achievements — without the typical lottery or investment requirements.'
+    }
+    if (pb === 'I have a job offer (or strong prospects) from a US employer') {
+      return "Based on your answers — you have a US job offer — the H-1B is the standard pathway, though it's subject to an annual lottery. A faster alternative is included below if it applies to you."
+    }
   }
   if (isLifestyleOrFamily(answers)) {
     return "Your situation doesn't fit a single obvious visa category — which is actually common. The right path depends on factors an attorney will uncover in a 30-minute consultation. Here's a general overview of the most common options for your profile."

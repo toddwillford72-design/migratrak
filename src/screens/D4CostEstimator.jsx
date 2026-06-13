@@ -263,6 +263,166 @@ const VISA_DATA = {
       },
     ],
   },
+
+  o1: {
+    id: 'o1',
+    label: 'O-1',
+    title: 'O-1 Extraordinary Ability Visa',
+    totalLabel: 'Realistic All-In Range',
+    totalNote: 'Excluding relocation',
+    totalRange: '$10,000 – $28,000',
+    successNote: 'No government lottery and no investment requirement — but the evidence portfolio is the real work, and that\u2019s where most of the cost lives.',
+    sections: [
+      {
+        title: 'Legal & Professional Fees',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Immigration attorney', value: '$5,000 – $15,000' },
+          { label: 'Evidence portfolio preparation', value: '$1,000 – $3,000' },
+        ],
+      },
+      {
+        title: 'Government Filing Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'Form I-129 petition', value: '$460 – $1,015' },
+          { label: 'Premium processing (optional, 15 days)', value: '$2,805' },
+        ],
+      },
+      {
+        title: 'Documentation',
+        accent: '#F0A500',
+        accentBg: '#FFFBEB',
+        items: [
+          { label: 'Letters of recommendation, evidence compilation', value: '$500 – $2,000' },
+          { label: 'Credential evaluation (if required)', value: '$200 – $400' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$5,000 – $15,000' },
+          { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
+          { label: 'Vehicle import', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare (before coverage)', value: '$8,000 – $18,000' },
+        ],
+      },
+    ],
+  },
+
+  h1b: {
+    id: 'h1b',
+    label: 'H-1B',
+    title: 'H-1B Specialty Occupation Visa',
+    totalLabel: 'Your Estimated Out-of-Pocket',
+    totalNote: 'Most filing fees are employer-paid by law',
+    totalRange: '$2,000 – $8,000',
+    employerNote: 'By law, your employer must pay the base filing fee, ACWIA training fee, and fraud prevention fee — these cannot be passed to you. Confirm what your employer covers beyond that.',
+    sections: [
+      {
+        title: 'Typical Employer-Paid Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'Form I-129 base fee', value: '$460' },
+          { label: 'ACWIA training fee', value: '$750 – $1,500' },
+          { label: 'Fraud prevention fee', value: '$500' },
+          { label: 'Attorney fees (employer\u2019s counsel)', value: '$3,000 – $8,000' },
+        ],
+      },
+      {
+        title: 'Your Out-of-Pocket Costs',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Premium processing (if you opt in)', value: '$2,805' },
+          { label: 'Credential evaluation', value: '$200 – $400' },
+          { label: 'Medical examinations', value: '$500 – $1,200 per person' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$5,000 – $15,000' },
+          { label: 'Temporary accommodation', value: '$3,000 – $8,000' },
+          { label: 'Vehicle import', value: '$1,500 – $3,500' },
+        ],
+      },
+      {
+        title: 'First Year in the US',
+        accent: '#9333EA',
+        accentBg: '#F5F3FF',
+        items: [
+          { label: 'Auto insurance (US)', value: '$3,000 – $6,000' },
+          { label: 'Healthcare (before coverage begins)', value: '$8,000 – $18,000' },
+        ],
+      },
+    ],
+    closingNote: 'Your actual out-of-pocket cost depends heavily on your employer\u2019s policy and whether you opt for premium processing yourself. Confirm the breakdown with HR before making assumptions.',
+  },
+
+  k1: {
+    id: 'k1',
+    label: 'K-1',
+    title: 'K-1 Fianc\u00e9(e) Visa',
+    totalLabel: 'Realistic All-In Range',
+    totalNote: 'Through K-1 entry — adjustment of status after marriage is separate',
+    totalRange: '$3,000 – $9,000',
+    successNote: 'Many couples file the I-129F themselves without an attorney — but the adjustment of status after marriage (separately, $1,440+) is where most of the long-term cost lives.',
+    sections: [
+      {
+        title: 'Legal & Professional Fees',
+        accent: '#1B5FA8',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Immigration attorney (optional)', value: '$0 – $5,000' },
+          { label: 'Petition preparation (if self-filed)', value: '$0 – $500' },
+        ],
+      },
+      {
+        title: 'Government Filing Fees',
+        accent: '#4A5568',
+        accentBg: '#F7F9FC',
+        items: [
+          { label: 'Form I-129F petition', value: '$675' },
+          { label: 'DS-160 / K-1 visa fee (consulate)', value: '$265' },
+          { label: 'Medical exam (panel physician)', value: '$200 – $500' },
+        ],
+      },
+      {
+        title: 'After Marriage — Adjustment of Status',
+        accent: '#F0A500',
+        accentBg: '#FFFBEB',
+        items: [
+          { label: 'Form I-485 adjustment of status', value: '$1,440' },
+          { label: 'Work permit', value: 'Included with I-485' },
+        ],
+      },
+      {
+        title: 'Relocation',
+        accent: '#4A9FD4',
+        accentBg: '#EBF4FB',
+        items: [
+          { label: 'Moving costs', value: '$3,000 – $10,000' },
+          { label: 'Temporary accommodation', value: 'Often staying with sponsor' },
+        ],
+      },
+    ],
+  },
 }
 
 const TOGGLE_ORDER = ['e2', 'eb5', 'tn', 'l1']
@@ -325,7 +485,7 @@ export default function D4CostEstimator() {
 
   const initialVisa = state?.visa ?? 'e2'
   const [activeVisa, setActiveVisa] = useState(
-    TOGGLE_ORDER.includes(initialVisa) ? initialVisa : 'e2'
+    VISA_DATA[initialVisa] ? initialVisa : 'e2'
   )
 
   useEffect(() => {

@@ -83,6 +83,28 @@ const QUESTIONS = [
     ],
     showIf: (answers) => answers.motivation === 'Buying or starting a business',
   },
+  {
+    id: 'professional_background',
+    text: 'Do any of these describe your professional background?',
+    options: [
+      'I work in a profession on the USMCA professional list (engineer, accountant, teacher, scientist, etc.)',
+      'I have notable achievements, awards, or recognition in my field',
+      'I have a job offer (or strong prospects) from a US employer',
+      "None of these — I'm exploring investment or starting fresh",
+      'Not sure',
+    ],
+    showIf: (answers) => answers.motivation === 'Lifestyle — I want a fresh start',
+  },
+  {
+    id: 'family_situation',
+    text: 'Are you engaged to a US citizen and planning to marry within 90 days of moving to the US?',
+    options: [
+      'Yes',
+      'No — but I have other family ties to the US',
+      'Not sure',
+    ],
+    showIf: (answers) => answers.motivation === 'Family reasons',
+  },
 ]
 
 function ProgressBar({ step, total }) {
