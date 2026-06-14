@@ -84,7 +84,7 @@ function VerifiedBadge() {
 
 // ─── Category screens ─────────────────────────────────────────────────────────
 
-function AutoInsuranceScreen({ onBack }) {
+function AutoInsuranceScreen({ onBack, destination }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
@@ -92,7 +92,7 @@ function AutoInsuranceScreen({ onBack }) {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7" /></svg>
           <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.7)' }}>Back to Essentials</span>
         </button>
-        <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>Auto Insurance — Tampa, FL</h1>
+        <h1 className="text-xl font-extrabold" style={{ color: '#FFFFFF' }}>Auto Insurance{destination ? ` — ${destination}` : ''}</h1>
         <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)' }}>Specialists who cover Canadian vehicles and driving records</p>
       </div>
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
@@ -351,7 +351,7 @@ export default function J6Essentials() {
   const toggle = (k) => setOpen(prev => ({ ...prev, [k]: !prev[k] }))
 
   // Category sub-screens
-  if (category === 'auto-insurance') return <AutoInsuranceScreen onBack={() => setCategory(null)} />
+  if (category === 'auto-insurance') return <AutoInsuranceScreen onBack={() => setCategory(null)} destination={answers.destination} />
   if (category === 'banking')        return <BankingScreen        onBack={() => setCategory(null)} />
 
   // Item IDs per section — drives both rendering (completed state) and the
@@ -386,7 +386,7 @@ export default function J6Essentials() {
         </p>
         <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Essentials</h1>
         <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-          Setting up your life in Tampa, FL
+          {answers.destination ? `Setting up your life in ${answers.destination}` : 'Setting up your American life'}
         </p>
         <div className="mt-4">
           <div className="flex items-center justify-between mb-1.5">
