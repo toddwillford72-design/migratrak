@@ -24,70 +24,6 @@ const STATUS = {
 // Status cycle for tap-to-cycle: required → pending → uploaded → required
 const STATUS_CYCLE = ['required', 'pending', 'uploaded']
 
-// ── Demo data (logged-out Chen Family) ────────────────────────────────────────
-const DEMO_PHASES = [
-  {
-    id: 1,
-    title: 'Phase 1 — Identity & Source of Funds',
-    docs: [
-      { id: 1,  name: 'Passports — all family',         status: 'uploaded' },
-      { id: 2,  name: 'Birth certificates',              status: 'uploaded' },
-      { id: 3,  name: 'Marriage certificate',            status: 'uploaded' },
-      { id: 4,  name: 'Source of funds documentation',  status: 'uploaded' },
-      { id: 5,  name: 'Bank statements — 6 months',     status: 'uploaded' },
-      { id: 6,  name: 'Canadian tax returns — 3 years', status: 'uploaded' },
-      { id: 7,  name: 'US tax returns',                  status: 'not_started' },
-    ],
-  },
-  {
-    id: 2,
-    title: 'Phase 2 — Investment Documentation',
-    docs: [
-      { id: 8,  name: 'I-526 petition filed copy',             status: 'uploaded' },
-      { id: 9,  name: 'Regional center subscription agreement', status: 'uploaded' },
-      { id: 10, name: 'Investment wire transfer confirmation',  status: 'uploaded' },
-      { id: 11, name: 'Escrow release confirmation',            status: 'pending' },
-    ],
-  },
-  {
-    id: 3,
-    title: 'Phase 3 — Medical & Biometrics',
-    docs: [
-      { id: 12, name: 'Medical examination — Todd',   status: 'uploaded' },
-      { id: 13, name: 'Medical examination — Carlie', status: 'uploaded' },
-      { id: 14, name: 'Medical examination — Jordan', status: 'not_started' },
-      { id: 15, name: 'Biometrics confirmation',      status: 'uploaded' },
-    ],
-  },
-  {
-    id: 4,
-    title: 'Phase 4 — USCIS Applications',
-    docs: [
-      { id: 16, name: 'I-485 filed copy',    status: 'uploaded' },
-      { id: 17, name: 'I-765 approved copy', status: 'uploaded' },
-      { id: 18, name: 'I-131 approved copy', status: 'uploaded' },
-      { id: 19, name: 'I-94 corrected copy', status: 'flagged',
-        note: 'Issue noted — confirm correction with attorney' },
-    ],
-  },
-  {
-    id: 5,
-    title: 'Phase 5 — US Life Setup',
-    docs: [
-      { id: 20, name: 'Florida home purchase agreement', status: 'uploaded' },
-      { id: 21, name: 'SSN confirmation letters',         status: 'follow_up',
-        note: 'Contact SSA to confirm receipt' },
-      { id: 22, name: 'US bank account confirmation',    status: 'pending' },
-      { id: 23, name: 'Florida driver\'s licence',        status: 'pending' },
-    ],
-  },
-]
-
-const DEMO_EXPIRING = [
-  { id: 'e1', name: 'Passport — Michael Chen',        expires: 'August 2026',  urgent: true },
-  { id: 'e2', name: 'Medical Examination — Sarah Chen', expires: 'October 2026', urgent: false },
-]
-
 // ── Document seed templates by visa type ──────────────────────────────────────
 // Each entry: { name, phase }  — status defaults to 'required'
 const SEED_DOCS = {
@@ -425,7 +361,6 @@ function PhaseSection({ phase, onCycle }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J3Documents() {
   const [docs, setDocs]           = useState(null) // null = loading
-  const [isDemo, setIsDemo]       = useState(false)
   const [userId, setUserId]       = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [toast, setToast]         = useState(null)
@@ -460,8 +395,7 @@ export default function J3Documents() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
       if (!user) {
-        setIsDemo(true)
-        setDocs([]) // signals demo mode; demo render uses DEMO_PHASES
+        setDocs([])
         return
       }
       setUserId(user.id)
@@ -507,18 +441,15 @@ export default function J3Documents() {
   // ── Derived state ────────────────────────────────────────────────────────────
   const loading = docs === null
 
-  // Demo mode uses hardcoded phases; live mode groups DB rows
-  const phases = isDemo ? DEMO_PHASES : groupByPhase(docs ?? [])
+  const phases = groupByPhase(docs ?? [])
 
-  const expiringDocs = isDemo
-    ? DEMO_EXPIRING
-    : (docs ?? []).filter(d => isExpiringSoon(d.expiry_date)).map(d => ({
-        ...d,
-        expires: d.expiry_date,
-        urgent: (new Date(d.expiry_date) - new Date()) / (1000 * 60 * 60 * 24) <= 30,
-      }))
+  const expiringDocs = (docs ?? []).filter(d => isExpiringSoon(d.expiry_date)).map(d => ({
+    ...d,
+    expires: d.expiry_date,
+    urgent: (new Date(d.expiry_date) - new Date()) / (1000 * 60 * 60 * 24) <= 30,
+  }))
 
-  const allDocs  = isDemo ? DEMO_PHASES.flatMap(p => p.docs) : (docs ?? [])
+  const allDocs  = docs ?? []
   const total    = allDocs.length
   const uploaded = allDocs.filter(d => d.status === 'uploaded').length
   const pending  = allDocs.filter(d => d.status === 'pending').length
@@ -540,7 +471,7 @@ export default function J3Documents() {
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#4A9FD4' }}>
-          {isDemo ? 'Chen Family · EB-5 Documents' : 'Document Tracker'}
+          Document Tracker
         </p>
         <div className="flex items-stretch gap-2">
           <StatChip number={loading ? '—' : total}    label="Required"  color="#FFFFFF" />
@@ -591,7 +522,7 @@ export default function J3Documents() {
               <PhaseSection
                 key={phase.id}
                 phase={phase}
-                onCycle={isDemo ? null : handleCycle}
+                onCycle={handleCycle}
               />
             ))}
           </>

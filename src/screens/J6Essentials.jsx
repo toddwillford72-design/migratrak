@@ -300,8 +300,7 @@ export default function J6Essentials() {
       const user = session?.user ?? null
       if (!user) {
         setProfile(false)
-        // Chen Family demo: bank account + cell phone already set up
-        setCompletedIds(new Set(['s2_05', 's2_06']))
+        setCompletedIds(new Set())
         return
       }
       const [{ data: userRow }, { data: progressRows }] = await Promise.all([
@@ -314,12 +313,7 @@ export default function J6Essentials() {
     })
   }, [])
 
-  const isDemo = profile === false
-  const headerName = isDemo ? 'Chen Family' : (profile?.name || '—')
-  const headerVisa = isDemo ? 'EB-5' : (VISA_LABELS[profile?.visa_type] ?? profile?.visa_type ?? '')
-
   async function toggleItem(id) {
-    if (isDemo) return // Chen Family demo checklist is static, matching other demo screens
     const wasCompleted = completedIds.has(id)
     const next = new Set(completedIds)
     if (wasCompleted) next.delete(id); else next.add(id)
@@ -388,7 +382,7 @@ export default function J6Essentials() {
       {/* Header */}
       <div className="px-5 pt-5 pb-5" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          {headerName}{headerVisa ? ` · ${headerVisa} Journey` : ''}
+          Life Setup Checklist
         </p>
         <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>Essentials</h1>
         <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -503,7 +497,7 @@ export default function J6Essentials() {
             <ChecklistItem
               id="s5_01" completed={completedIds.has('s5_01')} onToggle={toggleItem}
               label="Confirm auto insurance covers you beyond 6 months"
-              urgencyNote={isDemo ? "5 months elapsed — Canadian coverage may void at 6 months" : "Canadian coverage typically voids around the 6-month mark — confirm with your insurer before then"}
+              urgencyNote="Canadian coverage typically voids around the 6-month mark — confirm with your insurer before then"
               actionLabel="Check now"
               onAction={() => setCategory('auto-insurance')}
             />

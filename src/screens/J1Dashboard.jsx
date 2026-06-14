@@ -36,19 +36,6 @@ const PHASES = [
   'Residency',
 ]
 
-// Demo milestones for Chen Family (logged-out)
-const DEMO_MILESTONES = [
-  { id: 1,  label: 'Immigration attorney engaged',     status: 'done',     date: null },
-  { id: 2,  label: 'I-526 petition filed',             status: 'done',     date: 'Oct 4, 2024' },
-  { id: 3,  label: 'I-526 approved',                   status: 'done',     date: 'Aug 13, 2025' },
-  { id: 4,  label: 'Home purchased — Punta Gorda, FL', status: 'done',     date: null },
-  { id: 5,  label: 'I-765 / I-131 approved',           status: 'done',     date: 'Apr 21, 2026' },
-  { id: 6,  label: 'I-485 pending',                    status: 'active',   date: 'Filed May 2026' },
-  { id: 7,  label: 'SSN application follow-up',        status: 'upcoming', date: null },
-  { id: 8,  label: 'Conditional green card interview', status: 'upcoming', date: null },
-  { id: 9,  label: 'Remove conditions (2026–2027)',    status: 'upcoming', date: null },
-  { id: 10, label: 'Permanent green card',             status: 'upcoming', date: null },
-]
 
 const CHECKLIST_PREVIEW_DEMO = [
   { id: 'auto',      essId: PREVIEW_ITEM_IDS.auto,       label: 'Auto insurance',           note: 'URGENT — 5 months elapsed',   urgency: 'red' },
@@ -321,11 +308,9 @@ export default function J1Dashboard() {
     setSaving(false)
   }
 
-  const isDemo = profile === false
-
   const essentialsTotal = hasChildren(loadAnswers()) ? ESSENTIALS_TOTAL_WITH_CHILDREN : ESSENTIALS_TOTAL_NO_CHILDREN
-  const essentialsDone  = isDemo ? 2 : essentialsDoneIds.size
-  const essentialsPct   = isDemo ? 5 : Math.round((essentialsDone / essentialsTotal) * 100)
+  const essentialsDone  = essentialsDoneIds.size
+  const essentialsPct   = Math.round((essentialsDone / essentialsTotal) * 100)
 
   const isCanada = (() => {
     try {
@@ -339,19 +324,19 @@ export default function J1Dashboard() {
 
   // Compute progress from real data
   const { progressPct, completedPhases } = useMemo(() => {
-    if (isDemo || !milestones || milestones.length === 0) {
-      return { progressPct: 62, completedPhases: 4 }
+    if (!milestones || milestones.length === 0) {
+      return { progressPct: 0, completedPhases: 0 }
     }
     const total = milestones.length
     const complete = milestones.filter((m) => m.status === 'complete').length
     const pct = total > 0 ? Math.round((complete / total) * 100) : 0
     const filled = Math.round((complete / total) * PHASES.length)
     return { progressPct: pct, completedPhases: filled }
-  }, [milestones, isDemo])
+  }, [milestones])
 
   // Compute data-driven alerts
   const computedAlerts = useMemo(() => {
-    if (isDemo || !milestones || !profile) return []
+    if (!milestones || !profile) return []
     const today = new Date()
     const caseStart = profile.case_start_date ? new Date(profile.case_start_date) : null
     const daysSinceStart = caseStart ? Math.floor((today - caseStart) / (1000 * 60 * 60 * 24)) : null
@@ -412,7 +397,7 @@ export default function J1Dashboard() {
     })
 
     return alerts
-  }, [milestones, profile, isDemo, isCanada])
+  }, [milestones, profile, isCanada])
 
   const activeAlerts = computedAlerts.filter((a) => !dismissedAlertIds.includes(a.id))
 
@@ -466,7 +451,7 @@ export default function J1Dashboard() {
               aria-label="Profile menu"
             >
               <span className="text-xs font-extrabold" style={{ color: '#FFFFFF' }}>
-                {isDemo ? 'CF' : initials(profile?.name)}
+                {initials(profile?.name)}
               </span>
             </button>
             {menuOpen && (
@@ -478,14 +463,14 @@ export default function J1Dashboard() {
                 {/* User info */}
                 <div className="px-4 py-3 border-b" style={{ borderColor: '#E2E8F0' }}>
                   <p className="text-sm font-extrabold leading-tight" style={{ color: '#0D2B4E' }}>
-                    {isDemo ? 'Chen Family' : (profile?.name || '—')}
+                    {profile?.name || '—'}
                   </p>
                   <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
-                    {isDemo ? 'demo@migratrak.app' : (profile?.email || '')}
+                    {profile?.email || ''}
                   </p>
-                  {(isDemo || profile?.visa_type) && (
+                  {profile?.visa_type && (
                     <p className="text-xs mt-0.5 font-medium" style={{ color: '#4A9FD4' }}>
-                      {isDemo ? 'EB-5 Investor' : (VISA_LABELS[profile.visa_type] ?? profile.visa_type)}
+                      {VISA_LABELS[profile.visa_type] ?? profile.visa_type}
                     </p>
                   )}
                   <div className="flex items-center gap-1.5 mt-1.5">
@@ -553,19 +538,15 @@ export default function J1Dashboard() {
             style={{ backgroundColor: '#1B5FA8' }}
           >
             <span className="text-sm font-extrabold" style={{ color: '#FFFFFF' }}>
-              {isDemo ? 'CF' : initials(profile?.name)}
+              {initials(profile?.name)}
             </span>
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-widest truncate" style={{ color: '#4A9FD4' }}>
-              {isDemo
-                ? 'EB-5 Investor · Started June 2024'
-                : profile?.visa_type
-                  ? VISA_LABELS[profile.visa_type] ?? profile.visa_type
-                  : 'Immigration journey'}
+              {profile?.visa_type ? VISA_LABELS[profile.visa_type] ?? profile.visa_type : 'Immigration journey'}
             </p>
             <h1 className="text-xl font-extrabold truncate" style={{ color: '#FFFFFF' }}>
-              {isDemo ? 'Chen Family' : (profile?.name || '—')}
+              {profile?.name || '—'}
             </h1>
           </div>
         </div>
@@ -637,16 +618,7 @@ export default function J1Dashboard() {
         </div>
 
         {/* Milestones */}
-        {isDemo ? (
-          <div className="rounded-2xl px-5 py-5" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-            <p className="text-xs font-extrabold uppercase tracking-widest mb-4" style={{ color: '#4A5568' }}>
-              Case Milestones
-            </p>
-            {DEMO_MILESTONES.map((m, i) => (
-              <MilestoneRow key={m.id} milestone={m} isLast={i === DEMO_MILESTONES.length - 1} />
-            ))}
-          </div>
-        ) : milestones === null ? (
+        {milestones === null ? (
           <div className="rounded-2xl px-5 py-5 text-center" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
             <p className="text-sm" style={{ color: '#4A5568' }}>Loading milestones…</p>
           </div>
@@ -687,8 +659,8 @@ export default function J1Dashboard() {
           <div className="w-full h-1.5 rounded-full mb-4" style={{ backgroundColor: '#F1F5F9' }}>
             <div className="h-1.5 rounded-full" style={{ width: `${essentialsPct}%`, backgroundColor: '#F0A500' }} />
           </div>
-          {(isDemo ? CHECKLIST_PREVIEW_DEMO : CHECKLIST_PREVIEW_REAL).map((item) => (
-            <ChecklistItem key={item.id} item={item} completed={!isDemo && essentialsDoneIds.has(item.essId)} />
+          {CHECKLIST_PREVIEW_REAL.map((item) => (
+            <ChecklistItem key={item.id} item={item} completed={essentialsDoneIds.has(item.essId)} />
           ))}
           <button
             onClick={() => navigate('/j6')}

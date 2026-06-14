@@ -23,16 +23,6 @@ const CATEGORIES = [
   'Professional Services',
 ]
 
-const INITIAL_EXPENSES = [
-  { id: 1,  category: 'Legal Fees',              amount: 34500, label: 'Immigration attorney retainer + consultations', date: 'Various' },
-  { id: 2,  category: 'Filing Fees',             amount: 18420, label: 'I-526, I-485, I-765, I-131 filing fees',      date: 'Various' },
-  { id: 3,  category: 'Business / Investment',   amount:  5500,  label: 'Business plan preparation + due diligence',     date: 'Various' },
-  { id: 8,  category: 'Regional Center Fee',     amount: 60000,  label: 'EB5AN regional center administrative fee — paid upfront with I-526E', date: 'Feb 2025' },
-  { id: 4,  category: 'Travel & Hotels',         amount: 12400, label: 'Site visits, consultations, relocation trips', date: 'Various' },
-  { id: 5,  category: 'Medical Exams',           amount:  3800, label: 'I-693 medical exams — family of 4',            date: 'Apr 2026' },
-  { id: 6,  category: 'Moving Costs',            amount:  9600, label: 'International moving company',                 date: 'Jan 2026' },
-  { id: 7,  category: 'Professional Services',   amount:  7360, label: 'Financial advisor, CPA, translator',           date: 'Various' },
-]
 
 const CAT_COLORS = {
   'Legal Fees':             '#1B5FA8',
@@ -530,7 +520,6 @@ function dbRowToExpense(row) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function J2Expenses() {
   const [expenses, setExpenses]   = useState(null) // null = loading
-  const [isDemo, setIsDemo]       = useState(false)
   const [userId, setUserId]       = useState(null)
   const [userName, setUserName]   = useState(null)
   const [loadError, setLoadError] = useState(null)
@@ -557,8 +546,7 @@ export default function J2Expenses() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
       if (!user) {
-        setIsDemo(true)
-        setExpenses(INITIAL_EXPENSES)
+        setExpenses([])
         return
       }
       setUserId(user.id)
@@ -630,7 +618,7 @@ export default function J2Expenses() {
       {/* Header */}
       <div className="px-5 pt-5 pb-3" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#4A9FD4' }}>
-          {isDemo ? 'Chen Family · EB-5 Journey' : 'Expense Tracker'}
+          Expense Tracker
         </p>
         <div className="flex gap-4 mb-4">
           <div className="flex-1">
@@ -641,19 +629,6 @@ export default function J2Expenses() {
               {expenses === null ? '—' : `$${grandTotal.toLocaleString()}`}
             </p>
           </div>
-          {isDemo && (
-            <>
-              <div className="w-px" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
-              <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  EB-5 Investment
-                </p>
-                <p className="text-2xl font-extrabold tabular-nums" style={{ color: '#F0A500' }}>
-                  $800,000
-                </p>
-              </div>
-            </>
-          )}
         </div>
 
         {/* View tab switcher */}
@@ -678,7 +653,7 @@ export default function J2Expenses() {
       </div>
 
       {view === 'passport' ? (
-        <InvestmentPassport userName={isDemo ? 'Chen Family' : (userName || '—')} onToast={setToast} />
+        <InvestmentPassport userName={userName || '—'} onToast={setToast} />
       ) : (
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
@@ -726,7 +701,7 @@ export default function J2Expenses() {
           </p>
           {expenses === null ? (
             <p className="px-4 pb-4 text-sm" style={{ color: '#A0AEC0' }}>Loading…</p>
-          ) : displayExpenses.length === 0 && !isDemo ? (
+          ) : displayExpenses.length === 0 ? (
             <p className="px-4 pb-4 text-sm" style={{ color: '#A0AEC0' }}>
               No expenses tracked yet. Tap + Add Expense to start.
             </p>
@@ -782,19 +757,7 @@ export default function J2Expenses() {
       {panelOpen && (
         <AddExpensePanel
           onClose={() => setPanelOpen(false)}
-          onSave={isDemo
-            ? (form) => {
-                const amount = parseFloat(String(form.amount).replace(/,/g, '')) || 0
-                setExpenses(prev => [...(prev || []), {
-                  id: Date.now(), category: form.category, amount,
-                  label: form.description || form.vendor || 'Expense',
-                  date: form.date || '—', isNew: true,
-                }])
-                setFlashCat(form.category)
-                setTimeout(() => setFlashCat(null), 2000)
-              }
-            : handleSave
-          }
+          onSave={handleSave}
         />
       )}
 
