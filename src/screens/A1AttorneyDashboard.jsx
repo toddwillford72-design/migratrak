@@ -472,102 +472,104 @@ function MorningBriefing({ realClients }) {
 
 // ─── Consultation Queue ───────────────────────────────────────────────────────
 
-const PROSPECTS = [
-  {
-    id: 'webb',
-    name: 'Marcus Webb',
-    visa: 'E-2 Investor',
-    budget: '$250,000',
-    score: 84,
-    fitRating: 'Strong Fit',
-    submittedDays: 2,
-    status: 'Consultation Requested',
-    aiNote: 'Primary question will likely be E-2 business acquisition timing and investment documentation requirements',
-    breakdown: [
-      { label: 'Budget vs visa cost alignment',  pts: 27, max: 30 },
-      { label: 'Visa pathway fit',               pts: 22, max: 25 },
-      { label: 'Information completeness',       pts: 18, max: 20 },
-      { label: 'Timeline realism',               pts: 12, max: 15 },
-      { label: 'No disqualifying flags',         pts: 10, max: 10 },
-    ],
-    buttons: ['Approve', 'Decline', 'More Info'],
-  },
-  {
-    id: 'sharma',
-    name: 'Priya Sharma',
-    visa: 'E-2 Investor',
-    budget: '$150,000',
-    score: 61,
-    fitRating: 'Possible Fit',
-    submittedDays: 5,
-    status: 'More Information Requested',
-    aiNote: 'Budget is at lower threshold for E-2 — confirm business type and investment structure before consultation',
-    breakdown: [
-      { label: 'Budget vs visa cost alignment',  pts: 16, max: 30 },
-      { label: 'Visa pathway fit',               pts: 18, max: 25 },
-      { label: 'Information completeness',       pts: 14, max: 20 },
-      { label: 'Timeline realism',               pts: 10, max: 15 },
-      { label: 'No disqualifying flags',         pts:  8, max: 10 },
-    ],
-    buttons: ['Follow Up', 'Decline'],
-  },
-]
-
 function fitColor(fitRating) {
-  if (fitRating === 'Strong Fit')   return '#1A7A4A'
-  if (fitRating === 'Possible Fit') return '#D97706'
+  if (fitRating === 'Strong' || fitRating === 'Strong Fit')   return '#1A7A4A'
+  if (fitRating === 'Possible' || fitRating === 'Possible Fit') return '#D97706'
   return '#DC2626'
 }
 
 function fitBg(fitRating) {
-  if (fitRating === 'Strong Fit')   return '#D1FAE5'
-  if (fitRating === 'Possible Fit') return '#FEF3C7'
+  if (fitRating === 'Strong' || fitRating === 'Strong Fit')   return '#D1FAE5'
+  if (fitRating === 'Possible' || fitRating === 'Possible Fit') return '#FEF3C7'
   return '#FEE2E2'
 }
 
-function ProspectCard({ prospect }) {
+function fitLabel(fitRating) {
+  if (fitRating === 'Strong')   return 'Strong Fit'
+  if (fitRating === 'Possible') return 'Possible Fit'
+  if (fitRating === 'Unlikely') return 'Unlikely Fit'
+  return fitRating
+}
+
+function ProspectCard({ prospect, onAction }) {
   const [expanded, setExpanded] = useState(false)
-  const color = fitColor(prospect.fitRating)
-  const bg    = fitBg(prospect.fitRating)
+  const [acting, setActing]     = useState(null)
+  const color = fitColor(prospect.fit_rating || prospect.fitRating)
+  const bg    = fitBg(prospect.fit_rating || prospect.fitRating)
+  const label = fitLabel(prospect.fit_rating || prospect.fitRating)
+
+  const visaDisplay   = prospect.visa_type   || prospect.visa   || '—'
+  const budgetDisplay = prospect.budget_range || prospect.budget || '—'
+  const aiNote        = prospect.ai_consultation_note || prospect.aiNote || ''
+  const score         = prospect.score ?? '—'
+  const statusDisplay = prospect.status === 'pending'        ? 'Consultation Requested'
+                      : prospect.status === 'approved'       ? 'Approved'
+                      : prospect.status === 'declined'       ? 'Declined'
+                      : prospect.status === 'info_requested' ? 'More Information Requested'
+                      : prospect.status === 'converted'      ? 'Converted to Client'
+                      : prospect.status || 'Pending'
+  const submittedDays = prospect.created_at
+    ? Math.floor((Date.now() - new Date(prospect.created_at).getTime()) / 86400000)
+    : prospect.submittedDays ?? '—'
+
+  const buttons = prospect.status === 'pending'        ? ['Approve', 'Decline', 'More Info']
+                : prospect.status === 'info_requested' ? ['Follow Up', 'Decline']
+                : prospect.status === 'approved'       ? ['Convert to Client']
+                : []
+
+  async function handleBtn(btn) {
+    const newStatus = btn === 'Approve'           ? 'approved'
+                    : btn === 'Decline'           ? 'declined'
+                    : btn === 'More Info'         ? 'info_requested'
+                    : btn === 'Follow Up'         ? 'info_requested'
+                    : btn === 'Convert to Client' ? 'converted'
+                    : null
+    if (!newStatus || !onAction) return
+    setActing(btn)
+    await onAction(prospect.id, newStatus)
+    setActing(null)
+  }
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: `3px solid ${color}`, borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>{prospect.score}</span>
+            <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>{score}</span>
           </div>
           <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.04em', textAlign: 'center' }}>/ 100</span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 15, fontWeight: 700, color: '#0D2B4E', margin: 0 }}>{prospect.name}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: bg, color, borderRadius: 6, padding: '2px 8px' }}>{prospect.fitRating}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>{prospect.visa}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: bg, color, borderRadius: 6, padding: '2px 8px' }}>{label}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>{visaDisplay}</span>
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 5, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#4A5568' }}>💰 {prospect.budget}</span>
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted {prospect.submittedDays} day{prospect.submittedDays !== 1 ? 's' : ''} ago</span>
+            <span style={{ fontSize: 12, color: '#4A5568' }}>💰 {budgetDisplay}</span>
+            <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted {submittedDays} day{submittedDays !== 1 ? 's' : ''} ago</span>
           </div>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>{prospect.status}</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>{statusDisplay}</span>
       </div>
-      <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-        <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
-        <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}>
-          <span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>{prospect.aiNote}
-        </p>
-      </div>
+      {aiNote ? (
+        <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
+          <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}>
+            <span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>{aiNote}
+          </p>
+        </div>
+      ) : null}
       <button onClick={() => setExpanded(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', padding: 0, cursor: 'pointer', width: '100%' }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Score breakdown</span>
         <span style={{ fontSize: 16, color: '#94A3B8', fontWeight: 700, display: 'inline-block', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>›</span>
       </button>
-      {expanded && (
+      {expanded && prospect.assessment_answers?.breakdown && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {prospect.breakdown.map((item) => (
+          {prospect.assessment_answers.breakdown.map((item) => (
             <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: '#4A5568' }}>{item.label}</span>
@@ -580,27 +582,95 @@ function ProspectCard({ prospect }) {
           ))}
         </div>
       )}
-      <div style={{ display: 'flex', gap: 6 }}>
-        {prospect.buttons.map((btn, i) => (
-          <button key={i} style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, backgroundColor: i === 0 ? color : '#FFFFFF', color: i === 0 ? '#FFFFFF' : '#0D2B4E', border: i === 0 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0', cursor: 'pointer' }}>
-            {btn}
-          </button>
-        ))}
-      </div>
+      {buttons.length > 0 && (
+        <div style={{ display: 'flex', gap: 6 }}>
+          {buttons.map((btn, i) => (
+            <button key={i}
+              disabled={!!acting}
+              onClick={() => handleBtn(btn)}
+              style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, backgroundColor: i === 0 ? color : '#FFFFFF', color: i === 0 ? '#FFFFFF' : '#0D2B4E', border: i === 0 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0', cursor: acting ? 'not-allowed' : 'pointer', opacity: acting ? 0.6 : 1 }}>
+              {acting === btn ? '…' : btn}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-function ConsultationQueue() {
+function ConsultationQueue({ attorneyId }) {
+  const [prospects, setProspects] = useState(null)
+  const [error, setError]         = useState(null)
+
+  async function load() {
+    if (!attorneyId) return
+    try {
+      const { data, error: err } = await supabase
+        .from('prospects')
+        .select('*')
+        .eq('attorney_id', attorneyId)
+        .order('created_at', { ascending: false })
+      if (err) throw err
+      setProspects(data || [])
+    } catch (err) {
+      setError(err.message)
+      setProspects([])
+    }
+  }
+
+  useEffect(() => { load() }, [attorneyId])
+
+  async function handleAction(prospectId, newStatus) {
+    try {
+      const { error: err } = await supabase
+        .from('prospects')
+        .update({ status: newStatus })
+        .eq('id', prospectId)
+      if (err) throw err
+      setProspects(prev => prev.map(p => p.id === prospectId ? { ...p, status: newStatus } : p))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const pending   = prospects?.filter(p => ['pending', 'info_requested'].includes(p.status)) || []
+  const processed = prospects?.filter(p => ['approved', 'declined', 'converted'].includes(p.status)) || []
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
         <p style={{ fontSize: 13, fontWeight: 800, color: '#0D2B4E', textTransform: 'uppercase', letterSpacing: '0.14em', margin: 0 }}>
           CONSULTATION REQUESTS
         </p>
-        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>2 prospects waiting for review</p>
+        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>
+          {prospects === null ? 'Loading…' : `${pending.length} prospect${pending.length !== 1 ? 's' : ''} waiting for review`}
+        </p>
       </div>
-      {PROSPECTS.map((p) => <ProspectCard key={p.name} prospect={p} />)}
+      {error && (
+        <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 16, padding: '12px 16px' }}>
+          <p style={{ fontSize: 12, fontWeight: 600, color: '#DC2626', margin: 0 }}>{error}</p>
+        </div>
+      )}
+      {prospects === null ? (
+        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px' }}>
+          <p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>Loading prospects…</p>
+        </div>
+      ) : pending.length === 0 && processed.length === 0 ? (
+        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px 16px', textAlign: 'center' }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#4A5568', margin: 0 }}>No prospects yet</p>
+          <p style={{ fontSize: 12, color: '#94A3B8', margin: '4px 0 0 0' }}>Prospects appear here when clients complete the discovery flow</p>
+        </div>
+      ) : (
+        <>
+          {pending.map(p => <ProspectCard key={p.id} prospect={p} onAction={handleAction} />)}
+          {processed.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Recently processed</p>
+              {processed.map(p => <ProspectCard key={p.id} prospect={p} onAction={handleAction} />)}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -709,8 +779,8 @@ export default function A1AttorneyDashboard() {
           {/* Morning Briefing — demo cards + real alerts injected */}
           <MorningBriefing realClients={realClientsForBriefing} />
 
-          {/* Consultation Queue — demo */}
-          <ConsultationQueue />
+          {/* Consultation Queue — live Supabase data */}
+          <ConsultationQueue attorneyId={attorneyId} />
 
           {/* Active Clients / On Track */}
           <div className="flex flex-col gap-3">
