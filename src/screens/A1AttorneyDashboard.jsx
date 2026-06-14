@@ -605,12 +605,6 @@ function ConsultationQueue({ attorneyId }) {
   async function load() {
     if (!attorneyId) return
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      if (!sessionData?.session) {
-        setError('No active session — please sign out and sign back in')
-        setProspects([])
-        return
-      }
       const { data, error: err } = await supabase
         .from('prospects')
         .select('*')
