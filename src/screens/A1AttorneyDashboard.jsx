@@ -474,65 +474,117 @@ function MorningBriefing({ realClients }) {
 
 const PROSPECTS = [
   {
-    name: 'David Kim', location: 'Toronto, ON', visa: 'EB-5', budget: '$800K+', score: 87,
-    label: 'HIGHLY PREPARED',
-    summary: 'Completed full discovery. Source of funds confirmed. Actively tracking expenses for 3 weeks. Strong candidate.',
-    buttons: ['View Full Profile', 'Accept', 'Decline'],
+    id: 'webb',
+    name: 'Marcus Webb',
+    visa: 'E-2 Investor',
+    budget: '$250,000',
+    score: 84,
+    fitRating: 'Strong Fit',
+    submittedDays: 2,
+    status: 'Consultation Requested',
+    aiNote: 'Primary question will likely be E-2 business acquisition timing and investment documentation requirements',
+    breakdown: [
+      { label: 'Budget vs visa cost alignment',  pts: 27, max: 30 },
+      { label: 'Visa pathway fit',               pts: 22, max: 25 },
+      { label: 'Information completeness',       pts: 18, max: 20 },
+      { label: 'Timeline realism',               pts: 12, max: 15 },
+      { label: 'No disqualifying flags',         pts: 10, max: 10 },
+    ],
+    buttons: ['Approve', 'Decline', 'More Info'],
   },
   {
-    name: 'Sarah Murphy', location: 'Vancouver, BC', visa: 'E-2', budget: '$100K – $300K', score: 34,
-    label: 'NEEDS PREPARATION',
-    summary: 'Budget may not meet E-2 investment threshold. No documents prepared yet. Recommend 2–3 more weeks in MigraTrak before consultation.',
-    buttons: ['View Full Profile', 'Accept', 'Send Resources First'],
-  },
-  {
-    name: 'Michael Chen', location: 'Calgary, AB', visa: 'TN Visa', budget: 'Not yet disclosed', score: 61,
-    label: 'MODERATE READINESS',
-    summary: 'Completed discovery flow. Document preparation not yet started. Timeline: 6–12 months.',
-    buttons: ['View Full Profile', 'Accept', 'Request More Info'],
+    id: 'sharma',
+    name: 'Priya Sharma',
+    visa: 'E-2 Investor',
+    budget: '$150,000',
+    score: 61,
+    fitRating: 'Possible Fit',
+    submittedDays: 5,
+    status: 'More Information Requested',
+    aiNote: 'Budget is at lower threshold for E-2 — confirm business type and investment structure before consultation',
+    breakdown: [
+      { label: 'Budget vs visa cost alignment',  pts: 16, max: 30 },
+      { label: 'Visa pathway fit',               pts: 18, max: 25 },
+      { label: 'Information completeness',       pts: 14, max: 20 },
+      { label: 'Timeline realism',               pts: 10, max: 15 },
+      { label: 'No disqualifying flags',         pts:  8, max: 10 },
+    ],
+    buttons: ['Follow Up', 'Decline'],
   },
 ]
 
-function scoreColor(score) {
-  if (score >= 75) return '#1A7A4A'
-  if (score >= 50) return '#F0A500'
-  return '#C00000'
+function fitColor(fitRating) {
+  if (fitRating === 'Strong Fit')   return '#1A7A4A'
+  if (fitRating === 'Possible Fit') return '#D97706'
+  return '#DC2626'
+}
+
+function fitBg(fitRating) {
+  if (fitRating === 'Strong Fit')   return '#D1FAE5'
+  if (fitRating === 'Possible Fit') return '#FEF3C7'
+  return '#FEE2E2'
 }
 
 function ProspectCard({ prospect }) {
-  const color = scoreColor(prospect.score)
+  const [expanded, setExpanded] = useState(false)
+  const color = fitColor(prospect.fitRating)
+  const bg    = fitBg(prospect.fitRating)
+
   return (
-    <div style={{
-      backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: `3px solid ${color}`,
-      borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12,
-    }}>
+    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: `3px solid ${color}`, borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: '#FFFFFF', fontWeight: 700, fontSize: 18, lineHeight: 1 }}>{prospect.score}</span>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>{prospect.score}</span>
           </div>
-          <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.06em', textAlign: 'center', whiteSpace: 'nowrap' }}>
-            {prospect.label}
-          </span>
+          <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.04em', textAlign: 'center' }}>/ 100</span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 15, fontWeight: 700, color: '#0D2B4E', margin: 0 }}>{prospect.name}</p>
-          <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>{prospect.location}</p>
-          <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>{prospect.visa}</span>
-            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#F1F5F9', color: '#4A5568', borderRadius: 6, padding: '2px 8px' }}>{prospect.budget}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: bg, color, borderRadius: 6, padding: '2px 8px' }}>{prospect.fitRating}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>{prospect.visa}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 5, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, color: '#4A5568' }}>💰 {prospect.budget}</span>
+            <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted {prospect.submittedDays} day{prospect.submittedDays !== 1 ? 's' : ''} ago</span>
           </div>
         </div>
       </div>
-      <p style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5, margin: 0 }}>{prospect.summary}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>{prospect.status}</span>
+      </div>
+      <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+        <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
+        <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}>
+          <span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>{prospect.aiNote}
+        </p>
+      </div>
+      <button onClick={() => setExpanded(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', padding: 0, cursor: 'pointer', width: '100%' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Score breakdown</span>
+        <span style={{ fontSize: 16, color: '#94A3B8', fontWeight: 700, display: 'inline-block', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>›</span>
+      </button>
+      {expanded && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {prospect.breakdown.map((item) => (
+            <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#4A5568' }}>{item.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0D2B4E' }}>{item.pts}/{item.max}</span>
+              </div>
+              <div style={{ height: 4, backgroundColor: '#F1F5F9', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.round((item.pts / item.max) * 100)}%`, backgroundColor: color, borderRadius: 2 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: 6 }}>
         {prospect.buttons.map((btn, i) => (
-          <button key={i} style={{
-            flex: 1, padding: '8px 4px', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-            backgroundColor: i === 1 ? color : '#FFFFFF', color: i === 1 ? '#FFFFFF' : '#0D2B4E',
-            border: i === 1 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>{btn}</button>
+          <button key={i} style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, backgroundColor: i === 0 ? color : '#FFFFFF', color: i === 0 ? '#FFFFFF' : '#0D2B4E', border: i === 0 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0', cursor: 'pointer' }}>
+            {btn}
+          </button>
         ))}
       </div>
     </div>
@@ -546,7 +598,7 @@ function ConsultationQueue() {
         <p style={{ fontSize: 13, fontWeight: 800, color: '#0D2B4E', textTransform: 'uppercase', letterSpacing: '0.14em', margin: 0 }}>
           CONSULTATION REQUESTS
         </p>
-        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>3 prospects waiting for review</p>
+        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>2 prospects waiting for review</p>
       </div>
       {PROSPECTS.map((p) => <ProspectCard key={p.name} prospect={p} />)}
     </div>
