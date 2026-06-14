@@ -601,6 +601,7 @@ export default function A1AttorneyDashboard() {
               >
                 Sign out
               </button>
+              <button onClick={() => navigate('/a-billing')} className="transition-opacity active:opacity-60" style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Billing</button>
             </div>
           </div>
         </div>
