@@ -16,6 +16,7 @@ import J5Directory from './screens/J5Directory'
 import J6Essentials from './screens/J6Essentials'
 import JResourcesScreen from './screens/JResourcesScreen'
 import A1AttorneyDashboard from './screens/A1AttorneyDashboard'
+import A1Billing from './screens/A1Billing'
 import A2Coming from './screens/A2Coming'
 import A3Invite from './screens/A3Invite'
 import AttyClientEntry from './screens/AttyClientEntry'
@@ -90,6 +91,7 @@ function Layout({ authReady, authedPath }) {
         <Route path="/j6" element={<ProtectedRoute allowedRole="client"><J6Essentials /></ProtectedRoute>} />
         <Route path="/resources" element={<ProtectedRoute allowedRole="client"><JResourcesScreen /></ProtectedRoute>} />
         <Route path="/a1" element={<ProtectedRoute allowedRole="attorney"><A1AttorneyDashboard /></ProtectedRoute>} />
+        <Route path="/a-billing" element={<ProtectedRoute allowedRole="attorney"><A1Billing /></ProtectedRoute>} />
         <Route path="/a2" element={<ProtectedRoute allowedRole="attorney"><A2Coming /></ProtectedRoute>} />
         <Route path="/a3" element={<ProtectedRoute allowedRole="attorney"><A3Invite /></ProtectedRoute>} />
         <Route path="/attorney-client" element={<AttyClientEntry />} />
