@@ -432,129 +432,155 @@ function MorningBriefing() {
 
 // ─── Consultation Queue ───────────────────────────────────────────────────────
 
-const PROSPECTS = [
-  {
-    name: 'David Kim',
-    location: 'Toronto, ON',
-    visa: 'EB-5',
-    budget: '$800K+',
-    score: 87,
-    label: 'HIGHLY PREPARED',
-    summary: 'Completed full discovery. Source of funds confirmed. Actively tracking expenses for 3 weeks. Strong candidate.',
-    buttons: ['View Full Profile', 'Accept', 'Decline'],
-  },
-  {
-    name: 'Sarah Murphy',
-    location: 'Vancouver, BC',
-    visa: 'E-2',
-    budget: '$100K – $300K',
-    score: 34,
-    label: 'NEEDS PREPARATION',
-    summary: 'Budget may not meet E-2 investment threshold. No documents prepared yet. Recommend 2–3 more weeks in MigraTrak before consultation.',
-    buttons: ['View Full Profile', 'Accept', 'Send Resources First'],
-  },
-  {
-    name: 'Michael Chen',
-    location: 'Calgary, AB',
-    visa: 'TN Visa',
-    budget: 'Not yet disclosed',
-    score: 61,
-    label: 'MODERATE READINESS',
-    summary: 'Completed discovery flow. Document preparation not yet started. Timeline: 6–12 months.',
-    buttons: ['View Full Profile', 'Accept', 'Request More Info'],
-  },
-]
-
-function scoreColor(score) {
-  if (score >= 75) return '#1A7A4A'
-  if (score >= 50) return '#F0A500'
-  return '#C00000'
+function fitColor(fitRating) {
+  if (fitRating === 'Strong' || fitRating === 'Strong Fit')   return '#1A7A4A'
+  if (fitRating === 'Possible' || fitRating === 'Possible Fit') return '#D97706'
+  return '#DC2626'
 }
-
-function ProspectCard({ prospect }) {
-  const color = scoreColor(prospect.score)
+function fitBg(fitRating) {
+  if (fitRating === 'Strong' || fitRating === 'Strong Fit')   return '#D1FAE5'
+  if (fitRating === 'Possible' || fitRating === 'Possible Fit') return '#FEF3C7'
+  return '#FEE2E2'
+}
+function fitLabel(fitRating) {
+  if (fitRating === 'Strong')   return 'Strong Fit'
+  if (fitRating === 'Possible') return 'Possible Fit'
+  if (fitRating === 'Unlikely') return 'Unlikely Fit'
+  return fitRating
+}
+function ProspectCard({ prospect, onAction }) {
+  const [expanded, setExpanded] = useState(false)
+  const [acting, setActing]     = useState(null)
+  const color = fitColor(prospect.fit_rating || prospect.fitRating)
+  const bg    = fitBg(prospect.fit_rating || prospect.fitRating)
+  const label = fitLabel(prospect.fit_rating || prospect.fitRating)
+  const visaDisplay   = prospect.visa_type   || prospect.visa   || '—'
+  const budgetDisplay = prospect.budget_range || prospect.budget || '—'
+  const aiNote        = prospect.ai_consultation_note || prospect.aiNote || ''
+  const score         = prospect.score ?? '—'
+  const statusDisplay = prospect.status === 'pending' ? 'Consultation Requested' : prospect.status === 'approved' ? 'Approved' : prospect.status === 'declined' ? 'Declined' : prospect.status === 'info_requested' ? 'More Information Requested' : prospect.status === 'converted' ? 'Converted to Client' : prospect.status || 'Pending'
+  const submittedDays = prospect.created_at ? Math.floor((Date.now() - new Date(prospect.created_at).getTime()) / 86400000) : prospect.submittedDays ?? '—'
+  const buttons = prospect.status === 'pending' ? ['Approve', 'Decline', 'More Info'] : prospect.status === 'info_requested' ? ['Follow Up', 'Decline'] : prospect.status === 'approved' ? ['Convert to Client'] : []
+  async function handleBtn(btn) {
+    const newStatus = btn === 'Approve' ? 'approved' : btn === 'Decline' ? 'declined' : btn === 'More Info' ? 'info_requested' : btn === 'Follow Up' ? 'info_requested' : btn === 'Convert to Client' ? 'converted' : null
+    if (!newStatus || !onAction) return
+    setActing(btn)
+    await onAction(prospect.id, newStatus, prospect)
+    setActing(null)
+  }
   return (
-    <div
-      style={{
-        backgroundColor: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderLeft: `3px solid ${color}`,
-        borderRadius: 16,
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-      }}
-    >
-      {/* Top row: score badge + name/meta */}
+    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderLeft: `3px solid ${color}`, borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: '50%',
-            backgroundColor: color,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ color: '#FFFFFF', fontWeight: 700, fontSize: 18, lineHeight: 1 }}>{prospect.score}</span>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>{score}</span>
           </div>
-          <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.06em', textAlign: 'center', whiteSpace: 'nowrap' }}>
-            {prospect.label}
-          </span>
+          <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.04em', textAlign: 'center' }}>/ 100</span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 15, fontWeight: 700, color: '#0D2B4E', margin: 0 }}>{prospect.name}</p>
-          <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>{prospect.location}</p>
-          <div style={{ display: 'flex', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>
-              {prospect.visa}
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#F1F5F9', color: '#4A5568', borderRadius: 6, padding: '2px 8px' }}>
-              {prospect.budget}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: bg, color, borderRadius: 6, padding: '2px 8px' }}>{label}</span>
+            <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>{visaDisplay}</span>
+          </div>
+          <div style={{ display: 'flex', gap: 12, marginTop: 5, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, color: '#4A5568' }}>💰 {budgetDisplay}</span>
+            <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted {submittedDays} day{submittedDays !== 1 ? 's' : ''} ago</span>
           </div>
         </div>
       </div>
-
-      {/* Summary */}
-      <p style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5, margin: 0 }}>{prospect.summary}</p>
-
-      {/* Buttons */}
-      <div style={{ display: 'flex', gap: 6 }}>
-        {prospect.buttons.map((btn, i) => (
-          <button
-            key={i}
-            style={{
-              flex: 1,
-              padding: '8px 4px',
-              borderRadius: 10,
-              fontSize: 11,
-              fontWeight: 700,
-              backgroundColor: i === 1 ? color : '#FFFFFF',
-              color: i === 1 ? '#FFFFFF' : '#0D2B4E',
-              border: i === 1 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {btn}
-          </button>
-        ))}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: color, flexShrink: 0 }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>{statusDisplay}</span>
       </div>
+      {aiNote ? (
+        <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
+          <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}><span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>{aiNote}</p>
+        </div>
+      ) : null}
+      <button onClick={() => setExpanded(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', padding: 0, cursor: 'pointer', width: '100%' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Score breakdown</span>
+        <span style={{ fontSize: 16, color: '#94A3B8', fontWeight: 700, display: 'inline-block', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>›</span>
+      </button>
+      {expanded && prospect.assessment_answers?.breakdown && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {prospect.assessment_answers.breakdown.map((item) => (
+            <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: '#4A5568' }}>{item.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0D2B4E' }}>{item.pts}/{item.max}</span>
+              </div>
+              <div style={{ height: 4, backgroundColor: '#F1F5F9', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.round((item.pts / item.max) * 100)}%`, backgroundColor: color, borderRadius: 2 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {buttons.length > 0 && (
+        <div style={{ display: 'flex', gap: 6 }}>
+          {buttons.map((btn, i) => (
+            <button key={i} disabled={!!acting} onClick={() => handleBtn(btn)} style={{ flex: 1, padding: '9px 4px', borderRadius: 10, fontSize: 12, fontWeight: 700, backgroundColor: i === 0 ? color : '#FFFFFF', color: i === 0 ? '#FFFFFF' : '#0D2B4E', border: i === 0 ? `1.5px solid ${color}` : '1.5px solid #CBD5E0', cursor: acting ? 'not-allowed' : 'pointer', opacity: acting ? 0.6 : 1 }}>
+              {acting === btn ? '…' : btn}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
-
-function ConsultationQueue() {
+function ConsultationQueue({ attorneyId, attorneyProfile }) {
+  const [prospects, setProspects] = useState(null)
+  const [error, setError]         = useState(null)
+  async function load() {
+    if (!attorneyId) return
+    try {
+      const { data, error: err } = await supabase.from('prospects').select('*').eq('attorney_id', attorneyId).order('created_at', { ascending: false })
+      if (err) throw err
+      setProspects(data || [])
+    } catch (err) { setError(err.message); setProspects([]) }
+  }
+  useEffect(() => { load() }, [attorneyId])
+  async function handleAction(prospectId, newStatus, prospect) {
+    try {
+      const action = newStatus === 'approved' ? 'approve' : newStatus === 'declined' ? 'decline' : newStatus === 'info_requested' ? 'more_info' : null
+      if (action) {
+        await fetch('/api/respond-prospect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, prospectId, prospectName: prospect.name, prospectEmail: prospect.email, attorneyName: attorneyProfile?.name || 'Your attorney', firmName: attorneyProfile?.firm_name || '', visaType: prospect.visa_type || '' }) })
+      }
+      if (newStatus === 'converted') {
+        await fetch('/api/convert-prospect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prospectId, attorneyId, zapierWebhookUrl: attorneyProfile?.zapier_webhook_url || null }) })
+      }
+      setProspects(prev => prev.map(p => p.id === prospectId ? { ...p, status: newStatus } : p))
+    } catch (err) { setError(err.message) }
+  }
+  const pending   = prospects?.filter(p => ['pending', 'info_requested'].includes(p.status)) || []
+  const processed = prospects?.filter(p => ['approved', 'declined', 'converted'].includes(p.status)) || []
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div>
-        <p style={{ fontSize: 13, fontWeight: 800, color: '#0D2B4E', textTransform: 'uppercase', letterSpacing: '0.14em', margin: 0 }}>
-          CONSULTATION REQUESTS
-        </p>
-        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>3 prospects waiting for review</p>
+        <p style={{ fontSize: 13, fontWeight: 800, color: '#0D2B4E', textTransform: 'uppercase', letterSpacing: '0.14em', margin: 0 }}>CONSULTATION REQUESTS</p>
+        <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>{prospects === null ? 'Loading…' : `${pending.length} prospect${pending.length !== 1 ? 's' : ''} waiting for review`}</p>
       </div>
-      {PROSPECTS.map((p) => <ProspectCard key={p.name} prospect={p} />)}
+      {error && <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 16, padding: '12px 16px' }}><p style={{ fontSize: 12, fontWeight: 600, color: '#DC2626', margin: 0 }}>{error}</p></div>}
+      {prospects === null ? (
+        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px' }}><p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>Loading prospects…</p></div>
+      ) : pending.length === 0 && processed.length === 0 ? (
+        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px 16px', textAlign: 'center' }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#4A5568', margin: 0 }}>No prospects yet</p>
+          <p style={{ fontSize: 12, color: '#94A3B8', margin: '4px 0 0 0' }}>Prospects appear here when clients complete the discovery flow</p>
+        </div>
+      ) : (
+        <>
+          {pending.map(p => <ProspectCard key={p.id} prospect={p} onAction={handleAction} />)}
+          {processed.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Recently processed</p>
+              {processed.map(p => <ProspectCard key={p.id} prospect={p} onAction={handleAction} />)}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -564,12 +590,14 @@ function ConsultationQueue() {
 export default function A1AttorneyDashboard() {
   const [showModal, setShowModal] = useState(false)
   const navigate = useNavigate()
-  const [clients, setClients] = useState(null)
-  const [metrics, setMetrics] = useState(null)
+  const [clients, setClients]     = useState(null)
+  const [metrics, setMetrics]     = useState(null)
+  const [attorneyId, setAttorneyId] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
+      setAttorneyId(session.user.id)
       fetch('/api/get-clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -637,7 +665,7 @@ export default function A1AttorneyDashboard() {
           <MorningBriefing />
 
           {/* Consultation Queue */}
-          <ConsultationQueue />
+          <ConsultationQueue attorneyId={attorneyId} />
 
           {/* On Track */}
           <div className="flex flex-col gap-3">
