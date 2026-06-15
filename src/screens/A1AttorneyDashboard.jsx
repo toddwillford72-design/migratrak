@@ -526,7 +526,7 @@ function ProspectCard({ prospect, onAction }) {
                     : null
     if (!newStatus || !onAction) return
     setActing(btn)
-    await onAction(prospect.id, newStatus)
+    await onAction(prospect.id, newStatus, prospect)
     setActing(null)
   }
 
@@ -598,7 +598,7 @@ function ProspectCard({ prospect, onAction }) {
   )
 }
 
-function ConsultationQueue({ attorneyId }) {
+function ConsultationQueue({ attorneyId, attorneyProfile }) {
   const [prospects, setProspects] = useState(null)
   const [error, setError]         = useState(null)
 
@@ -620,13 +620,24 @@ function ConsultationQueue({ attorneyId }) {
 
   useEffect(() => { load() }, [attorneyId])
 
-  async function handleAction(prospectId, newStatus) {
+  async function handleAction(prospectId, newStatus, prospect) {
     try {
-      const { error: err } = await supabase
-        .from('prospects')
-        .update({ status: newStatus })
-        .eq('id', prospectId)
-      if (err) throw err
+      const action = newStatus === 'approved' ? 'approve' : newStatus === 'declined' ? 'decline' : newStatus === 'info_requested' ? 'more_info' : null
+      if (action) {
+        await fetch('/api/respond-prospect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action,
+            prospectId,
+            prospectName:  prospect.name,
+            prospectEmail: prospect.email,
+            attorneyName:  attorneyProfile?.name || 'Your attorney',
+            firmName:      attorneyProfile?.firm_name || '',
+            visaType:      prospect.visa_type || '',
+          }),
+        })
+      }
       setProspects(prev => prev.map(p => p.id === prospectId ? { ...p, status: newStatus } : p))
     } catch (err) {
       setError(err.message)
@@ -678,9 +689,10 @@ function ConsultationQueue({ attorneyId }) {
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function A1AttorneyDashboard() {
-  const [showModal, setShowModal] = useState(false)
-  const [attorneyId, setAttorneyId] = useState(null)
-  const [clients, setClients] = useState(null) // null = loading, [] = empty real, [...] = real data
+  const [showModal, setShowModal]             = useState(false)
+  const [attorneyId, setAttorneyId]           = useState(null)
+  const [attorneyProfile, setAttorneyProfile] = useState(null)
+  const [clients, setClients]                 = useState(null) // null = loading, [] = empty real, [...] = real data
   const [clientsError, setClientsError] = useState(false)
   const navigate = useNavigate()
 
@@ -707,6 +719,8 @@ export default function A1AttorneyDashboard() {
       if (session?.user) {
         setAttorneyId(session.user.id)
         loadClients(session.user.id)
+        supabase.from('users').select('name, firm_name').eq('id', session.user.id).single()
+          .then(({ data }) => { if (data) setAttorneyProfile(data) })
       } else {
         setClients([])
       }
@@ -780,7 +794,7 @@ export default function A1AttorneyDashboard() {
           <MorningBriefing realClients={realClientsForBriefing} />
 
           {/* Consultation Queue — live Supabase data */}
-          <ConsultationQueue attorneyId={attorneyId} />
+          <ConsultationQueue attorneyId={attorneyId} attorneyProfile={attorneyProfile} />
 
           {/* Active Clients / On Track */}
           <div className="flex flex-col gap-3">
