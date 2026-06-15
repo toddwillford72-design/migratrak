@@ -359,12 +359,12 @@ export default function J6Essentials() {
   // Item IDs per section — drives both rendering (completed state) and the
   // header/section progress counts. Conditional items (children, age-out)
   // are still given stable IDs even when not shown for this user.
-  const S1_IDS = ['s1_01','s1_02','s1_03','s1_04','s1_05','s1_06','s1_07','s1_08', ...(withChildren ? ['s1_09','s1_10'] : []), 's1_11']
-  const S2_IDS = ['s2_01','s2_02','s2_03','s2_04','s2_05','s2_06','s2_07','s2_08']
-  const S3_IDS = ['s3_01','s3_02','s3_03','s3_04','s3_05','s3_06', ...(withChildren ? ['s3_07','s3_08'] : []), 's3_09']
-  const S4_IDS = ['s4_01','s4_02','s4_03','s4_04','s4_05', ...(withChildren ? ['s4_06'] : [])]
-  const S5_IDS = ['s5_01','s5_02','s5_03','s5_04']
-  const S6_IDS = ['s6_01','s6_02','s6_03','s6_04','s6_05']
+  const S1_IDS = ['s1_02','s1_03','s1_04','s1_06','s1_07','s1_08', ...(withChildren ? ['s1_09','s1_10'] : []), 's1_11']
+  const S2_IDS = ['s2_02','s2_03','s2_04','s2_05','s2_07','s2_08']
+  const S3_IDS = ['s2_01','s3_01','s3_02','s3_03','s3_04','s3_05','s3_06', ...(withChildren ? ['s3_07','s3_08'] : []), 's3_09']
+  const S4_IDS = ['s4_01','s4_02','s4_03','s4_04', ...(withChildren ? ['s4_06'] : [])]
+  const S5_IDS = ['s5_01','s5_03','s5_04']
+  const S6_IDS = ['s6_01','s6_02','s6_03','s6_04','s6_05','s1_01','s1_05','s2_06','s4_05','s5_02']
 
   const countDone = (ids) => ids.filter((id) => completedIds.has(id)).length
 
@@ -416,11 +416,9 @@ export default function J6Essentials() {
         <Section title="Before You Arrive" subtitle="Do these before leaving your home country"
           open={open.s1} onToggle={() => toggle('s1')} doneCount={s1Done} totalCount={s1Total}>
           <div className="pt-1">
-            <ChecklistItem id="s1_01" completed={completedIds.has('s1_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Sell or transfer your TFSA before becoming a US tax resident" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s1_02" completed={completedIds.has('s1_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Engage cross-border accountant" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <ChecklistItem id="s1_03" completed={completedIds.has('s1_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="File home country departure return" actionLabel="Learn more" onAction={null} />
-            <ChecklistItem id="s1_04" completed={completedIds.has('s1_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Cancel or update provincial health coverage (e.g. OHIP)" actionLabel="Learn more" onAction={null} />
-            <ChecklistItem id="s1_05" completed={completedIds.has('s1_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Review which home country accounts to keep vs. close (RRSP can stay — treaty protected)" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s1_03" completed={completedIds.has('s1_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="File home country departure return — not required until you file for or become a US resident. Discuss timing with your cross-border accountant." actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s1_04" completed={completedIds.has('s1_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Do not cancel provincial health coverage (e.g. OHIP) before departure — discuss timing with your attorney prior to leaving." actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s1_06" completed={completedIds.has('s1_06')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Obtain medical records from home country doctors" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s1_07" completed={completedIds.has('s1_07')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Arrange pet relocation — vaccinations and health certificate" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s1_08" completed={completedIds.has('s1_08')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Set up mail forwarding with Canada Post" actionLabel="Learn more" onAction={null} />
@@ -438,12 +436,10 @@ export default function J6Essentials() {
         <Section title="Week 1 — Do Immediately" subtitle="Your first 7 days in the US"
           badge="urgent" open={open.s2} onToggle={() => toggle('s2')} doneCount={s2Done} totalCount={s2Total}>
           <div className="pt-1">
-            <ChecklistItem id="s2_01" completed={completedIds.has('s2_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Research US auto insurance options — you can typically keep Canadian plates and insurance until around the 6-month mark" actionLabel="Browse options" onAction={() => setCategory('auto-insurance')} />
             <ChecklistItem id="s2_02" completed={completedIds.has('s2_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Set up homeowners or renters insurance for your new home" actionLabel="Learn more" onAction={null} />
-            <ChecklistItem id="s2_03" completed={completedIds.has('s2_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Know your emergency healthcare options before coverage starts" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s2_03" completed={completedIds.has('s2_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Know your emergency healthcare options before coverage starts and create a plan" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s2_04" completed={completedIds.has('s2_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Note your home country vehicle plate/registration expiry date" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s2_05" completed={completedIds.has('s2_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Open US bank account" actionLabel="Find one" onAction={() => setCategory('banking')} />
-            <ChecklistItem id="s2_06" completed={completedIds.has('s2_06')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Set up US cell phone plan" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s2_07" completed={completedIds.has('s2_07')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Set up utilities (electric, internet, water)" actionLabel="Learn more" onAction={null} />
             <ChecklistItem
               id="s2_08" completed={completedIds.has('s2_08')} onToggle={toggleItem} onLearnMore={onLearnMore}
@@ -460,6 +456,7 @@ export default function J6Essentials() {
         <Section title="Month 1" subtitle="Complete within your first 30 days"
           open={open.s3} onToggle={() => toggle('s3')} doneCount={s3Done} totalCount={s3Total}>
           <div className="pt-1">
+            <ChecklistItem id="s2_01" completed={completedIds.has('s2_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Research US auto insurance options — you can typically keep Canadian plates and insurance until around the 6-month mark" actionLabel="Browse options" onAction={() => setCategory('auto-insurance')} />
             <ChecklistItem id="s3_01" completed={completedIds.has('s3_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Enroll in US health insurance" actionLabel="Find options" onAction={null} />
             <ChecklistItem id="s3_02" completed={completedIds.has('s3_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Apply for SSN once eligible — eligibility and timing vary significantly by visa type" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s3_03" completed={completedIds.has('s3_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Update your address with USCIS (Form AR-11)" actionLabel="Learn more" onAction={null} />
@@ -481,11 +478,10 @@ export default function J6Essentials() {
         <Section title="Months 1–3" subtitle="Complete within your first 90 days"
           open={open.s4} onToggle={() => toggle('s4')} doneCount={s4Done} totalCount={s4Total}>
           <div className="pt-1">
-            <ChecklistItem id="s4_01" completed={completedIds.has('s4_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="SSN follow-up (3 weeks after applying)" actionLabel="Track status" onAction={null} />
+            <ChecklistItem id="s4_01" completed={completedIds.has('s4_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="SSN follow-up (3 weeks after applying) — save cheque as an option if delayed" actionLabel="Track status" onAction={null} />
             <ChecklistItem id="s4_02" completed={completedIds.has('s4_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Find primary care physician" actionLabel="Find one" onAction={() => navigate('/j5')} />
             <ChecklistItem id="s4_03" completed={completedIds.has('s4_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Find dentist" actionLabel="Find one" onAction={() => navigate('/j5')} />
-            <ChecklistItem id="s4_04" completed={completedIds.has('s4_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Transfer prescription records" actionLabel="Learn more" onAction={null} />
-            <ChecklistItem id="s4_05" completed={completedIds.has('s4_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Register imported vehicle in Florida (use tax due on vehicle value)" actionLabel="Learn more" onAction={null} last={!withChildren} />
+            <ChecklistItem id="s4_04" completed={completedIds.has('s4_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Transfer prescription records" actionLabel="Learn more" onAction={null} last={!withChildren} />
             {withChildren && (
               <ChecklistItem id="s4_06" completed={completedIds.has('s4_06')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Enroll children in school (if not done in Month 1)" actionLabel="Find your district" onAction={null} last />
             )}
@@ -499,11 +495,10 @@ export default function J6Essentials() {
             <ChecklistItem
               id="s5_01" completed={completedIds.has('s5_01')} onToggle={toggleItem} onLearnMore={onLearnMore}
               label="Confirm auto insurance covers you beyond 6 months"
-              urgencyNote="Canadian coverage typically voids around the 6-month mark — confirm with your insurer before then"
+              urgencyNote="Insurance coverage for your vehicle needs to be addressed before the 6-month mark — confirm with your insurer before then"
               actionLabel="Check now"
               onAction={() => setCategory('auto-insurance')}
             />
-            <ChecklistItem id="s5_02" completed={completedIds.has('s5_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Renew or cancel home country vehicle plates/registration before it expires" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s5_03" completed={completedIds.has('s5_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Review US credit score progress" actionLabel="Check score" onAction={null} />
             <ChecklistItem id="s5_04" completed={completedIds.has('s5_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="File FBAR for the prior tax year if foreign accounts exceeded $10K (due the following April 15)" actionLabel="Learn more" onAction={null} last />
           </div>
@@ -517,7 +512,12 @@ export default function J6Essentials() {
             <ChecklistItem id="s6_02" completed={completedIds.has('s6_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="File USCIS Service Request if processing exceeds normal range" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s6_03" completed={completedIds.has('s6_03')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Contact congressional office if delays persist" actionLabel="Learn more" onAction={null} />
             <ChecklistItem id="s6_04" completed={completedIds.has('s6_04')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Calendar conditional green card interview (when scheduled)" actionLabel="Set reminder" onAction={null} />
-            <ChecklistItem id="s6_05" completed={completedIds.has('s6_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Calendar I-829 filing window (90 days before 2-year green card expiry)" actionLabel="Set reminder" onAction={null} last />
+            <ChecklistItem id="s6_05" completed={completedIds.has('s6_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Calendar I-829 filing window (90 days before 2-year green card expiry)" actionLabel="Set reminder" onAction={null} />
+            <ChecklistItem id="s1_01" completed={completedIds.has('s1_01')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Sell or transfer your TFSA — discuss timing with your accountant before becoming a US tax resident" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s1_05" completed={completedIds.has('s1_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Review home country accounts (RRSP can stay — treaty protected) — discuss timing with your financial planner and accountant after you become a resident" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s2_06" completed={completedIds.has('s2_06')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Set up US cell phone plan — requires SSN in most cases" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s4_05" completed={completedIds.has('s4_05')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Register imported vehicle in Florida (use tax due on vehicle value) — can happen anytime" actionLabel="Learn more" onAction={null} />
+            <ChecklistItem id="s5_02" completed={completedIds.has('s5_02')} onToggle={toggleItem} onLearnMore={onLearnMore} label="Renew or cancel home country vehicle plates/registration before it expires" actionLabel="Learn more" onAction={null} last />
           </div>
         </Section>
 
