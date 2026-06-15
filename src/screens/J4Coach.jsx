@@ -319,9 +319,9 @@ export default function J4Coach() {
         </div>
 
         {/* Legal disclaimer banner */}
-        <div className="px-4 py-2.5 flex items-center gap-2" style={{ backgroundColor: '#FFFBEB', borderBottom: '1px solid #F0A500' }}>
-          <span className="text-sm flex-shrink-0">⚠️</span>
-          <p className="text-xs font-semibold leading-snug" style={{ color: '#92400E' }}>
+        <div className="px-4 py-3 flex items-start gap-2" style={{ backgroundColor: '#FEF3C7', borderBottom: '2px solid #F0A500' }}>
+          <span className="text-sm flex-shrink-0 mt-0.5">⚠️</span>
+          <p className="text-sm font-bold leading-snug" style={{ color: '#78350F' }}>
             MigraTrak AI provides educational context only — not legal advice.
           </p>
         </div>

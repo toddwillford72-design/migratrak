@@ -280,7 +280,7 @@ export default function J1Dashboard() {
         supabase.from('essentials_progress').select('item_id').eq('user_id', userId).eq('completed', true),
       ])
       setEssentialsDoneIds(new Set((eRows || []).map((r) => r.item_id)))
-      const displayName = userRow?.name || user.user_metadata?.name || user.email
+      const displayName = userRow?.name || user.user_metadata?.name || null
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {

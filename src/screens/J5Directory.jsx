@@ -532,14 +532,8 @@ function ProfessionalCard({ pro, initialOpen }) {
 
           {/* Action buttons */}
           <div className="flex flex-col gap-2 pt-1">
-            {/* Row 1: View Profile + Call Now (if phone available) */}
+            {/* Call Now (Mena only) + Request Introduction */}
             <div className="flex gap-2">
-              <button
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-                style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
-              >
-                View Profile
-              </button>
               {pro.id === 1 && pro.phones.length > 0 && (
                 <a
                   href={`tel:${pro.phones[0].number.replace(/\D/g,'')}`}
@@ -568,12 +562,6 @@ function ProfessionalCard({ pro, initialOpen }) {
       {/* Collapsed action strip */}
       {!open && (
         <div className="flex gap-2 px-5 pb-4">
-          <button
-            className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
-            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
-          >
-            View Profile
-          </button>
           <button
             onClick={() => setRequested(true)}
             className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
