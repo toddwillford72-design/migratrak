@@ -598,6 +598,83 @@ function ProspectCard({ prospect, onAction }) {
   )
 }
 
+function ZapierSetup({ attorneyId, attorneyProfile, onSaved }) {
+  const [expanded, setExpanded]     = useState(false)
+  const [webhookUrl, setWebhookUrl] = useState('')
+  const [saving, setSaving]         = useState(false)
+  const [saved, setSaved]           = useState(false)
+  const [error, setError]           = useState(null)
+  const currentUrl = attorneyProfile?.zapier_webhook_url || ''
+
+  async function handleSave() {
+    if (!webhookUrl.startsWith('https://hooks.zapier.com/')) {
+      setError('Please enter a valid Zapier webhook URL (starts with https://hooks.zapier.com/)'); return
+    }
+    setSaving(true); setError(null)
+    try {
+      const { error: err } = await supabase.from('users').update({ zapier_webhook_url: webhookUrl }).eq('id', attorneyId)
+      if (err) throw err
+      onSaved(webhookUrl); setSaved(true); setTimeout(() => setSaved(false), 3000); setExpanded(false)
+    } catch (err) { setError(err.message) } finally { setSaving(false) }
+  }
+
+  async function handleRemove() {
+    try {
+      await supabase.from('users').update({ zapier_webhook_url: null }).eq('id', attorneyId)
+      onSaved(null); setWebhookUrl('')
+    } catch (err) { setError(err.message) }
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
+      <button onClick={() => setExpanded(v => !v)} className="w-full flex items-center justify-between px-4 py-4" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <div className="flex items-center gap-3">
+          <span style={{ fontSize: 20 }}>⚡</span>
+          <div className="text-left">
+            <p className="text-sm font-extrabold" style={{ color: '#0D2B4E', margin: 0 }}>CRM Integration</p>
+            <p className="text-xs mt-0.5" style={{ color: currentUrl ? '#1A7A4A' : '#94A3B8', margin: 0 }}>
+              {currentUrl ? '✓ Zapier webhook connected' : 'Connect Zapier to push prospects to your CRM'}
+            </p>
+          </div>
+        </div>
+        <span style={{ fontSize: 16, color: '#94A3B8', fontWeight: 700, transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>›</span>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid #F1F5F9' }}>
+          <div className="pt-3">
+            <p className="text-xs font-bold mb-1" style={{ color: '#0D2B4E' }}>How it works</p>
+            <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>When you convert a prospect to a client, MigraTrak sends their full profile to your CRM via Zapier automatically.</p>
+          </div>
+          <div className="rounded-xl px-3 py-3 flex flex-col gap-2" style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+            <p className="text-xs font-bold" style={{ color: '#0D2B4E' }}>Setup steps:</p>
+            <p className="text-xs" style={{ color: '#4A5568' }}>1. Go to zapier.com → Create Zap</p>
+            <p className="text-xs" style={{ color: '#4A5568' }}>2. Trigger: Webhooks by Zapier → Catch Hook</p>
+            <p className="text-xs" style={{ color: '#4A5568' }}>3. Action: your CRM (Docketwise, Clio, or any other)</p>
+            <p className="text-xs" style={{ color: '#4A5568' }}>4. Copy the webhook URL Zapier gives you</p>
+            <p className="text-xs" style={{ color: '#4A5568' }}>5. Paste it below and save</p>
+          </div>
+          {currentUrl && (
+            <div className="rounded-xl px-3 py-3 flex items-center justify-between" style={{ backgroundColor: '#D1FAE5', border: '1px solid #1A7A4A' }}>
+              <div>
+                <p className="text-xs font-bold" style={{ color: '#1A7A4A' }}>Webhook connected</p>
+                <p className="text-xs mt-0.5" style={{ color: '#065F46', wordBreak: 'break-all' }}>{currentUrl.slice(0, 50)}…</p>
+              </div>
+              <button onClick={handleRemove} className="text-xs font-bold ml-3 flex-shrink-0" style={{ color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button>
+            </div>
+          )}
+          <div className="flex flex-col gap-2">
+            <input type="url" placeholder="https://hooks.zapier.com/hooks/catch/..." value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} className="w-full px-3 py-3 rounded-xl text-sm" style={{ border: '1px solid #CBD5E0', outline: 'none', color: '#0D2B4E' }} />
+            {error && <p className="text-xs" style={{ color: '#DC2626' }}>{error}</p>}
+            <button onClick={handleSave} disabled={saving || !webhookUrl} className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95" style={{ backgroundColor: saving || !webhookUrl ? '#94A3B8' : '#F0A500', color: '#0D2B4E', opacity: saving || !webhookUrl ? 0.7 : 1 }}>
+              {saved ? '✓ Saved!' : saving ? 'Saving…' : 'Save webhook URL'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ConsultationQueue({ attorneyId, attorneyProfile }) {
   const [prospects, setProspects] = useState(null)
   const [error, setError]         = useState(null)
@@ -635,6 +712,17 @@ function ConsultationQueue({ attorneyId, attorneyProfile }) {
             attorneyName:  attorneyProfile?.name || 'Your attorney',
             firmName:      attorneyProfile?.firm_name || '',
             visaType:      prospect.visa_type || '',
+          }),
+        })
+      }
+      if (newStatus === 'converted') {
+        await fetch('/api/convert-prospect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prospectId,
+            attorneyId,
+            zapierWebhookUrl: attorneyProfile?.zapier_webhook_url || null,
           }),
         })
       }
@@ -795,6 +883,7 @@ export default function A1AttorneyDashboard() {
 
           {/* Consultation Queue — live Supabase data */}
           <ConsultationQueue attorneyId={attorneyId} attorneyProfile={attorneyProfile} />
+          <ZapierSetup attorneyId={attorneyId} attorneyProfile={attorneyProfile} onSaved={(url) => setAttorneyProfile(p => ({ ...p, zapier_webhook_url: url }))} />
 
           {/* Active Clients / On Track */}
           <div className="flex flex-col gap-3">
