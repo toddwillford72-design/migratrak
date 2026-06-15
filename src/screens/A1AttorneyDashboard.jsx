@@ -598,6 +598,66 @@ function ProspectCard({ prospect, onAction }) {
   )
 }
 
+const CHECKIN_PREVIEW_MESSAGE = `Hi Maya, just a quick note from Maimone Legal. You are now in month four of your EB-5 investor journey — USCIS is currently processing EB-5 petitions in the 29–48 month range, so your timeline is completely normal and there is nothing unusual about your case. We are watching it closely and will reach out the moment we hear anything. In the meantime your MigraTrak dashboard is always up to date — don't hesitate to use the AI coach if you have questions.\n\n— Mena Maimone, Maimone Legal`
+
+function CheckinPreview() {
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
+      <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: '#0D2B4E' }}>
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 16 }}>💬</span>
+          <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#4A9FD4' }}>Automated Check-ins</p>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#1A7A4A' }} />
+          <span className="text-xs font-bold" style={{ color: '#4ADE80' }}>Active</span>
+        </div>
+      </div>
+      <div className="px-4 py-3 flex items-start gap-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EBF4FB' }}>
+          <span style={{ fontSize: 18 }}>👨‍👩‍👧</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-bold" style={{ color: '#0D2B4E' }}>Patel Family</p>
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>Month 4</span>
+          </div>
+          <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>EB-5 Investor · Case started Feb 2026</p>
+          <p className="text-xs mt-1 font-semibold" style={{ color: '#1A7A4A' }}>✓ Monthly check-in scheduled — sends tonight at 10pm ET</p>
+        </div>
+      </div>
+      <button onClick={() => setExpanded(v => !v)} className="w-full flex items-center justify-between px-4 py-3 transition-opacity active:opacity-70" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <p className="text-xs font-bold" style={{ color: '#1B5FA8' }}>{expanded ? 'Hide email preview' : 'Preview the email MigraTrak will send →'}</p>
+        <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 700, transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', display: 'inline-block' }}>›</span>
+      </button>
+      {expanded && (
+        <div className="mx-4 mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
+          <div className="px-4 py-3" style={{ backgroundColor: '#0D2B4E' }}>
+            <p className="text-xs font-extrabold" style={{ color: '#FFFFFF' }}>Maimone Legal</p>
+            <p className="text-xs mt-0.5" style={{ color: '#4A9FD4' }}>Immigration Law</p>
+          </div>
+          <div className="px-4 py-4">
+            <p className="text-xs font-semibold mb-2" style={{ color: '#94A3B8' }}>Subject: A quick update on your case — Maimone Legal</p>
+            {CHECKIN_PREVIEW_MESSAGE.split('\n').filter(Boolean).map((para, i) => (
+              <p key={i} className="text-sm leading-relaxed mb-3" style={{ color: '#4A5568' }}>{para}</p>
+            ))}
+            <div className="mt-3 rounded-lg py-2.5 text-center" style={{ backgroundColor: '#1B5FA8' }}>
+              <p className="text-xs font-bold" style={{ color: '#FFFFFF' }}>Open my MigraTrak dashboard →</p>
+            </div>
+          </div>
+          <div className="px-4 py-2.5 text-center" style={{ backgroundColor: '#F7F9FC', borderTop: '1px solid #E2E8F0' }}>
+            <p className="text-xs" style={{ color: '#A0AEC0' }}>MigraTrak provides educational information only — not legal advice.</p>
+          </div>
+        </div>
+      )}
+      <div className="px-4 pb-3">
+        <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>MigraTrak evaluates all active clients daily and sends context-aware check-ins automatically — from your practice name, never from MigraTrak.</p>
+      </div>
+    </div>
+  )
+}
+
 function ZapierSetup({ attorneyId, attorneyProfile, onSaved }) {
   const [expanded, setExpanded]     = useState(false)
   const [webhookUrl, setWebhookUrl] = useState('')
@@ -880,6 +940,8 @@ export default function A1AttorneyDashboard() {
 
           {/* Morning Briefing — demo cards + real alerts injected */}
           <MorningBriefing realClients={realClientsForBriefing} />
+
+          <CheckinPreview />
 
           {/* Consultation Queue — live Supabase data */}
           <ConsultationQueue attorneyId={attorneyId} attorneyProfile={attorneyProfile} />
