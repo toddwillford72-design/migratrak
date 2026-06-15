@@ -1,7 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 
+function loadDestination() {
+  try {
+    const a = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
+    return a.destination || null
+  } catch (_) { return null }
+}
+
 export default function JResourcesScreen() {
   const navigate = useNavigate()
+  const destination = loadDestination()
 
   const LINKS = [
     {
@@ -28,10 +36,10 @@ export default function JResourcesScreen() {
       ],
     },
     {
-      section: 'Florida — Local Resources',
+      section: destination ? `${destination} — Local Resources` : 'Local Resources',
       items: [
-        { label: 'Florida DMV — Driver Licence', url: 'https://www.flhsmv.gov/driver-licenses-id-cards/', note: 'Required within 30 days of establishing FL residency' },
-        { label: 'Florida Department of Revenue', url: 'https://floridarevenue.com/', note: 'State tax information for new residents' },
+        { label: 'State DMV — Driver Licence', url: 'https://www.flhsmv.gov/driver-licenses-id-cards/', note: 'Required within 30 days of establishing state residency — search your state DMV for the correct link' },
+        { label: 'State Department of Revenue', url: 'https://floridarevenue.com/', note: 'State tax information for new residents — search your state revenue department for the correct link' },
       ],
     },
   ]
