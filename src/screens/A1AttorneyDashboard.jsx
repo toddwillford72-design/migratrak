@@ -764,6 +764,13 @@ export default function A1AttorneyDashboard() {
                 Add Client
               </button>
               <button
+                onClick={() => navigate('/a-billing')}
+                className="transition-opacity active:opacity-60"
+                style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Billing
+              </button>
+              <button
                 onClick={async () => { await supabase.auth.signOut(); navigate('/') }}
                 className="transition-opacity active:opacity-60"
                 style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
