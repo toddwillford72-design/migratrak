@@ -44,6 +44,12 @@ async function generateMessage(client, attorney, triggerReason) {
   const benchmark = PROCESSING_BENCHMARKS[visaKey] || { min: 6, max: 24, label: client.visa_type || 'visa' }
   const months = monthsSince(client.case_start_date) || 1
   const firmName = attorney.firm_name || attorney.name + "'s office"
+  const firstName = (client.name || 'there').split(' ')[0]
+
+  const fallback = `Hi ${firstName}, just a quick note from ${firmName}. You are now in month ${months} of your ${benchmark.label} process — USCIS is currently processing these cases in the ${benchmark.min}–${benchmark.max} month range, so your timeline is completely normal. We are watching your case closely and will reach out the moment we have any news. In the meantime your MigraTrak dashboard is always up to date.\n\n— ${attorney.name}, ${firmName}`
+
+  if (!ANTHROPIC_API_KEY) return fallback
+
   const prompt = `You are writing a brief, warm check-in email from an immigration attorney to their client.
 Attorney: ${attorney.name} at ${firmName}
 Client: ${client.name}
@@ -57,12 +63,25 @@ Respond with only the email body text. No subject line. No HTML.`
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 300, messages: [{ role: 'user', content: prompt }] }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: prompt }],
+      }),
     })
-    const data = await response.json()
-    return data.content?.[0]?.text?.trim() || null
-  } catch (_) { return null }
+    if (!response.ok) return fallback
+    const text = await response.text()
+    if (!text || !text.trim()) return fallback
+    const data = JSON.parse(text)
+    return data.content?.[0]?.text?.trim() || fallback
+  } catch (_) {
+    return fallback
+  }
 }
 
 function buildEmailHtml(messageBody, firmName, dashboardUrl) {
