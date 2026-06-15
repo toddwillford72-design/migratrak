@@ -841,6 +841,7 @@ export default function A1AttorneyDashboard() {
   const [attorneyId, setAttorneyId]           = useState(null)
   const [attorneyProfile, setAttorneyProfile] = useState(null)
   const [clients, setClients]                 = useState(null) // null = loading, [] = empty real, [...] = real data
+  const [metrics, setMetrics]                 = useState(null)
   const [clientsError, setClientsError] = useState(false)
   const navigate = useNavigate()
 
@@ -855,6 +856,7 @@ export default function A1AttorneyDashboard() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Failed to load clients')
       setClients(data.clients || [])
+      if (data.metrics) setMetrics(data.metrics)
     } catch (err) {
       console.error('Failed to load clients:', err)
       setClientsError(true)
@@ -1012,10 +1014,10 @@ export default function A1AttorneyDashboard() {
             </p>
             <div className="grid grid-cols-2 divide-x divide-y" style={{ borderColor: '#F1F5F9' }}>
               {[
-                { label: 'New clients',          value: '4'   },
-                { label: 'Milestones completed', value: '12'  },
-                { label: 'Avg progress',         value: '58%' },
-                { label: 'Docs flagged',         value: '5'   },
+                { label: 'New clients',          value: metrics ? String(metrics.newClients)          : '—' },
+                { label: 'Milestones completed', value: metrics ? String(metrics.milestonesCompleted) : '—' },
+                { label: 'Avg progress',         value: metrics ? `${metrics.avgProgress}%`           : '—' },
+                { label: 'Docs flagged',         value: metrics ? String(metrics.docsFlagged)         : '—' },
               ].map((m) => (
                 <div key={m.label} className="px-4 py-4">
                   <p className="text-2xl font-extrabold" style={{ color: '#0D2B4E' }}>{m.value}</p>

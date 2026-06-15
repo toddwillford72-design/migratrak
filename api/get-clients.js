@@ -18,32 +18,36 @@ export default async function handler(req, res) {
   try {
     const { data: links, error: linksErr } = await supabase
       .from('attorney_clients')
-      .select('client_id')
+      .select('client_id, created_at')
       .eq('attorney_id', attorneyId)
       .eq('status', 'active')
 
     if (linksErr) throw linksErr
     if (!links || links.length === 0) {
-      return res.status(200).json({ clients: [] })
+      return res.status(200).json({ clients: [], metrics: { newClients: 0, milestonesCompleted: 0, avgProgress: 0, docsFlagged: 0 } })
     }
 
     const clientIds = links.map(l => l.client_id)
 
-    const { data: users, error: usersErr } = await supabase
-      .from('users')
-      .select('id, name, email, visa_type, dependent_ages')
-      .in('id', clientIds)
+    const monthStart = new Date()
+    monthStart.setDate(1)
+    monthStart.setHours(0, 0, 0, 0)
+    const monthStartIso = monthStart.toISOString()
 
-    if (usersErr) throw usersErr
+    const [usersRes, milestonesRes, documentsRes] = await Promise.all([
+      supabase.from('users').select('id, name, email, visa_type, dependent_ages').in('id', clientIds),
+      supabase.from('milestones').select('user_id, status, completed_at').in('user_id', clientIds),
+      supabase.from('documents').select('user_id, status').in('user_id', clientIds),
+    ])
 
-    const { data: milestones } = await supabase
-      .from('milestones')
-      .select('user_id, status')
-      .in('user_id', clientIds)
+    if (usersRes.error) throw usersRes.error
+
+    const milestones = milestonesRes.data || []
+    const documents  = documentsRes.data || []
 
     const progressMap = {}
     clientIds.forEach(cid => {
-      const ms = (milestones || []).filter(m => m.user_id === cid)
+      const ms = milestones.filter(m => m.user_id === cid)
       if (ms.length > 0) {
         const done = ms.filter(m => m.status === 'complete').length
         progressMap[cid] = Math.round((done / ms.length) * 100)
@@ -52,7 +56,7 @@ export default async function handler(req, res) {
       }
     })
 
-    const enriched = (users || []).map(u => ({
+    const enriched = (usersRes.data || []).map(u => ({
       ...u,
       progress: progressMap[u.id] ?? 0,
       detail: u.visa_type
@@ -60,7 +64,17 @@ export default async function handler(req, res) {
         : `${progressMap[u.id] ?? 0}% complete`,
     }))
 
-    return res.status(200).json({ clients: enriched })
+    const newClients = links.filter(l => l.created_at && l.created_at >= monthStartIso).length
+    const milestonesCompleted = milestones.filter(m => m.status === 'complete' && m.completed_at && m.completed_at >= monthStartIso).length
+    const avgProgress = clientIds.length > 0
+      ? Math.round(clientIds.reduce((sum, cid) => sum + (progressMap[cid] ?? 0), 0) / clientIds.length)
+      : 0
+    const docsFlagged = documents.filter(d => d.status === 'flagged' || d.status === 'rejected').length
+
+    return res.status(200).json({
+      clients: enriched,
+      metrics: { newClients, milestonesCompleted, avgProgress, docsFlagged },
+    })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Failed to load clients' })
   }
