@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
     const [usersRes, milestonesRes, documentsRes] = await Promise.all([
-      supabase.from('users').select('id, name, email, visa_type, dependent_ages, last_sign_in_at').in('id', clientIds),
+      supabase.from('users').select('id, name, email, visa_type, dependent_ages').in('id', clientIds),
       supabase.from('milestones').select('user_id, status, completed_date').in('user_id', clientIds),
       supabase.from('documents').select('user_id, flagged').in('user_id', clientIds).eq('flagged', true),
     ])
