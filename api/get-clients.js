@@ -1,24 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   const { attorneyId } = req.body
-  if (!attorneyId) {
-    return res.status(400).json({ error: 'Missing attorneyId' })
-  }
+  if (!attorneyId) return res.status(400).json({ error: 'Missing attorneyId' })
 
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-
   const supabase = createClient(supabaseUrl, serviceKey)
 
   try {
     const { data: links, error: linksErr } = await supabase
       .from('attorney_clients')
-      .select('client_id, created_at')
+      .select('client_id, activated_at')
       .eq('attorney_id', attorneyId)
       .eq('status', 'active')
 
@@ -28,22 +22,18 @@ export default async function handler(req, res) {
     }
 
     const clientIds = links.map(l => l.client_id)
-
-    const monthStart = new Date()
-    monthStart.setDate(1)
-    monthStart.setHours(0, 0, 0, 0)
-    const monthStartIso = monthStart.toISOString()
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
 
     const [usersRes, milestonesRes, documentsRes] = await Promise.all([
-      supabase.from('users').select('id, name, email, visa_type, dependent_ages').in('id', clientIds),
-      supabase.from('milestones').select('user_id, status, completed_at').in('user_id', clientIds),
-      supabase.from('documents').select('user_id, status').in('user_id', clientIds),
+      supabase.from('users').select('id, name, email, visa_type, dependent_ages, last_sign_in_at').in('id', clientIds),
+      supabase.from('milestones').select('user_id, status, completed_date').in('user_id', clientIds),
+      supabase.from('documents').select('user_id, flagged').in('user_id', clientIds).eq('flagged', true),
     ])
 
     if (usersRes.error) throw usersRes.error
 
     const milestones = milestonesRes.data || []
-    const documents  = documentsRes.data || []
 
     const progressMap = {}
     clientIds.forEach(cid => {
@@ -64,16 +54,16 @@ export default async function handler(req, res) {
         : `${progressMap[u.id] ?? 0}% complete`,
     }))
 
-    const newClients = links.filter(l => l.created_at && l.created_at >= monthStartIso).length
-    const milestonesCompleted = milestones.filter(m => m.status === 'complete' && m.completed_at && m.completed_at >= monthStartIso).length
+    const newClients = links.filter(l => l.activated_at && new Date(l.activated_at) >= new Date(monthStart)).length
+    const milestonesCompleted = milestones.filter(m => m.status === 'complete' && m.completed_date && new Date(m.completed_date) >= new Date(monthStart)).length
     const avgProgress = clientIds.length > 0
       ? Math.round(clientIds.reduce((sum, cid) => sum + (progressMap[cid] ?? 0), 0) / clientIds.length)
       : 0
-    const docsFlagged = documents.filter(d => d.status === 'flagged' || d.status === 'rejected').length
+    const docsFlagged = (documentsRes.data || []).length
 
     return res.status(200).json({
       clients: enriched,
-      metrics: { newClients, milestonesCompleted, avgProgress, docsFlagged },
+      metrics: { newClients, milestonesCompleted, avgProgress, docsFlagged }
     })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Failed to load clients' })
