@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const clientId = authData.user.id
 
     // 2. Insert row into public.users
-    const { error: userErr } = await supabase.from('users').insert({
+    const { error: userErr } = await supabase.from('users').upsert({
       id: clientId,
       email,
       name,
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       case_start_date: caseStartDate || null,
       dependent_ages: Array.isArray(dependentAges) ? dependentAges : [],
       origin_country: 'Canada',
-    })
+    }, { onConflict: 'id' })
     if (userErr) throw userErr
 
     // 3. Insert row into attorney_clients
