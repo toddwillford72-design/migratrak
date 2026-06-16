@@ -641,12 +641,6 @@ export default function J3Documents() {
 
         {/* Bottom buttons */}
         <div className="flex flex-col gap-3 pt-1">
-          <button
-            className="w-full py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
-            style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
-          >
-            <span className="text-lg font-bold">+</span> Upload Document
-          </button>
           <div className="flex gap-3">
             <button
               className="flex-1 py-3 rounded-xl text-xs font-bold transition-all active:scale-95"
