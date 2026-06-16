@@ -44,6 +44,8 @@ function emptyForm() {
     description: '',
     isQualifyingInvestment: false,
     receipt: null,
+    receipt_url: null,
+    receipt_path: null,
   }
 }
 
@@ -101,22 +103,64 @@ function CategoryBar({ category, amount, max, flash }) {
 }
 
 // ── Add expense panel ─────────────────────────────────────────────────────────
-function AddExpensePanel({ onClose, onSave }) {
+function AddExpensePanel({ onClose, onSave, userId }) {
   // 'form' is default; 'capture' | 'loading' are the optional receipt sub-flow
-  const [stage, setStage]         = useState('form')
-  const [form, setForm]           = useState(emptyForm())
-  const [saving, setSaving]       = useState(false)
-  const [saveError, setSaveError] = useState(null)
-  const timerRef                  = useRef(null)
+  const [stage, setStage]               = useState('form')
+  const [form, setForm]                 = useState(emptyForm())
+  const [saving, setSaving]             = useState(false)
+  const [saveError, setSaveError]       = useState(null)
+  const [uploading, setUploading]       = useState(false)
+  const [receiptPreview, setReceiptPreview] = useState(null)
+  const [receiptError, setReceiptError] = useState(null)
+  const timerRef                        = useRef(null)
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
-  function handleCapture() {
-    setStage('loading')
-    timerRef.current = setTimeout(() => {
-      setForm(f => ({ ...f, receipt: 'IMG_receipt.jpg' }))
-      setStage('form')
-    }, 2000)
+  async function handleReceiptChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setReceiptError(null)
+    setUploading(true)
+    try {
+      const path = `receipts/${userId}/${Date.now()}_${file.name}`
+      const { error: uploadError } = await supabase.storage
+        .from('migratrak-files')
+        .upload(path, file, { contentType: file.type })
+      if (uploadError) throw uploadError
+
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('migratrak-files')
+        .createSignedUrl(path, 60 * 60)
+      if (signedError) throw signedError
+
+      const signedUrl = signedData.signedUrl
+      setForm(f => ({ ...f, receipt: file.name, receipt_url: signedUrl, receipt_path: path }))
+      setReceiptPreview(file.type.startsWith('image/') ? URL.createObjectURL(file) : null)
+
+      try {
+        const res = await fetch('/api/extract-receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ receiptUrl: signedUrl }),
+        })
+        if (res.ok) {
+          const extracted = await res.json()
+          setForm(f => ({
+            ...f,
+            amount: extracted.amount != null ? String(extracted.amount) : f.amount,
+            vendor: extracted.vendor || f.vendor,
+            date:   extracted.date || f.date,
+          }))
+        }
+      } catch (extractErr) {
+        console.error('Receipt extraction failed:', extractErr)
+      }
+    } catch (err) {
+      console.error('Receipt upload failed:', err)
+      setReceiptError(err.message || 'Failed to upload receipt.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   async function handleSave() {
@@ -151,50 +195,6 @@ function AddExpensePanel({ onClose, onSave }) {
         <div className="flex justify-center mb-1">
           <div className="w-10 h-1 rounded-full" style={{ backgroundColor: '#E2E8F0' }} />
         </div>
-
-        {/* STAGE: capture (optional receipt sub-flow) */}
-        {stage === 'capture' && (
-          <>
-            <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Attach Receipt</h2>
-            <p className="text-sm" style={{ color: '#4A5568' }}>Capture a receipt or upload from your library</p>
-            <button
-              onClick={handleCapture}
-              className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
-              style={{ backgroundColor: '#0D2B4E', color: '#FFFFFF' }}
-            >
-              <span className="text-2xl">📷</span>
-              <span className="text-base font-bold">Take photo of receipt</span>
-            </button>
-            <button
-              onClick={handleCapture}
-              className="w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95"
-              style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '2px solid #1B5FA8' }}
-            >
-              <span className="text-2xl">🖼️</span>
-              <span className="text-base font-bold">Upload from camera roll</span>
-            </button>
-            <button onClick={() => setStage('form')} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
-              Cancel
-            </button>
-          </>
-        )}
-
-        {/* STAGE: loading (simulated OCR) */}
-        {stage === 'loading' && (
-          <div className="flex flex-col items-center justify-center gap-5 py-10">
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: '#EBF4FB' }} />
-              <div
-                className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin"
-                style={{ borderColor: '#1B5FA8', borderTopColor: 'transparent' }}
-              />
-            </div>
-            <div className="text-center">
-              <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>Reading receipt…</p>
-              <p className="text-sm mt-1" style={{ color: '#4A5568' }}>Extracting amount, vendor, and date</p>
-            </div>
-          </div>
-        )}
 
         {/* STAGE: form (primary / default) */}
         {stage === 'form' && (
@@ -301,24 +301,56 @@ function AddExpensePanel({ onClose, onSave }) {
             </button>
 
             {/* Receipt attachment (optional) */}
-            {form.receipt ? (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>
+                Attach Receipt <span className="font-normal normal-case" style={{ color: '#A0AEC0' }}>(optional)</span>
+              </label>
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                capture="environment"
+                onChange={handleReceiptChange}
+                disabled={uploading}
+                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+              />
+            </div>
+
+            {uploading && (
+              <div className="flex items-center gap-3 px-1">
+                <div className="relative w-5 h-5 flex-shrink-0">
+                  <div className="absolute inset-0 rounded-full border-2" style={{ borderColor: '#EBF4FB' }} />
+                  <div
+                    className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin"
+                    style={{ borderColor: '#1B5FA8', borderTopColor: 'transparent' }}
+                  />
+                </div>
+                <span className="text-xs font-semibold" style={{ color: '#4A5568' }}>Uploading receipt…</span>
+              </div>
+            )}
+
+            {receiptError && (
+              <p className="text-xs font-semibold px-1" style={{ color: '#DC2626' }}>{receiptError}</p>
+            )}
+
+            {form.receipt_url && !uploading && (
               <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🧾</span>
+                  {receiptPreview ? (
+                    <img src={receiptPreview} alt="Receipt preview" className="w-10 h-10 rounded-lg object-cover" />
+                  ) : (
+                    <span className="text-lg">🧾</span>
+                  )}
                   <span className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>{form.receipt} — attached</span>
                 </div>
-                <button onClick={() => setForm(f => ({ ...f, receipt: null }))} className="text-xs" style={{ color: '#A0AEC0' }}>
+                <button
+                  onClick={() => { setForm(f => ({ ...f, receipt: null, receipt_url: null, receipt_path: null })); setReceiptPreview(null) }}
+                  className="text-xs"
+                  style={{ color: '#A0AEC0' }}
+                >
                   Remove
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => setStage('capture')}
-                className="text-sm font-semibold text-center transition-opacity active:opacity-60"
-                style={{ color: '#1B5FA8' }}
-              >
-                📎 Attach receipt photo (optional)
-              </button>
             )}
 
             {/* Save error */}
@@ -514,6 +546,7 @@ function dbRowToExpense(row) {
     label:    row.description || row.vendor || 'Expense',
     date:     row.expense_date ?? row.created_at?.slice(0, 10) ?? '—',
     isNew:    false,
+    receipt_url: row.receipt_url ?? null,
   }
 }
 
@@ -577,6 +610,7 @@ export default function J2Expenses() {
         description:             form.description || null,
         expense_date,
         is_qualifying_investment: form.isQualifyingInvestment ?? false,
+        receipt_url:             form.receipt_path || form.receipt_url || null,
       })
     if (error) throw new Error(error.message || 'Insert failed')
     const rows = await fetchExpenses(userId)
@@ -588,6 +622,20 @@ export default function J2Expenses() {
   function handleExportPDF() {
     setToast('PDF export coming soon')
     setTimeout(() => setToast(null), 2500)
+  }
+
+  async function handleOpenReceipt(receiptUrl) {
+    try {
+      const { data, error } = await supabase.storage
+        .from('migratrak-files')
+        .createSignedUrl(receiptUrl, 60 * 5)
+      if (error) throw error
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      console.error('Failed to open receipt:', err)
+      setToast('Could not open receipt')
+      setTimeout(() => setToast(null), 2500)
+    }
   }
 
   const displayExpenses = expenses ?? []
@@ -723,9 +771,20 @@ export default function J2Expenses() {
                       <p className="text-xs" style={{ color: '#A0AEC0' }}>{e.category} · {e.date}</p>
                     </div>
                   </div>
-                  <span className="text-sm font-extrabold tabular-nums flex-shrink-0" style={{ color: '#0D2B4E' }}>
-                    ${e.amount.toLocaleString()}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {e.receipt_url && (
+                      <button
+                        onClick={() => handleOpenReceipt(e.receipt_url)}
+                        className="text-sm"
+                        title="View receipt"
+                      >
+                        📎
+                      </button>
+                    )}
+                    <span className="text-sm font-extrabold tabular-nums" style={{ color: '#0D2B4E' }}>
+                      ${e.amount.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -758,6 +817,7 @@ export default function J2Expenses() {
         <AddExpensePanel
           onClose={() => setPanelOpen(false)}
           onSave={handleSave}
+          userId={userId}
         />
       )}
 
