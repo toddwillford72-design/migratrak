@@ -56,7 +56,9 @@ function AddClientModal({ onClose }) {
     firstName: '', lastName: '', email: '',
     visa: '', familySize: '', startDate: '', dependentAges: '',
   })
-  const [sent, setSent] = useState(false)
+  const [sent, setSent]           = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
 
   function set(key, val) { setForm(prev => ({ ...prev, [key]: val })) }
 
@@ -65,9 +67,43 @@ function AddClientModal({ onClose }) {
     .map(s => parseInt(s, 10))
     .some(n => n === 18 || n === 19 || n === 20)
 
-  function handleSend(e) {
+  async function handleSend(e) {
     e.preventDefault()
-    setSent(true)
+    setSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+
+      const dependentAges = form.dependentAges
+        ? form.dependentAges.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n))
+        : []
+
+      const response = await fetch('/api/add-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          name: `${form.firstName} ${form.lastName}`.trim(),
+          visaType: form.visa || null,
+          familySize: parseInt(form.familySize, 10) || 1,
+          caseStartDate: form.startDate || null,
+          dependentAges,
+          attorneyId: user?.id,
+        }),
+      })
+
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to create client')
+      }
+
+      setSent(true)
+    } catch (err) {
+      setSubmitError(err.message || 'Something went wrong — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -260,10 +296,15 @@ function AddClientModal({ onClose }) {
               </p>
             </div>
 
-            <button type="submit"
+            {submitError && (
+              <div className="px-3 py-2.5 rounded-xl" style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA' }}>
+                <p className="text-xs font-semibold" style={{ color: '#991B1B' }}>{submitError}</p>
+              </div>
+            )}
+            <button type="submit" disabled={submitting}
               className="w-full py-4 rounded-2xl text-base font-bold mt-1 transition-all active:scale-95"
-              style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}>
-              Send MigraTrak Invitation →
+              style={{ backgroundColor: submitting ? '#94A3B8' : '#F0A500', color: '#0D2B4E', opacity: submitting ? 0.7 : 1 }}>
+              {submitting ? 'Creating account…' : 'Send MigraTrak Invitation →'}
             </button>
           </form>
         )}
