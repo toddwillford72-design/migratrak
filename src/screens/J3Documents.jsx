@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -269,29 +269,12 @@ function ExpiryCard({ doc }) {
 }
 
 // ── Document row ──────────────────────────────────────────────────────────────
-function DocRow({ doc, isLast, onCycle, onUpload, onView }) {
+function DocRow({ doc, isLast, onCycle, onView, onUploadClick, uploading, uploadError }) {
   const statusKey = STATUS[doc.status] ? doc.status : 'required'
   const s = STATUS[statusKey]
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState(null)
 
   const showUpload = doc.status === 'required' || doc.status === 'pending'
   const showView   = doc.status === 'uploaded' && !!doc.file_url
-
-  async function handleFileChange(e) {
-    const file = e.target.files?.[0]
-    e.target.value = ''
-    if (!file) return
-    setUploadError(null)
-    setUploading(true)
-    try {
-      await onUpload(doc, file)
-    } catch (err) {
-      setUploadError(err.message || 'Upload failed')
-    } finally {
-      setUploading(false)
-    }
-  }
 
   return (
     <div
@@ -336,19 +319,13 @@ function DocRow({ doc, isLast, onCycle, onUpload, onView }) {
             View
           </button>
         ) : showUpload ? (
-          <label
+          <button
+            onClick={() => onUploadClick?.(doc.id)}
             className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
-            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', cursor: 'pointer' }}
+            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
           >
             Upload
-            <input
-              type="file"
-              accept="image/*,application/pdf"
-              capture="environment"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
+          </button>
         ) : null}
         <button
           onClick={() => onCycle?.(doc)}
@@ -364,7 +341,7 @@ function DocRow({ doc, isLast, onCycle, onUpload, onView }) {
 }
 
 // ── Phase section ─────────────────────────────────────────────────────────────
-function PhaseSection({ phase, onCycle, onUpload, onView }) {
+function PhaseSection({ phase, onCycle, onView, onUploadClick, uploadingDocId, uploadErrors }) {
   const [open, setOpen] = useState(phase.id <= 2)
 
   const uploadedCount = phase.docs.filter((d) => d.status === 'uploaded').length
@@ -409,7 +386,16 @@ function PhaseSection({ phase, onCycle, onUpload, onView }) {
       {open && (
         <div className="px-4 pb-2" style={{ borderTop: '1px solid #F1F5F9' }}>
           {phase.docs.map((doc, i) => (
-            <DocRow key={doc.id} doc={doc} isLast={i === phase.docs.length - 1} onCycle={onCycle} onUpload={onUpload} onView={onView} />
+            <DocRow
+              key={doc.id}
+              doc={doc}
+              isLast={i === phase.docs.length - 1}
+              onCycle={onCycle}
+              onView={onView}
+              onUploadClick={onUploadClick}
+              uploading={uploadingDocId === doc.id}
+              uploadError={uploadErrors?.[doc.id]}
+            />
           ))}
         </div>
       )}
@@ -423,6 +409,10 @@ export default function J3Documents() {
   const [userId, setUserId]       = useState(null)
   const [loadError, setLoadError] = useState(null)
   const [toast, setToast]         = useState(null)
+  const fileInputRef              = useRef(null)
+  const [activeUploadDocId, setActiveUploadDocId] = useState(null)
+  const [uploadingDocId, setUploadingDocId]       = useState(null)
+  const [uploadErrors, setUploadErrors]           = useState({})
 
   async function fetchDocs(uid) {
     const { data, error } = await supabase
@@ -515,6 +505,29 @@ export default function J3Documents() {
     } catch (err) {
       console.error('Document upload failed:', err)
       throw new Error(err.message || 'Upload failed')
+    }
+  }
+
+  function handleUploadClick(docId) {
+    setActiveUploadDocId(docId)
+    fileInputRef.current?.click()
+  }
+
+  async function handleFileChange(e) {
+    const file = e.target.files?.[0]
+    const docId = activeUploadDocId
+    e.target.value = ''
+    if (!file || docId == null) return
+    const doc = (docs ?? []).find(d => d.id === docId)
+    if (!doc) return
+    setUploadErrors(prev => ({ ...prev, [docId]: null }))
+    setUploadingDocId(docId)
+    try {
+      await handleUpload(doc, file)
+    } catch (err) {
+      setUploadErrors(prev => ({ ...prev, [docId]: err.message || 'Upload failed' }))
+    } finally {
+      setUploadingDocId(null)
     }
   }
 
@@ -617,8 +630,10 @@ export default function J3Documents() {
                 key={phase.id}
                 phase={phase}
                 onCycle={handleCycle}
-                onUpload={handleUpload}
                 onView={handleView}
+                onUploadClick={handleUploadClick}
+                uploadingDocId={uploadingDocId}
+                uploadErrors={uploadErrors}
               />
             ))}
           </>
@@ -650,6 +665,14 @@ export default function J3Documents() {
         </div>
 
       </div>
+
+      <input
+        type="file"
+        accept="image/*,application/pdf"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
 
       <TabBar active="documents" />
     </div>
