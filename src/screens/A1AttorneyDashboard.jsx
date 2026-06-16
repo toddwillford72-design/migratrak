@@ -704,6 +704,245 @@ function ConsultationQueue({ attorneyId, attorneyProfile }) {
   )
 }
 
+// ─── Policy Intelligence ─────────────────────────────────────────────────────
+
+const COMMUNICATION_DRAFT = `Dear [Client Name],
+
+I wanted to reach out personally regarding a recent USCIS policy change that may affect your case.
+
+On June 5, 2026, USCIS announced that Adjustment of Status (Form I-485) will now only be approved under "extraordinary circumstances." This is a significant change from prior practice where adjustment was relatively routine for eligible applicants.
+
+What this means for you: We are reviewing your specific situation carefully and will follow up within 48 hours with our assessment. Please do not take any action on your case without speaking with our office first.
+
+We are monitoring this situation closely. Please do not hesitate to reach out with any questions.
+
+Warm regards,
+Mena Maimone
+Maimone Legal
+Fort Lauderdale, FL`
+
+function PolicyClientChip({ label, bgColor }) {
+  return (
+    <span
+      className="px-3 py-1.5 rounded-full font-bold"
+      style={{ fontSize: 11, backgroundColor: bgColor, color: '#FFFFFF' }}
+    >
+      {label}
+    </span>
+  )
+}
+
+function PolicyCard({ defaultOpen, borderColor, badgeBg, badgeColor, badgeLabel, title, date, body, infoBarBg, infoBarColor, infoBarText, chips, chipColor, onSendCommunication }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        backgroundColor: '#FFFFFF',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        border: '1px solid #E2E8F0',
+        borderLeft: `4px solid ${borderColor}`,
+      }}
+    >
+      <div
+        className="flex items-start gap-3 px-4"
+        style={{ paddingTop: 16, paddingBottom: 16, cursor: 'pointer' }}
+        onClick={() => setOpen(o => !o)}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className="px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider"
+              style={{ fontSize: 10, backgroundColor: badgeBg, color: badgeColor }}
+            >
+              {badgeLabel}
+            </span>
+            <span style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>{date}</span>
+          </div>
+          <p className="font-bold leading-snug mt-1.5" style={{ fontSize: 15, color: '#0D2B4E' }}>{title}</p>
+        </div>
+        <span
+          className="flex-shrink-0 font-bold"
+          style={{
+            color: borderColor,
+            fontSize: 20,
+            lineHeight: 1,
+            display: 'inline-block',
+            transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease',
+          }}
+        >
+          ›
+        </span>
+      </div>
+
+      {open && (
+        <div
+          className="flex flex-col gap-3 px-4 pb-4"
+          style={{ borderTop: '1px solid #E2E8F0' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <p className="leading-relaxed pt-3" style={{ fontSize: 13, color: '#374151' }}>{body}</p>
+
+          <div className="rounded-xl px-3 py-2.5" style={{ backgroundColor: infoBarBg }}>
+            <p className="font-semibold" style={{ fontSize: 12.5, color: infoBarColor }}>{infoBarText}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {chips.map((chip, i) => (
+              <PolicyClientChip key={i} label={chip} bgColor={chipColor} />
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 pt-1">
+            <button
+              className="flex-1 py-2.5 rounded-xl text-center transition-all active:scale-95"
+              style={{ fontSize: 12, fontWeight: 700, backgroundColor: '#FFFFFF', color: '#0D2B4E', border: '1.5px solid #CBD5E0' }}
+            >
+              Review Affected Clients
+            </button>
+            <button
+              onClick={onSendCommunication}
+              className="flex-1 py-2.5 rounded-xl text-center transition-all active:scale-95"
+              style={{ fontSize: 12, fontWeight: 700, backgroundColor: '#1B9AAA', color: '#FFFFFF' }}
+            >
+              Send Client Communication
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function CommunicationModal({ onClose, onSend }) {
+  const [draft, setDraft] = useState(COMMUNICATION_DRAFT)
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="w-full max-w-lg rounded-t-3xl overflow-y-auto"
+        style={{ backgroundColor: '#FFFFFF', maxHeight: '92vh' }}
+      >
+        <div className="flex items-center justify-between px-5 pt-5 pb-4"
+          style={{ borderBottom: '1px solid #E2E8F0' }}>
+          <div>
+            <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Draft Client Communication</h2>
+            <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>
+              Sending to 3 affected clients · From: Maimone Legal
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center transition-opacity active:opacity-60"
+            style={{ backgroundColor: '#F1F5F9' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A5568" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3 px-5 pt-4 pb-8">
+          <textarea
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            rows={14}
+            className="w-full px-3 py-3 rounded-xl text-sm outline-none"
+            style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E', resize: 'vertical', lineHeight: 1.5 }}
+          />
+          <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+            MigraTrak drafted this message based on the policy update. Review and edit before sending. This will be sent from your practice email to 3 affected clients.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 mt-1">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-95"
+              style={{ backgroundColor: '#F1F5F9', color: '#0D2B4E' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onSend}
+              className="flex-1 py-3.5 rounded-2xl text-sm font-bold transition-all active:scale-95"
+              style={{ backgroundColor: '#1B9AAA', color: '#FFFFFF' }}
+            >
+              Send to 3 Clients →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function PolicyIntelligence({ onShowToast }) {
+  const [showModal, setShowModal] = useState(false)
+  const todayLabel = new Date().toLocaleDateString()
+
+  function handleSend() {
+    setShowModal(false)
+    onShowToast()
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {showModal && <CommunicationModal onClose={() => setShowModal(false)} onSend={handleSend} />}
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <p className="font-extrabold uppercase tracking-[0.16em]" style={{ fontSize: 13, color: '#0D2B4E' }}>
+          Policy Intelligence — Updated Today
+        </p>
+        <span
+          className="px-2.5 py-1 rounded-full font-bold"
+          style={{ fontSize: 11, backgroundColor: '#1B9AAA', color: '#FFFFFF' }}
+        >
+          {todayLabel}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#1A7A4A' }} />
+          <span className="text-xs font-bold" style={{ color: '#1A7A4A' }}>LIVE</span>
+        </div>
+      </div>
+
+      <PolicyCard
+        defaultOpen={true}
+        borderColor="#DC2626"
+        badgeBg="#FEE2E2"
+        badgeColor="#B91C1C"
+        badgeLabel="HIGH PRIORITY"
+        title="Adjustment of Status — Major Policy Shift"
+        date="June 5, 2026"
+        body={`USCIS now requires "extraordinary circumstances" for I-485 Adjustment of Status approval. H-1B and L-1 holders are largely exempt due to dual intent rules. All other visa holders pursuing a green card through adjustment may face increased scrutiny or denial.`}
+        infoBarBg="#E0F7FA"
+        infoBarColor="#0E7490"
+        infoBarText="3 of your active clients may be affected"
+        chips={['Sarah Whitfield · EB-5 · I-485 pending · HIGH', 'Marcus Webb · E-2 · Green card path · REVIEW', 'Alex Moreau · K-1 · Adjustment pending · REVIEW']}
+        chipColor="#1B9AAA"
+        onSendCommunication={() => setShowModal(true)}
+      />
+
+      <PolicyCard
+        defaultOpen={false}
+        borderColor="#D97706"
+        badgeBg="#FEF3C7"
+        badgeColor="#92400E"
+        badgeLabel="INFORMATIONAL"
+        title="H-1B Social Media Vetting — New USCIS Requirement"
+        date="April 9, 2026"
+        body="USCIS is now considering social media activity as grounds for denying immigration benefits. H-1B clients should audit public-facing accounts before upcoming applications or renewals."
+        infoBarBg="#FEF3C7"
+        infoBarColor="#92400E"
+        infoBarText="2 of your H-1B clients should be informed"
+        chips={['Daniel Reyes · H-1B · Active · INFORM', 'Jordan Patel · H-1B dependent · INFORM']}
+        chipColor="#D97706"
+        onSendCommunication={onShowToast}
+      />
+    </div>
+  )
+}
+
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function A1AttorneyDashboard() {
@@ -713,6 +952,12 @@ export default function A1AttorneyDashboard() {
   const [metrics, setMetrics]     = useState(null)
   const [attorneyId, setAttorneyId]       = useState(null)
   const [attorneyProfile, setAttorneyProfile] = useState(null)
+  const [toast, setToast] = useState(null)
+
+  function showCommunicationToast() {
+    setToast('Communication queued — no actual email sent in demo mode.')
+    setTimeout(() => setToast(null), 3000)
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -737,6 +982,15 @@ export default function A1AttorneyDashboard() {
   return (
     <>
       {showModal && <AddClientModal onClose={() => setShowModal(false)} />}
+
+      {toast && (
+        <div
+          className="fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-2xl shadow-lg"
+          style={{ transform: 'translateX(-50%)', backgroundColor: '#0D2B4E', maxWidth: '90vw' }}
+        >
+          <p className="text-sm font-semibold text-center" style={{ color: '#FFFFFF' }}>{toast}</p>
+        </div>
+      )}
 
       <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
 
@@ -792,6 +1046,10 @@ export default function A1AttorneyDashboard() {
 
           {/* Morning Briefing */}
           <MorningBriefing />
+
+          {/* Policy Intelligence */}
+          <PolicyIntelligence onShowToast={showCommunicationToast} />
+
           <CheckinPreview />
 
           {/* Consultation Queue */}
