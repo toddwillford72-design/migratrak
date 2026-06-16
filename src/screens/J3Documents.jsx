@@ -269,9 +269,30 @@ function ExpiryCard({ doc }) {
 }
 
 // ── Document row ──────────────────────────────────────────────────────────────
-function DocRow({ doc, isLast, onCycle }) {
+function DocRow({ doc, isLast, onCycle, onUpload, onView }) {
   const statusKey = STATUS[doc.status] ? doc.status : 'required'
   const s = STATUS[statusKey]
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+
+  const showUpload = doc.status === 'required' || doc.status === 'pending'
+  const showView   = doc.status === 'uploaded' && !!doc.file_url
+
+  async function handleFileChange(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setUploadError(null)
+    setUploading(true)
+    try {
+      await onUpload(doc, file)
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div
       className="flex items-start justify-between gap-3 py-2.5"
@@ -291,21 +312,59 @@ function DocRow({ doc, isLast, onCycle }) {
             {doc.updateError}
           </p>
         )}
+        {uploadError && (
+          <p className="text-xs mt-0.5 font-semibold" style={{ color: '#DC2626' }}>
+            {uploadError}
+          </p>
+        )}
       </div>
-      <button
-        onClick={() => onCycle?.(doc)}
-        disabled={!onCycle}
-        className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
-        style={{ backgroundColor: s.bg, color: s.color, cursor: onCycle ? 'pointer' : 'default' }}
-      >
-        {s.icon} {s.label}
-      </button>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {uploading ? (
+          <div className="relative w-4 h-4">
+            <div className="absolute inset-0 rounded-full border-2" style={{ borderColor: '#EBF4FB' }} />
+            <div
+              className="absolute inset-0 rounded-full border-2 border-t-transparent animate-spin"
+              style={{ borderColor: '#1B5FA8', borderTopColor: 'transparent' }}
+            />
+          </div>
+        ) : showView ? (
+          <button
+            onClick={() => onView?.(doc)}
+            className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
+            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
+          >
+            View
+          </button>
+        ) : showUpload ? (
+          <label
+            className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
+            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', cursor: 'pointer' }}
+          >
+            Upload
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+        ) : null}
+        <button
+          onClick={() => onCycle?.(doc)}
+          disabled={!onCycle}
+          className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
+          style={{ backgroundColor: s.bg, color: s.color, cursor: onCycle ? 'pointer' : 'default' }}
+        >
+          {s.icon} {s.label}
+        </button>
+      </div>
     </div>
   )
 }
 
 // ── Phase section ─────────────────────────────────────────────────────────────
-function PhaseSection({ phase, onCycle }) {
+function PhaseSection({ phase, onCycle, onUpload, onView }) {
   const [open, setOpen] = useState(phase.id <= 2)
 
   const uploadedCount = phase.docs.filter((d) => d.status === 'uploaded').length
@@ -350,7 +409,7 @@ function PhaseSection({ phase, onCycle }) {
       {open && (
         <div className="px-4 pb-2" style={{ borderTop: '1px solid #F1F5F9' }}>
           {phase.docs.map((doc, i) => (
-            <DocRow key={doc.id} doc={doc} isLast={i === phase.docs.length - 1} onCycle={onCycle} />
+            <DocRow key={doc.id} doc={doc} isLast={i === phase.docs.length - 1} onCycle={onCycle} onUpload={onUpload} onView={onView} />
           ))}
         </div>
       )}
@@ -438,6 +497,41 @@ export default function J3Documents() {
     setTimeout(() => setToast(null), 2500)
   }
 
+  async function handleUpload(doc, file) {
+    try {
+      const path = `documents/${userId}/${doc.id}_${Date.now()}_${file.name}`
+      const { error: uploadError } = await supabase.storage
+        .from('migratrak-files')
+        .upload(path, file, { contentType: file.type })
+      if (uploadError) throw uploadError
+
+      const { error: updateError } = await supabase
+        .from('documents')
+        .update({ file_url: path, status: 'uploaded' })
+        .eq('id', doc.id)
+      if (updateError) throw updateError
+
+      setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, file_url: path, status: 'uploaded', updateError: null } : d))
+    } catch (err) {
+      console.error('Document upload failed:', err)
+      throw new Error(err.message || 'Upload failed')
+    }
+  }
+
+  async function handleView(doc) {
+    try {
+      const { data, error } = await supabase.storage
+        .from('migratrak-files')
+        .createSignedUrl(doc.file_url, 60 * 5)
+      if (error) throw error
+      window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      console.error('Failed to open document:', err)
+      setToast('Could not open document')
+      setTimeout(() => setToast(null), 2500)
+    }
+  }
+
   // ── Derived state ────────────────────────────────────────────────────────────
   const loading = docs === null
 
@@ -523,6 +617,8 @@ export default function J3Documents() {
                 key={phase.id}
                 phase={phase}
                 onCycle={handleCycle}
+                onUpload={handleUpload}
+                onView={handleView}
               />
             ))}
           </>
