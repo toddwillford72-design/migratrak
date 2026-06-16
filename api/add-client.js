@@ -5,7 +5,10 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email, name, visaType, familySize, caseStartDate, dependentAges, attorneyId } = req.body
+  const {
+    email, name, visaType, familySize, caseStartDate, dependentAges,
+    attorneyId, attorneyName, firmName,
+  } = req.body
 
   if (!email || !name || !attorneyId) {
     return res.status(400).json({ error: 'Missing required fields: email, name, attorneyId' })
@@ -23,10 +26,11 @@ export default async function handler(req, res) {
   })
 
   try {
-    // 1. Create auth user
+    // 1. Create auth user with temporary password
     const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
+      password: 'MigraTrak2026!',
     })
     if (authErr) throw authErr
 
@@ -54,22 +58,48 @@ export default async function handler(req, res) {
     })
     if (linkErr) throw linkErr
 
-    // 4. Fire invitation email (best-effort — don't fail client creation if email errors)
-    try {
-      const host = req.headers.host || ''
-      const protocol = host.startsWith('localhost') ? 'http' : 'https'
-      await fetch(`${protocol}://${host}/api/send-invitation`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientEmail: email,
-          clientName: name,
-          attorneyName: req.body.attorneyName || 'Your attorney',
-          firmName: req.body.firmName || '',
-        }),
-      })
-    } catch (_) {
-      // invitation email failure is non-fatal
+    // 4. Send invitation email via Resend REST API (best-effort — non-fatal)
+    const RESEND_API_KEY = process.env.RESEND_API_KEY
+    if (RESEND_API_KEY) {
+      try {
+        const displayAttorney = attorneyName || 'Your Attorney'
+        const displayFirm = firmName || 'Maimone Legal'
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'MigraTrak <hello@migratrak.app>',
+            to: email,
+            subject: `${displayAttorney} has set up your MigraTrak account`,
+            html: `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2>Welcome to MigraTrak</h2>
+                <p>Hi ${name},</p>
+                <p>${displayAttorney} at ${displayFirm} has set up your MigraTrak account
+                to help guide you through your immigration journey.</p>
+                <p>MigraTrak will help you track your milestones, manage documents,
+                log expenses, and get answers from an AI coach — all in one place.</p>
+                <p>To access your account, click the link below to set your password:</p>
+                <a href="https://migratrak.vercel.app/auth"
+                   style="background:#1B5FA8;color:white;padding:12px 24px;
+                   border-radius:6px;text-decoration:none;display:inline-block;
+                   margin:16px 0;">Access your MigraTrak account</a>
+                <p style="color:#666;font-size:14px;">
+                  Temporary password: <strong>MigraTrak2026!</strong><br>
+                  Please change your password after first login.
+                </p>
+                <p>If you have any questions, contact your attorney directly.</p>
+                <p>— The MigraTrak Team</p>
+              </div>
+            `,
+          }),
+        })
+      } catch (_) {
+        // invitation email failure is non-fatal
+      }
     }
 
     return res.status(200).json({ success: true, clientId })

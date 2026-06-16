@@ -51,7 +51,7 @@ const FAMILY_SIZES = ['1', '2', '3', '4', '5+']
 
 // ─── Add Client Modal ─────────────────────────────────────────────────────────
 
-function AddClientModal({ onClose }) {
+function AddClientModal({ onClose, attorneyProfile }) {
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '',
     visa: '', familySize: '', startDate: '', dependentAges: '',
@@ -90,6 +90,8 @@ function AddClientModal({ onClose }) {
           caseStartDate: form.startDate || null,
           dependentAges,
           attorneyId: user?.id,
+          attorneyName: attorneyProfile?.name || 'Your Attorney',
+          firmName: attorneyProfile?.firm_name || 'Maimone Legal',
         }),
       })
 
@@ -1022,7 +1024,7 @@ export default function A1AttorneyDashboard() {
 
   return (
     <>
-      {showModal && <AddClientModal onClose={() => setShowModal(false)} />}
+      {showModal && <AddClientModal onClose={() => setShowModal(false)} attorneyProfile={attorneyProfile} />}
 
       {toast && (
         <div
