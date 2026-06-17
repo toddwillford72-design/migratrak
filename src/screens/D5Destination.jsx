@@ -671,7 +671,9 @@ const CITY_ALIASES = {
   'bonita springs':  'Tampa / Southwest Florida',
   'marco island':    'Tampa / Southwest Florida',
   'estero':          'Tampa / Southwest Florida',
-  'fort lauderdale': 'Miami / Fort Lauderdale',
+  'fort lauderdale':         'Miami / Fort Lauderdale',
+  'fort lauderdale fl':      'Miami / Fort Lauderdale',
+  'fort lauderdale florida': 'Miami / Fort Lauderdale',
   'boca raton':      'Miami / Fort Lauderdale',
   'pompano beach':   'Miami / Fort Lauderdale',
   'hollywood':       'Miami / Fort Lauderdale',
@@ -795,6 +797,44 @@ const CITY_ALIASES = {
   'allentown':       'Pittsburgh, PA',
 }
 
+// When a user picks a state with no city, return the most prominent metro
+const STATE_DEFAULT_CITY = {
+  'florida':       'Tampa / Southwest Florida',
+  'fl':            'Tampa / Southwest Florida',
+  'california':    'Los Angeles, CA',
+  'ca':            'Los Angeles, CA',
+  'texas':         'Dallas / Fort Worth, TX',
+  'tx':            'Dallas / Fort Worth, TX',
+  'new york':      'New York, NY',
+  'ny':            'New York, NY',
+  'illinois':      'Chicago, IL',
+  'il':            'Chicago, IL',
+  'washington':    'Seattle, WA',
+  'wa':            'Seattle, WA',
+  'colorado':      'Denver, CO',
+  'co':            'Denver, CO',
+  'arizona':       'Phoenix / Scottsdale, AZ',
+  'az':            'Phoenix / Scottsdale, AZ',
+  'georgia':       'Atlanta, GA',
+  'ga':            'Atlanta, GA',
+  'tennessee':     'Nashville, TN',
+  'tn':            'Nashville, TN',
+  'north carolina':'Charlotte, NC',
+  'nc':            'Charlotte, NC',
+  'nevada':        'Las Vegas, NV',
+  'nv':            'Las Vegas, NV',
+  'minnesota':     'Minneapolis, MN',
+  'mn':            'Minneapolis, MN',
+  'ohio':          'Columbus, OH',
+  'oh':            'Columbus, OH',
+  'pennsylvania':  'Pittsburgh, PA',
+  'pa':            'Pittsburgh, PA',
+  'massachusetts': 'Boston, MA',
+  'ma':            'Boston, MA',
+  'maryland':      'Baltimore, MD',
+  'md':            'Baltimore, MD',
+}
+
 function resolveDestKey(input) {
   const all = Object.keys(DEST_DATA)
   const raw = input.trim()
@@ -812,14 +852,16 @@ function resolveDestKey(input) {
   const partial = all.find(k => k.toLowerCase().includes(cityPart))
   if (partial) return partial
 
-  // 4. State name match (after comma, or full input if no comma)
+  // 4. State name match — prefer STATE_DEFAULT_CITY over arbitrary first key
   const statePart = (lower.includes(',') ? lower.split(',')[1] : lower).trim()
     .replace(/^(fl|florida)$/, 'florida')
+  if (STATE_DEFAULT_CITY[statePart]) return STATE_DEFAULT_CITY[statePart]
   const byState = all.find(k => DEST_DATA[k].stateName.toLowerCase() === statePart)
   if (byState) return byState
 
-  // 5. State abbreviation match
+  // 5. State abbreviation match — prefer STATE_DEFAULT_CITY
   const stateAbbr = statePart.toUpperCase()
+  if (STATE_DEFAULT_CITY[stateAbbr.toLowerCase()]) return STATE_DEFAULT_CITY[stateAbbr.toLowerCase()]
   const byAbbr = all.find(k => DEST_DATA[k].state === stateAbbr)
   if (byAbbr) return byAbbr
 
