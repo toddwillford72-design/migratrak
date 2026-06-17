@@ -249,6 +249,12 @@ export default function J1Dashboard() {
   const [confirmModal, setConfirmModal] = useState(null) // { id, title }
   const [saving, setSaving] = useState(false)
   const [dismissedAlertIds, setDismissedAlertIds] = useState([])
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+  const [passwordSaving, setPasswordSaving] = useState(false)
 
   async function handleLogout() {
     try {
@@ -284,7 +290,7 @@ export default function J1Dashboard() {
       const displayName = userRow?.name || user.user_metadata?.name || null
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
-      // Fetch attorney info
+      // Fetch attorney info and check first-login password prompt
       try {
         const { data: linkData } = await supabase
           .from('attorney_clients')
@@ -300,6 +306,13 @@ export default function J1Dashboard() {
             .maybeSingle()
 
           if (attData) setAttorney(attData)
+
+          const hasChangedPassword = localStorage.getItem(
+            `migratrak_password_changed_${userId}`
+          )
+          if (!hasChangedPassword) {
+            setShowPasswordPrompt(true)
+          }
         }
       } catch (e) {
         // attorney display is non-critical, fail silently
@@ -328,6 +341,44 @@ export default function J1Dashboard() {
     setConfirmModal(null)
     await supabase.from('milestones').update({ status: newStatus, completed_date: newDate }).eq('id', milestone.id)
     setSaving(false)
+  }
+
+  async function handleSetPassword() {
+    setPasswordError(null)
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.')
+      return
+    }
+    setPasswordSaving(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.id) {
+        localStorage.setItem(`migratrak_password_changed_${user.id}`, 'true')
+      }
+      setPasswordSuccess(true)
+      setTimeout(() => {
+        setShowPasswordPrompt(false)
+        setPasswordSuccess(false)
+        setNewPassword('')
+        setConfirmPassword('')
+      }, 2000)
+    } catch (err) {
+      setPasswordError(err.message || 'Failed to update password. Please try again.')
+    } finally {
+      setPasswordSaving(false)
+    }
+  }
+
+  function handleSkipPassword() {
+    const userId = profile?.id
+    if (userId) localStorage.setItem(`migratrak_password_changed_${userId}`, 'true')
+    setShowPasswordPrompt(false)
   }
 
   const essentialsTotal = hasChildren(loadAnswers()) ? ESSENTIALS_TOTAL_WITH_CHILDREN : ESSENTIALS_TOTAL_NO_CHILDREN
@@ -757,6 +808,82 @@ export default function J1Dashboard() {
                 {saving ? 'Saving…' : confirmModal.status === 'complete' ? 'Uncheck' : 'Confirm'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* First-login password change prompt */}
+      {showPasswordPrompt && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl px-6 py-6 flex flex-col gap-4"
+            style={{ backgroundColor: '#FFFFFF' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {passwordSuccess ? (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: '#D1FAE5' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke="#1A7A4A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <p className="text-base font-extrabold text-center" style={{ color: '#0D2B4E' }}>Password updated successfully!</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1">
+                  <p className="text-base font-extrabold" style={{ color: '#0D2B4E' }}>Welcome to MigraTrak</p>
+                  <p className="text-sm leading-relaxed" style={{ color: '#4A5568' }}>Please set a new password for your account.</p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    className="w-full px-3 rounded-xl text-sm outline-none"
+                    style={{ height: 44, border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+                    onFocus={e => e.target.style.borderColor = '#1B5FA8'}
+                    onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                  />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="w-full px-3 rounded-xl text-sm outline-none"
+                    style={{ height: 44, border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+                    onFocus={e => e.target.style.borderColor = '#1B5FA8'}
+                    onBlur={e => e.target.style.borderColor = '#E2E8F0'}
+                  />
+                  {passwordError && (
+                    <p className="text-xs font-semibold" style={{ color: '#DC2626' }}>{passwordError}</p>
+                  )}
+                </div>
+
+                <button
+                  onClick={handleSetPassword}
+                  disabled={passwordSaving}
+                  className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+                  style={{ backgroundColor: passwordSaving ? '#94A3B8' : '#1B9AAA', color: '#FFFFFF', opacity: passwordSaving ? 0.7 : 1 }}
+                >
+                  {passwordSaving ? 'Updating…' : 'Set Password'}
+                </button>
+
+                <button
+                  onClick={handleSkipPassword}
+                  className="w-full text-center text-sm transition-opacity active:opacity-60"
+                  style={{ color: '#94A3B8', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  Skip for now
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
