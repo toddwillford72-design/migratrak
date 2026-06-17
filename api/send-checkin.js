@@ -3,15 +3,20 @@ const SUPABASE_SERVICE  = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.V
 const RESEND_API_KEY    = process.env.RESEND_API_KEY
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
+// USCIS Processing Benchmarks — verified March 2026
+// EB-5 split: Rural/HUA vs Unreserved Regional Center
+// Review quarterly — USCIS updates monthly at
+// https://www.uscis.gov/forms/filing-fees/uscis-processing-times
 const PROCESSING_BENCHMARKS = {
-  'eb5':    { min: 29, max: 48, label: 'EB-5 Investor' },
-  'e2':     { min: 3,  max: 6,  label: 'E-2 Treaty Investor' },
-  'tn':     { min: 0,  max: 1,  label: 'TN' },
-  'l1':     { min: 6,  max: 12, label: 'L-1' },
-  'h1b':    { min: 3,  max: 6,  label: 'H-1B' },
-  'o1':     { min: 4,  max: 8,  label: 'O-1' },
-  'k1':     { min: 12, max: 15, label: 'K-1 Fiancé' },
-  'eb2niw': { min: 24, max: 36, label: 'EB-2 NIW' },
+  'e2':            { min: 2,    max: 6,    unit: 'months', label: 'E-2 Treaty Investor' },
+  'tn':            { min: 0,    max: 1,    unit: 'days',   label: 'TN' },
+  'l1':            { min: 6,    max: 9,    unit: 'months', label: 'L-1' },
+  'h1b':           { min: 3,    max: 6,    unit: 'months', label: 'H-1B' },
+  'o1':            { min: 2,    max: 4,    unit: 'months', label: 'O-1' },
+  'k1':            { min: 10,   max: 14,   unit: 'months', label: 'K-1 Fiancé' },
+  'eb2niw':        { min: 24,   max: 30,   unit: 'months', label: 'EB-2 NIW' },
+  'eb5rural/hua':  { min: 11.5, max: 36.5, unit: 'months', label: 'EB-5 Rural/HUA' },
+  'eb5unreserved': { min: 30.5, max: 61,   unit: 'months', label: 'EB-5 Unreserved' },
 }
 
 function daysSince(dateStr) {
