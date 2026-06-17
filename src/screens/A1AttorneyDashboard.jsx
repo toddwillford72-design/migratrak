@@ -1098,42 +1098,6 @@ export default function A1AttorneyDashboard() {
           <ConsultationQueue attorneyId={attorneyId} />
           <ZapierSetup attorneyId={attorneyId} attorneyProfile={attorneyProfile} onSaved={(url) => setAttorneyProfile(p => ({ ...p, zapier_webhook_url: url }))} />
 
-          {/* On Track */}
-          <div className="flex flex-col gap-3">
-            <p className="text-xs font-extrabold uppercase tracking-widest" style={{ color: '#1A7A4A' }}>
-              On Track
-            </p>
-            <div className="rounded-2xl overflow-hidden"
-              style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-              {ON_TRACK_CLIENTS.map((c, i) => (
-                <div key={c.id} className="flex items-center justify-between px-4 py-3 gap-3"
-                  style={{ borderBottom: i < ON_TRACK_CLIENTS.length - 1 ? '1px solid #F1F5F9' : 'none', borderLeft: '3px solid #1A7A4A' }}>
-                  <div>
-                    <p className="text-sm font-semibold" style={{ color: '#0D2B4E' }}>{c.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#4A9FD4' }}>{c.detail}</p>
-                  </div>
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: '#D1FAE5' }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                      <path d="M5 13l4 4L19 7" stroke="#1A7A4A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </div>
-              ))}
-              {/* +18 more row */}
-              <div className="flex items-center justify-between px-4 py-3"
-                style={{ borderTop: '1px solid #F1F5F9', backgroundColor: '#FAFBFC' }}>
-                <p className="text-sm font-semibold" style={{ color: '#4A5568' }}>
-                  + 18 more clients on track
-                </p>
-                <button
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-                  style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}>
-                  View all clients
-                </button>
-              </div>
-            </div>
-          </div>
 
           {/* Monthly metrics */}
           <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
