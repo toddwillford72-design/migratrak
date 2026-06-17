@@ -561,6 +561,10 @@ function ProspectCard({ prospect, onAction }) {
     </div>
   )
 }
+const CHECKIN_PREVIEW_MESSAGE = `Hi [Client Name], just a quick note from Maimone Law. You are now in month [X] of your [Visa Type] process — USCIS is currently processing these cases in the 6–24 month range, so your timeline is completely normal. We are watching your case closely and will reach out the moment we have any news. In the meantime your MigraTrak dashboard is always up to date.
+
+— [Attorney Name], Maimone Law`
+
 function CheckinPreview({ client }) {
   const [expanded, setExpanded] = useState(false)
   if (!client) return null
