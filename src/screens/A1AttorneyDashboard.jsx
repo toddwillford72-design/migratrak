@@ -49,7 +49,7 @@ function AddClientModal({ onClose, attorneyProfile }) {
           dependentAges,
           attorneyId: user?.id,
           attorneyName: attorneyProfile?.name || 'Your Attorney',
-          firmName: attorneyProfile?.firm_name || 'Maimone Legal',
+          firmName: attorneyProfile?.firm_name || 'Maimone Law',
         }),
       })
 
@@ -608,11 +608,11 @@ function CheckinPreview({ client }) {
       {expanded && (
         <div className="mx-4 mb-4 rounded-xl overflow-hidden" style={{ border: '1px solid #E2E8F0' }}>
           <div className="px-4 py-3" style={{ backgroundColor: '#0D2B4E' }}>
-            <p className="text-xs font-extrabold" style={{ color: '#FFFFFF' }}>Maimone Legal</p>
+            <p className="text-xs font-extrabold" style={{ color: '#FFFFFF' }}>Maimone Law</p>
             <p className="text-xs mt-0.5" style={{ color: '#4A9FD4' }}>Immigration Law</p>
           </div>
           <div className="px-4 py-4">
-            <p className="text-xs font-semibold mb-2" style={{ color: '#94A3B8' }}>Subject: A quick update on your case — Maimone Legal</p>
+            <p className="text-xs font-semibold mb-2" style={{ color: '#94A3B8' }}>Subject: A quick update on your case — Maimone Law</p>
             {CHECKIN_PREVIEW_MESSAGE.split('\n').filter(Boolean).map((para, i) => (
               <p key={i} className="text-sm leading-relaxed mb-3" style={{ color: '#4A5568' }}>{para}</p>
             ))}
@@ -760,7 +760,7 @@ We are monitoring this situation closely. Please do not hesitate to reach out wi
 
 Warm regards,
 Mena Maimone
-Maimone Legal
+Maimone Law
 Fort Lauderdale, FL`
 
 function PolicyClientChip({ label, bgColor }) {
@@ -874,7 +874,7 @@ function CommunicationModal({ onClose, onSend }) {
           <div>
             <h2 className="text-lg font-extrabold" style={{ color: '#0D2B4E' }}>Draft Client Communication</h2>
             <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>
-              Sending to 3 affected clients · From: Maimone Legal
+              Sending to 3 affected clients · From: Maimone Law
             </p>
           </div>
           <button onClick={onClose}
@@ -1043,7 +1043,7 @@ export default function A1AttorneyDashboard() {
               <p className="font-extrabold uppercase mb-1" style={{ fontSize: 11, color: '#4A9FD4', letterSpacing: '0.14em' }}>
                 ATTORNEY PORTAL
               </p>
-              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }}>Maimone Legal</h1>
+              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }}>{attorneyProfile?.firm_name || 'Attorney Portal'}</h1>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="font-bold px-2.5 py-0.5 rounded-full" style={{ fontSize: 12, backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
                   Active clients: {clients ? clients.length : 0}
