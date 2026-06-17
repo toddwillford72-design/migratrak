@@ -17,6 +17,7 @@ const PROCESSING_BENCHMARKS = {
   'eb2niw':        { min: 24,   max: 30,   unit: 'months', label: 'EB-2 NIW' },
   'eb5rural/hua':  { min: 11.5, max: 36.5, unit: 'months', label: 'EB-5 Rural/HUA' },
   'eb5unreserved': { min: 30.5, max: 61,   unit: 'months', label: 'EB-5 Unreserved' },
+  'eb5':           { min: 11.5, max: 61,   unit: 'months', label: 'EB-5 Investor' },
 }
 
 function daysSince(dateStr) {
@@ -46,7 +47,7 @@ function shouldSendCheckin(client, lastCheckin) {
 
 async function generateMessage(client, attorney, triggerReason) {
   const visaKey = (client.visa_type || '').toLowerCase().replace(/[-\s]/g, '')
-  const benchmark = PROCESSING_BENCHMARKS[visaKey] || { min: 6, max: 24, label: client.visa_type || 'visa' }
+  const benchmark = PROCESSING_BENCHMARKS[visaKey] || { min: 6, max: 24, unit: 'months', label: client.visa_type || 'visa' }
   const months = monthsSince(client.case_start_date) || 1
   const firmName = attorney.firm_name || attorney.name + "'s office"
   const firstName = (client.name || 'there').split(' ')[0]
