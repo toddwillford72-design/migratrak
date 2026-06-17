@@ -286,6 +286,8 @@ export default function J1Dashboard() {
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
 
       let attorneyInfo = null
+      console.log('attorneyLink:', attorneyLink)
+      console.log('attorney_id:', attorneyLink?.attorney_id)
       if (attorneyLink?.attorney_id) {
         try {
           const { data: attorneyRow } = await supabase
@@ -293,9 +295,11 @@ export default function J1Dashboard() {
             .select('name, firm_name')
             .eq('id', attorneyLink.attorney_id)
             .single()
+          console.log('attorneyRow:', attorneyRow)
           if (attorneyRow) attorneyInfo = attorneyRow
         } catch (_) {}
       }
+      console.log('attorneyInfo:', attorneyInfo)
       setAttorney(attorneyInfo)
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
