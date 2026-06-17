@@ -286,23 +286,27 @@ export default function J1Dashboard() {
 
       // Fetch attorney info
       try {
-        const { data: linkData } = await supabase
+        console.log('Starting attorney lookup for userId:', userId)
+        const { data: linkData, error: linkError } = await supabase
           .from('attorney_clients')
           .select('attorney_id')
           .eq('client_id', userId)
           .maybeSingle()
 
+        console.log('linkData:', linkData, 'linkError:', linkError)
+
         if (linkData?.attorney_id) {
-          const { data: attData } = await supabase
+          const { data: attData, error: attError } = await supabase
             .from('users')
             .select('name, firm_name')
             .eq('id', linkData.attorney_id)
             .maybeSingle()
 
+          console.log('attData:', attData, 'attError:', attError)
           if (attData) setAttorney(attData)
         }
       } catch (e) {
-        // attorney display is non-critical, fail silently
+        console.log('Attorney fetch error:', e.message)
       }
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
