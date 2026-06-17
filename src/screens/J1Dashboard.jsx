@@ -243,6 +243,7 @@ export default function J1Dashboard() {
   }
 
   const [profile, setProfile] = useState(null)       // null = loading, false = no session (demo)
+  const [attorney, setAttorney] = useState(null)
   const [essentialsDoneIds, setEssentialsDoneIds] = useState(new Set())
   const [milestones, setMilestones] = useState(null) // null = loading
   const [confirmModal, setConfirmModal] = useState(null) // { id, title }
@@ -274,14 +275,28 @@ export default function J1Dashboard() {
       const user = session?.user ?? null
       if (!user) { setProfile(false); setMilestones([]); return }
       const userId = user.id
-      const [{ data: userRow }, { data: mRows }, { data: eRows }] = await Promise.all([
+      const [{ data: userRow }, { data: mRows }, { data: eRows }, { data: attorneyLink }] = await Promise.all([
         supabase.from('users').select('name, visa_type, role, case_start_date').eq('id', userId).single(),
         supabase.from('milestones').select('*').eq('user_id', userId).order('sort_order'),
         supabase.from('essentials_progress').select('item_id').eq('user_id', userId).eq('completed', true),
+        supabase.from('attorney_clients').select('attorney_id').eq('client_id', userId).single(),
       ])
       setEssentialsDoneIds(new Set((eRows || []).map((r) => r.item_id)))
       const displayName = userRow?.name || user.user_metadata?.name || null
       setProfile({ ...(userRow || {}), name: displayName, email: user.email, visa_type: userRow?.visa_type ?? null })
+
+      let attorneyInfo = null
+      if (attorneyLink?.attorney_id) {
+        try {
+          const { data: attorneyRow } = await supabase
+            .from('users')
+            .select('name, firm_name')
+            .eq('id', attorneyLink.attorney_id)
+            .single()
+          if (attorneyRow) attorneyInfo = attorneyRow
+        } catch (_) {}
+      }
+      setAttorney(attorneyInfo)
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
         const seeded = await seedMilestones(userId, userRow.visa_type)
@@ -548,6 +563,11 @@ export default function J1Dashboard() {
             <h1 className="text-xl font-extrabold truncate" style={{ color: '#FFFFFF' }}>
               {profile?.name || '—'}
             </h1>
+            {attorney && (
+              <p style={{ color: '#6B7280', fontSize: '13px', marginTop: '4px' }}>
+                Attorney: {attorney.firm_name || attorney.name}
+              </p>
+            )}
           </div>
         </div>
 
