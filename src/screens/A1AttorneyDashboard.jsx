@@ -1046,7 +1046,7 @@ export default function A1AttorneyDashboard() {
               <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }}>Maimone Legal</h1>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="font-bold px-2.5 py-0.5 rounded-full" style={{ fontSize: 12, backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
-                  Active clients: 23
+                  Active clients: {clients ? clients.length : 0}
                 </span>
               </div>
             </div>
