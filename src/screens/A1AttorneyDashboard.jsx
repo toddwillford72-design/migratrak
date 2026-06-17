@@ -4,48 +4,6 @@ import { supabase } from '../lib/supabase'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const URGENT_CLIENTS = [
-  {
-    id: 'patel',
-    name: 'Patel Family',
-    visa: 'EB-5',
-    filed: 'Filed March 2025',
-    level: 'red',
-    alert: 'Dependent daughter turns 21 in 47 DAYS — AGE-OUT RISK',
-    primaryAction: 'View client',
-  },
-  {
-    id: 'chen',
-    name: 'Chen Family',
-    visa: 'EB-5',
-    filed: 'Filed Oct 2024',
-    level: 'amber',
-    alerts: ['SSN follow-up overdue', 'I-485 still pending — 13 months'],
-    primaryAction: 'View client',
-  },
-  {
-    id: 'morrison',
-    name: 'Morrison, James',
-    visa: 'E-2',
-    filed: 'Filed Jan 2026',
-    level: 'amber',
-    alerts: ['Has not logged in — 14 days'],
-    primaryAction: 'Send reminder',
-  },
-]
-
-const ON_TRACK_CLIENTS = [
-  { id: 'anderson', name: 'Anderson Family',  detail: 'Phase 3, docs ready' },
-  { id: 'singh',    name: 'Singh Family',     detail: 'I-526 filed Oct 2025' },
-]
-
-const METRICS = [
-  { label: 'New clients activated',  value: '4'   },
-  { label: 'Milestone completions',  value: '12'  },
-  { label: 'Avg client progress',    value: '58%' },
-  { label: 'Documents flagged',      value: '5'   },
-]
-
 const VISA_OPTIONS = ['E-2', 'EB-5', 'L-1', 'TN', 'H-1B', 'Other']
 const FAMILY_SIZES = ['1', '2', '3', '4', '5+']
 
@@ -317,8 +275,6 @@ function AddClientModal({ onClose, attorneyProfile }) {
 
 // ─── Morning Briefing ────────────────────────────────────────────────────────
 
-const BRIEFING_DATE = 'June 10, 2026'
-
 function AlertCard({ borderColor, tintColor, name, summary, children, buttons }) {
   const [open, setOpen] = useState(false)
   return (
@@ -400,74 +356,106 @@ function SectionHeader({ bgColor, label }) {
   )
 }
 
-function MorningBriefing() {
+function MorningBriefing({ clients }) {
+  const today = new Date()
+  const todayLabel = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const clientCount = clients ? clients.length : 0
+
+  // Build critical alerts — dependents aged 18–20 (age-out risk)
+  const criticalAlerts = []
+  if (clients) {
+    for (const c of clients) {
+      const ages = Array.isArray(c.dependent_ages) ? c.dependent_ages : []
+      for (const age of ages) {
+        if (age >= 18 && age <= 20) {
+          const daysUntil21 = Math.round((21 - age) * 365.25)
+          criticalAlerts.push({
+            key: c.id + '-ageout-' + age,
+            name: (c.name || 'Client').toUpperCase(),
+            summary: <>{c.visa_type} · Dependent age {age} — <span style={{ color: '#DC2626', fontWeight: 700 }}>~{daysUntil21} days until 21</span></>,
+            body: `Dependent aged ${age} detected. Monitor CSPA calculation and consider filing to preserve status before age-out.`,
+          })
+        }
+      }
+    }
+  }
+
+  // Build important alerts — inactive 14+ days
+  const importantAlerts = []
+  if (clients) {
+    for (const c of clients) {
+      if (c.last_sign_in_at) {
+        const daysSince = Math.floor((today - new Date(c.last_sign_in_at)) / 86400000)
+        if (daysSince >= 14) {
+          importantAlerts.push({
+            key: c.id + '-inactive',
+            name: (c.name || 'Client').toUpperCase(),
+            summary: `Inactive ${daysSince} days`,
+            body: `Last sign-in was ${daysSince} days ago. Consider sending a check-in or reminder.`,
+          })
+        }
+      }
+    }
+  }
+
+  const hasAny = criticalAlerts.length > 0 || importantAlerts.length > 0
+
   return (
     <div className="flex flex-col gap-4">
 
       {/* Briefing header */}
       <div>
         <p className="font-extrabold uppercase tracking-[0.16em]" style={{ fontSize: 13, color: '#0D2B4E' }}>
-          MORNING BRIEFING — {BRIEFING_DATE}
+          MORNING BRIEFING — {todayLabel}
         </p>
         <p className="mt-0.5 font-medium" style={{ fontSize: 12, color: '#64748B' }}>
-          Across your 23 active clients
+          Across your {clientCount > 0 ? clientCount : '—'} active client{clientCount !== 1 ? 's' : ''}
         </p>
       </div>
 
+      {!hasAny && (
+        <div className="rounded-2xl px-4 py-4" style={{ backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+          <p className="font-semibold" style={{ fontSize: 14, color: '#1A7A4A' }}>✓ No urgent items — all clients on track</p>
+        </div>
+      )}
+
       {/* ── SECTION 1: Critical ───────────────────────────────────── */}
-      <div className="flex flex-col gap-2">
-        <SectionHeader bgColor="#DC2626" label="🚨 Critical — Act this week" />
-        <AlertCard
-          borderColor="#DC2626"
-          tintColor="#FFF5F5"
-          name="PATEL FAMILY"
-          summary={<>Maya turns 21 in <span style={{ color: '#DC2626', fontWeight: 700 }}>47 days</span></>}
-          buttons={['Draft Action Plan', 'View Case']}
-        >
-          <p style={{ fontSize: 13, color: '#374151', fontWeight: 600 }}>CSPA age calculation: 20 years, 318 days</p>
-          <p style={{ fontSize: 13, color: '#374151' }}>I-526 pending at Vermont Service Center.</p>
-          <p style={{ fontSize: 13, color: '#374151' }}>⚡ Recommended action: File separate I-539 for Maya immediately to preserve status.</p>
-        </AlertCard>
-      </div>
+      {criticalAlerts.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <SectionHeader bgColor="#DC2626" label="🚨 Critical — Act this week" />
+          {criticalAlerts.map(alert => (
+            <AlertCard
+              key={alert.key}
+              borderColor="#DC2626"
+              tintColor="#FFF5F5"
+              name={alert.name}
+              summary={alert.summary}
+              buttons={['Draft Action Plan', 'View Case']}
+            >
+              <p style={{ fontSize: 13, color: '#374151' }}>{alert.body}</p>
+            </AlertCard>
+          ))}
+        </div>
+      )}
 
       {/* ── SECTION 2: Important ─────────────────────────────────── */}
-      <div className="flex flex-col gap-2">
-        <SectionHeader bgColor="#D97706" label="⚠️ Important — Act this month" />
-        <AlertCard
-          borderColor="#D97706"
-          tintColor="#FFFBEB"
-          name="CHEN FAMILY"
-          summary="Medical exam expires Aug 12"
-          buttons={['Send Client Reminder', 'View Case']}
-        >
-          <p style={{ fontSize: 13, color: '#374151' }}>I-485 interview not yet scheduled.</p>
-          <p style={{ fontSize: 13, color: '#374151' }}>Exam renewal required before interview.</p>
-        </AlertCard>
-        <AlertCard
-          borderColor="#D97706"
-          tintColor="#FFFBEB"
-          name="MORRISON JAMES"
-          summary="Inactive 14 days"
-          buttons={['Send Nudge Email', 'View Case']}
-        >
-          <p style={{ fontSize: 13, color: '#374151' }}>Last activity: Document upload June 1.</p>
-        </AlertCard>
-      </div>
-
-      {/* ── SECTION 3: Monitor ───────────────────────────────────── */}
-      <div className="flex flex-col gap-2">
-        <SectionHeader bgColor="#1B5FA8" label="👁 Monitor — Watch" />
-        <AlertCard
-          borderColor="#1B5FA8"
-          tintColor="#EBF4FB"
-          name="SINGH FAMILY"
-          summary="Priority date moved forward"
-          buttons={['View Analysis', 'View Case']}
-        >
-          <p style={{ fontSize: 13, color: '#374151' }}>Latest visa bulletin moved EB-5 priority date forward 3 months.</p>
-          <p style={{ fontSize: 13, color: '#374151' }}>May be eligible to file I-485 earlier than projected.</p>
-        </AlertCard>
-      </div>
+      {importantAlerts.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <SectionHeader bgColor="#D97706" label="⚠️ Important — Act this month" />
+          {importantAlerts.map(alert => (
+            <AlertCard
+              key={alert.key}
+              borderColor="#D97706"
+              tintColor="#FFFBEB"
+              name={alert.name}
+              summary={alert.summary}
+              buttons={['Send Nudge Email', 'View Case']}
+            >
+              <p style={{ fontSize: 13, color: '#374151' }}>{alert.body}</p>
+            </AlertCard>
+          ))}
+        </div>
+      )}
 
     </div>
   )
@@ -573,10 +561,19 @@ function ProspectCard({ prospect, onAction }) {
     </div>
   )
 }
-const CHECKIN_PREVIEW_MESSAGE = `Hi Maya, just a quick note from Maimone Legal. You are now in month four of your EB-5 investor journey — USCIS is currently processing EB-5 petitions in the 29–48 month range, so your timeline is completely normal and there is nothing unusual about your case. We are watching it closely and will reach out the moment we hear anything. In the meantime your MigraTrak dashboard is always up to date — don't hesitate to use the AI coach if you have questions.\n\n— Mena Maimone, Maimone Legal`
-
-function CheckinPreview() {
+function CheckinPreview({ client }) {
   const [expanded, setExpanded] = useState(false)
+  if (!client) return null
+
+  const clientName = client.name || 'Your client'
+  const visaType   = client.visa_type || 'Immigration'
+  const caseStart  = client.case_start_date
+    ? `Case started ${new Date(client.case_start_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+    : ''
+  const monthsIn = client.case_start_date
+    ? Math.max(1, Math.floor((Date.now() - new Date(client.case_start_date).getTime()) / (1000 * 60 * 60 * 24 * 30)))
+    : null
+
   return (
     <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #E2E8F0', backgroundColor: '#FFFFFF' }}>
       <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: '#0D2B4E' }}>
@@ -595,10 +592,12 @@ function CheckinPreview() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-bold" style={{ color: '#0D2B4E' }}>Patel Family</p>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>Month 4</span>
+            <p className="text-sm font-bold" style={{ color: '#0D2B4E' }}>{clientName}</p>
+            {monthsIn && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>Month {monthsIn}</span>
+            )}
           </div>
-          <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>EB-5 Investor · Case started Feb 2026</p>
+          <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>{visaType}{caseStart ? ` · ${caseStart}` : ''}</p>
           <p className="text-xs mt-1 font-semibold" style={{ color: '#1A7A4A' }}>✓ Monthly check-in scheduled — sends tonight at 10pm ET</p>
         </div>
       </div>
@@ -1088,12 +1087,12 @@ export default function A1AttorneyDashboard() {
         <div className="flex flex-col gap-4 px-4 pt-4 pb-16">
 
           {/* Morning Briefing */}
-          <MorningBriefing />
+          <MorningBriefing clients={clients} />
 
           {/* Policy Intelligence */}
           <PolicyIntelligence onShowToast={showCommunicationToast} />
 
-          <CheckinPreview />
+          {clients && clients.length > 0 && <CheckinPreview client={clients[0]} />}
 
           {/* Consultation Queue */}
           <ConsultationQueue attorneyId={attorneyId} />
