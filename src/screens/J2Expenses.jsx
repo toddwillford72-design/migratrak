@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import jsPDF from 'jspdf'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', path: '/j1' },
@@ -620,8 +621,111 @@ export default function J2Expenses() {
   }
 
   function handleExportPDF() {
-    setToast('PDF export coming soon')
-    setTimeout(() => setToast(null), 2500)
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
+
+    // Header
+    doc.setFillColor(13, 43, 78)
+    doc.rect(0, 0, pageWidth, 28, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text('MigraTrak — Expense Report', 14, 13)
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Generated: ${new Date().toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    })}`, 14, 22)
+
+    // Client name
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text(userName || 'Client', 14, 40)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 14, 48)
+
+    // Totals box
+    doc.setDrawColor(27, 95, 168)
+    doc.setLineWidth(0.5)
+    doc.rect(14, 56, pageWidth - 28, 20)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`Total Expenses: $${grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 18, 66)
+    doc.text(`Total Items: ${displayExpenses.length}`, 18, 73)
+
+    // Table header
+    let y = 89
+    doc.setFillColor(235, 244, 251)
+    doc.rect(14, y - 5, pageWidth - 28, 8, 'F')
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(13, 43, 78)
+    doc.text('Date', 16, y)
+    doc.text('Description', 45, y)
+    doc.text('Category', 110, y)
+    doc.text('Amount', 165, y)
+
+    // Table rows
+    y += 8
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(0, 0, 0)
+    doc.setFontSize(8)
+
+    displayExpenses.forEach((expense, i) => {
+      if (y > 270) {
+        doc.addPage()
+        y = 20
+      }
+
+      if (i % 2 === 0) {
+        doc.setFillColor(249, 250, 251)
+        doc.rect(14, y - 4, pageWidth - 28, 7, 'F')
+      }
+
+      doc.setTextColor(0, 0, 0)
+      doc.text(expense.date || '—', 16, y)
+
+      const label = expense.label?.length > 35
+        ? expense.label.substring(0, 35) + '...'
+        : (expense.label || '—')
+      doc.text(label, 45, y)
+
+      const category = expense.category?.length > 20
+        ? expense.category.substring(0, 20) + '...'
+        : (expense.category || '—')
+      doc.text(category, 110, y)
+
+      doc.setFont('helvetica', 'bold')
+      doc.text(`$${Number(expense.amount).toLocaleString('en-US', {
+        minimumFractionDigits: 2, maximumFractionDigits: 2
+      })}`, 165, y)
+      doc.setFont('helvetica', 'normal')
+
+      y += 8
+    })
+
+    // Footer on every page
+    const totalPages = doc.internal.getNumberOfPages()
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i)
+      doc.setFontSize(7)
+      doc.setTextColor(150, 150, 150)
+      doc.text(
+        'MigraTrak provides educational information only — not legal advice.',
+        14,
+        doc.internal.pageSize.getHeight() - 8
+      )
+      doc.text(
+        `Page ${i} of ${totalPages}`,
+        pageWidth - 30,
+        doc.internal.pageSize.getHeight() - 8
+      )
+    }
+
+    const fileName = `MigraTrak_Expenses_${new Date().toISOString().slice(0, 10)}.pdf`
+    doc.save(fileName)
   }
 
   async function handleOpenReceipt(receiptUrl) {
