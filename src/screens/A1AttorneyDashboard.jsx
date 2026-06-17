@@ -724,59 +724,52 @@ function ConsultationQueue({ attorneyId, attorneyProfile }) {
         <p style={{ fontSize: 12, color: '#64748B', margin: '2px 0 0 0' }}>{prospects === null ? 'Loading…' : `${pending.length} prospect${pending.length !== 1 ? 's' : ''} waiting for review`}</p>
       </div>
       {error && <div style={{ backgroundColor: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 16, padding: '12px 16px' }}><p style={{ fontSize: 12, fontWeight: 600, color: '#DC2626', margin: 0 }}>{error}</p></div>}
-      {prospects === null ? (
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px' }}><p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>Loading prospects…</p></div>
-      ) : pending.length === 0 && processed.length === 0 ? (
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '24px 16px', textAlign: 'center' }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#4A5568', margin: 0 }}>No prospects yet</p>
-          <p style={{ fontSize: 12, color: '#94A3B8', margin: '4px 0 0 0' }}>Prospects appear here when clients complete the discovery flow</p>
-        </div>
-      ) : (
-        <>
-          {/* ── Hardcoded David Chen — age-out priority prospect ── */}
-          <div style={{ backgroundColor: '#FFFFFF', border: '2px solid #DC2626', borderLeft: '4px solid #1A7A4A', borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-              <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: '#1A7A4A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>91</span>
-                </div>
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#1A7A4A', letterSpacing: '0.04em', textAlign: 'center' }}>/ 100</span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#0D2B4E', margin: 0 }}>David Chen</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: '#D1FAE5', color: '#1A7A4A', borderRadius: 6, padding: '2px 8px' }}>Strong Fit</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>EB-5 Investor</span>
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 5, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: '#4A5568' }}>💰 $900,000</span>
-                  <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted today</span>
-                </div>
-              </div>
+      {/* ── Hardcoded David Chen — always visible above dynamic list ── */}
+      <div style={{ backgroundColor: '#FFFFFF', border: '2px solid #DC2626', borderLeft: '4px solid #1A7A4A', borderRadius: 16, padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: '#1A7A4A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#FFFFFF', fontWeight: 800, fontSize: 18, lineHeight: 1 }}>91</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#1A7A4A', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>Consultation Requested</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#1A7A4A', letterSpacing: '0.04em', textAlign: 'center' }}>/ 100</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#0D2B4E', margin: 0 }}>David Chen</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, backgroundColor: '#D1FAE5', color: '#1A7A4A', borderRadius: 6, padding: '2px 8px' }}>Strong Fit</span>
+              <span style={{ fontSize: 11, fontWeight: 600, backgroundColor: '#EBF4FB', color: '#1B5FA8', borderRadius: 6, padding: '2px 8px' }}>EB-5 Investor</span>
             </div>
-            {/* Age-out banner */}
-            <div style={{ backgroundColor: '#DC2626', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#FFFFFF', margin: 0, lineHeight: 1.4 }}>Dependent turns 21 in 34 days — schedule immediately</p>
-            </div>
-            <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
-              <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}><span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>High-value EB-5 prospect. Dependent age-out risk is critical — this consultation should be prioritized immediately.</p>
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 700, backgroundColor: '#1B9AAA', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}>
-                Schedule Now
-              </button>
-              <button style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 700, backgroundColor: '#FFFFFF', color: '#0D2B4E', border: '1.5px solid #CBD5E0', cursor: 'pointer' }}>
-                Request More Info
-              </button>
+            <div style={{ display: 'flex', gap: 12, marginTop: 5, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: '#4A5568' }}>💰 $800,000 – $1,000,000</span>
+              <span style={{ fontSize: 12, color: '#94A3B8' }}>Submitted today</span>
             </div>
           </div>
-
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: '#1A7A4A', flexShrink: 0 }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#4A5568' }}>Consultation Requested</span>
+        </div>
+        <div style={{ backgroundColor: '#DC2626', borderRadius: 10, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>⚠</span>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#FFFFFF', margin: 0, lineHeight: 1.4 }}>Dependent turns 21 in 34 days — schedule immediately</p>
+        </div>
+        <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 14, flexShrink: 0 }}>🤖</span>
+          <p style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5, margin: 0 }}><span style={{ fontWeight: 700, color: '#0D2B4E' }}>AI note: </span>High-value EB-5 prospect. Dependent age-out risk is critical — prioritize immediately.</p>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 700, backgroundColor: '#1B9AAA', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}>
+            Schedule Now
+          </button>
+          <button style={{ flex: 1, padding: '10px 4px', borderRadius: 10, fontSize: 13, fontWeight: 700, backgroundColor: '#FFFFFF', color: '#0D2B4E', border: '1.5px solid #CBD5E0', cursor: 'pointer' }}>
+            Request More Info
+          </button>
+        </div>
+      </div>
+      {prospects === null ? (
+        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 16, padding: '16px' }}><p style={{ fontSize: 14, color: '#94A3B8', margin: 0 }}>Loading prospects…</p></div>
+      ) : pending.length === 0 && processed.length === 0 ? null : (
+        <>
           {pending.map(p => <ProspectCard key={p.id} prospect={p} onAction={handleAction} />)}
           {processed.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
