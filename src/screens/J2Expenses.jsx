@@ -121,6 +121,17 @@ function AddExpensePanel({ onClose, onSave, userId }) {
     const file = e.target.files?.[0]
     if (!file) return
     setReceiptError(null)
+
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'application/pdf']
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setReceiptError('File type not supported. Please upload a JPEG, PNG, HEIC, or PDF.')
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setReceiptError('File is too large. Maximum size is 10 MB.')
+      return
+    }
+
     setUploading(true)
     try {
       const path = `receipts/${userId}/${Date.now()}_${file.name}`
@@ -129,29 +140,28 @@ function AddExpensePanel({ onClose, onSave, userId }) {
         .upload(path, file, { contentType: file.type })
       if (uploadError) throw uploadError
 
-      const { data: signedData, error: signedError } = await supabase.storage
-        .from('migratrak-files')
-        .createSignedUrl(path, 60 * 60)
-      if (signedError) throw signedError
-
-      const signedUrl = signedData.signedUrl
-      setForm(f => ({ ...f, receipt: file.name, receipt_url: signedUrl, receipt_path: path }))
+      setForm(f => ({ ...f, receipt: file.name, receipt_url: null, receipt_path: path }))
       setReceiptPreview(file.type.startsWith('image/') ? URL.createObjectURL(file) : null)
 
       try {
-        const res = await fetch('/api/extract-receipt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ receiptUrl: signedUrl }),
-        })
-        if (res.ok) {
-          const extracted = await res.json()
-          setForm(f => ({
-            ...f,
-            amount: extracted.amount != null ? String(extracted.amount) : f.amount,
-            vendor: extracted.vendor || f.vendor,
-            date:   extracted.date || f.date,
-          }))
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from('migratrak-files')
+          .createSignedUrl(path, 60 * 60)
+        if (!signedError && signedData?.signedUrl) {
+          const res = await fetch('/api/extract-receipt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ receiptUrl: signedData.signedUrl }),
+          })
+          if (res.ok) {
+            const extracted = await res.json()
+            setForm(f => ({
+              ...f,
+              amount: extracted.amount != null ? String(extracted.amount) : f.amount,
+              vendor: extracted.vendor || f.vendor,
+              date:   extracted.date || f.date,
+            }))
+          }
         }
       } catch (extractErr) {
         console.error('Receipt extraction failed:', extractErr)
@@ -334,7 +344,7 @@ function AddExpensePanel({ onClose, onSave, userId }) {
               <p className="text-xs font-semibold px-1" style={{ color: '#DC2626' }}>{receiptError}</p>
             )}
 
-            {form.receipt_url && !uploading && (
+            {form.receipt_path && !uploading && (
               <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
                 <div className="flex items-center gap-2">
                   {receiptPreview ? (

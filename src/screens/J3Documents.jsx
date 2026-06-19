@@ -520,6 +520,17 @@ export default function J3Documents() {
     if (!file || docId == null) return
     const doc = (docs ?? []).find(d => d.id === docId)
     if (!doc) return
+
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'application/pdf']
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadErrors(prev => ({ ...prev, [docId]: 'File type not supported. Please upload a JPEG, PNG, HEIC, or PDF.' }))
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadErrors(prev => ({ ...prev, [docId]: 'File is too large. Maximum size is 10 MB.' }))
+      return
+    }
+
     setUploadErrors(prev => ({ ...prev, [docId]: null }))
     setUploadingDocId(docId)
     try {
