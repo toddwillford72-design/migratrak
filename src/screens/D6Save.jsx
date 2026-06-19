@@ -84,7 +84,7 @@ export default function D6Save() {
           className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95"
           style={{ backgroundColor: '#FFFFFF', color: '#0D2B4E', border: '2px solid #0D2B4E' }}
         >
-          Choose an attorney first →
+          Choose your immigration specialist →
         </button>
 
         {/* Primary CTA */}

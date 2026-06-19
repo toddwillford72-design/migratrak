@@ -715,10 +715,10 @@ export default function J5Directory() {
           {presignup ? 'Step 1 of 2' : 'Professional Directory'}
         </p>
         <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>
-          {presignup ? 'Choose your immigration attorney' : 'Find the Right Professional'}
+          {presignup ? 'Choose your immigration specialist' : 'Find the Right Professional'}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          {presignup ? 'Select an attorney below — we\'ll connect you after you create your account.' : 'Vetted specialists who understand the Canadian to US journey'}
+          {presignup ? 'Select a specialist below — we\'ll connect you after you create your account.' : 'Vetted specialists who understand the Canadian to US journey'}
         </p>
       </div>
 
