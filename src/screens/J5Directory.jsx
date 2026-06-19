@@ -39,7 +39,6 @@ const PROFESSIONALS = [
     expanded: true,
     primaryAction: 'Request Introduction',
     has_account: true,
-    // TODO: set supabase_id to Mena's actual Supabase user UUID from the users table
     supabase_id: '63604efe-b9bd-4e6e-b2c4-b5a1b09c1cbc',
   },
   {
@@ -404,10 +403,20 @@ function SpecialtyPill({ label }) {
   )
 }
 
-function ProfessionalCard({ pro, initialOpen }) {
+function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignupDest }) {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(initialOpen)
   const [requested, setRequested] = useState(false)
   const [requesting, setRequesting] = useState(false)
+
+  function handlePresignupSelect() {
+    try {
+      localStorage.setItem('migratrak_selected_attorney', pro.has_account ? (pro.supabase_id || '') : '')
+    } catch (_) {}
+    navigate('/auth', {
+      state: { mode: 'signup', visa_type: presignupVisa || '', destination_state: presignupDest || '' }
+    })
+  }
 
   async function handleRequest() {
     if (requested || requesting) return
@@ -626,18 +635,28 @@ function ProfessionalCard({ pro, initialOpen }) {
               )}
             </div>
             {/* Primary action */}
-            <button
-              onClick={handleRequest}
-              disabled={requesting}
-              className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
-              style={{
-                backgroundColor: requested ? '#D1FAE5' : '#F0A500',
-                color: requested ? '#1A7A4A' : '#0D2B4E',
-                opacity: requesting ? 0.7 : 1,
-              }}
-            >
-              {requesting ? 'Sending…' : requested ? `✓ ${pro.primaryAction || 'Request Introduction'} confirmed` : `${pro.primaryAction || 'Request Introduction'} →`}
-            </button>
+            {presignup ? (
+              <button
+                onClick={handlePresignupSelect}
+                className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+                style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+              >
+                Select this attorney →
+              </button>
+            ) : (
+              <button
+                onClick={handleRequest}
+                disabled={requesting}
+                className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+                style={{
+                  backgroundColor: requested ? '#D1FAE5' : '#F0A500',
+                  color: requested ? '#1A7A4A' : '#0D2B4E',
+                  opacity: requesting ? 0.7 : 1,
+                }}
+              >
+                {requesting ? 'Sending…' : requested ? `✓ ${pro.primaryAction || 'Request Introduction'} confirmed` : `${pro.primaryAction || 'Request Introduction'} →`}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -645,18 +664,28 @@ function ProfessionalCard({ pro, initialOpen }) {
       {/* Collapsed action strip */}
       {!open && (
         <div className="flex gap-2 px-5 pb-4">
-          <button
-            onClick={handleRequest}
-            disabled={requesting}
-            className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
-            style={{
-              backgroundColor: requested ? '#D1FAE5' : '#F0A500',
-              color: requested ? '#1A7A4A' : '#0D2B4E',
-              opacity: requesting ? 0.7 : 1,
-            }}
-          >
-            {requesting ? '…' : requested ? '✓ Done' : (pro.primaryAction || 'Request Intro') + ' →'}
-          </button>
+          {presignup ? (
+            <button
+              onClick={handlePresignupSelect}
+              className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
+              style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
+            >
+              Select this attorney →
+            </button>
+          ) : (
+            <button
+              onClick={handleRequest}
+              disabled={requesting}
+              className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
+              style={{
+                backgroundColor: requested ? '#D1FAE5' : '#F0A500',
+                color: requested ? '#1A7A4A' : '#0D2B4E',
+                opacity: requesting ? 0.7 : 1,
+              }}
+            >
+              {requesting ? '…' : requested ? '✓ Done' : (pro.primaryAction || 'Request Intro') + ' →'}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -665,8 +694,12 @@ function ProfessionalCard({ pro, initialOpen }) {
 
 export default function J5Directory() {
   const { state } = useLocation()
+  const presignup = state?.presignup === true
+  const presignupVisa = state?.visa_type || ''
+  const presignupDest = state?.destination_state || ''
+
   const filterMap = { attorneys: 'Attorneys', cpas: 'CPAs', 'financial-advisors': 'Financial Advisors', healthcare: 'Healthcare', 'vehicle-import': 'Vehicle Import' }
-  const initialFilter = filterMap[state?.filter] ?? 'All'
+  const initialFilter = presignup ? 'Attorneys' : (filterMap[state?.filter] ?? 'All')
   const [activeFilter, setActiveFilter] = useState(initialFilter)
 
   const filtered = activeFilter === 'All'
@@ -679,15 +712,24 @@ export default function J5Directory() {
       {/* Header */}
       <div className="px-5 pt-5 pb-4" style={{ backgroundColor: '#0D2B4E' }}>
         <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#4A9FD4' }}>
-          Professional Directory
+          {presignup ? 'Step 1 of 2' : 'Professional Directory'}
         </p>
         <h1 className="text-2xl font-extrabold" style={{ color: '#FFFFFF' }}>
-          Find the Right Professional
+          {presignup ? 'Choose your immigration attorney' : 'Find the Right Professional'}
         </h1>
         <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          Vetted specialists who understand the Canadian to US journey
+          {presignup ? 'Select an attorney below — we\'ll connect you after you create your account.' : 'Vetted specialists who understand the Canadian to US journey'}
         </p>
       </div>
+
+      {/* Pre-signup banner */}
+      {presignup && (
+        <div className="px-4 py-3" style={{ backgroundColor: '#EBF4FB', borderBottom: '1px solid #4A9FD4' }}>
+          <p className="text-xs font-semibold" style={{ color: '#1B5FA8' }}>
+            Tap "Select this attorney" on any card below, then we'll take you straight to account creation.
+          </p>
+        </div>
+      )}
 
       {/* Filter bar */}
       <div
@@ -733,7 +775,14 @@ export default function J5Directory() {
           </div>
         ) : (
           filtered.map((pro) => (
-            <ProfessionalCard key={pro.id} pro={pro} initialOpen={pro.expanded} />
+            <ProfessionalCard
+              key={pro.id}
+              pro={pro}
+              initialOpen={pro.expanded}
+              presignup={presignup}
+              presignupVisa={presignupVisa}
+              presignupDest={presignupDest}
+            />
           ))
         )}
 

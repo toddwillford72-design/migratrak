@@ -31,6 +31,14 @@ export default function D6Save() {
     })
   }
 
+  function handleChooseAttorney() {
+    const visa = localStorage.getItem('migratrak_visa') || ''
+    const dest = localStorage.getItem('migratrak_destination') || ''
+    navigate('/j5', {
+      state: { presignup: true, visa_type: visa, destination_state: dest }
+    })
+  }
+
   function handleSignIn() {
     navigate('/auth', { state: { mode: 'signin' } })
   }
@@ -70,6 +78,15 @@ export default function D6Save() {
           By creating an account you acknowledge that MigraTrak provides educational information only and does not constitute legal advice, attorney-client relationship, or immigration consultation services.
         </p>
 
+        {/* Choose attorney first — secondary CTA */}
+        <button
+          onClick={handleChooseAttorney}
+          className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#FFFFFF', color: '#0D2B4E', border: '2px solid #0D2B4E' }}
+        >
+          Choose an attorney first →
+        </button>
+
         {/* Primary CTA */}
         <button
           onClick={handleCreate}
@@ -78,6 +95,10 @@ export default function D6Save() {
         >
           Create your account →
         </button>
+
+        <p className="text-xs text-center px-1" style={{ color: '#A0AEC0' }}>
+          Not sure yet? Create your account now — you can choose an attorney anytime from your dashboard.
+        </p>
 
         {/* Sign in link */}
         <p className="text-sm text-center" style={{ color: '#4A5568' }}>
