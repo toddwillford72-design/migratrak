@@ -40,7 +40,7 @@ const PROFESSIONALS = [
     primaryAction: 'Request Introduction',
     has_account: true,
     // TODO: set supabase_id to Mena's actual Supabase user UUID from the users table
-    supabase_id: null,
+    supabase_id: '63604efe-b9bd-4e6e-b2c4-b5a1b09c1cbc',
   },
   {
     id: 2,
