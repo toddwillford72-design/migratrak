@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { MILESTONE_TEMPLATES } from '../data/config'
 
-const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
-
 // ── Essentials checklist helpers (mirrors J6Essentials) ────────────────────────
 function loadAnswers() {
-  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} }
+  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch { return {} }
 }
 function hasChildren(a) {
   return a.household === 'Me, spouse, and children' || (typeof a.children === 'string' && a.children.startsWith('Yes'))
@@ -36,12 +34,6 @@ const PHASES = [
   'Residency',
 ]
 
-
-const CHECKLIST_PREVIEW_DEMO = [
-  { id: 'auto',      essId: PREVIEW_ITEM_IDS.auto,       label: 'Auto insurance',           note: 'URGENT — 5 months elapsed',   urgency: 'red' },
-  { id: 'accountant',essId: PREVIEW_ITEM_IDS.accountant, label: 'Cross-border accountant',  note: 'Not engaged yet',              urgency: 'amber' },
-  { id: 'health',    essId: PREVIEW_ITEM_IDS.health,     label: 'US health insurance',      note: 'Not enrolled',                 urgency: 'amber' },
-]
 
 const CHECKLIST_PREVIEW_REAL = [
   { id: 'auto',      essId: PREVIEW_ITEM_IDS.auto,       label: 'Auto insurance',           note: 'Confirm before the 6-month mark',  urgency: 'amber' },
@@ -234,11 +226,11 @@ function EmptyMilestones() {
 export default function J1Dashboard() {
   const navigate = useNavigate()
   const [legalBannerDismissed, setLegalBannerDismissed] = useState(() => {
-    try { return localStorage.getItem('migratrak_legal_banner_dismissed') === 'true' } catch (_) { return false }
+    try { return localStorage.getItem('migratrak_legal_banner_dismissed') === 'true' } catch { return false }
   })
 
   function dismissLegalBanner() {
-    try { localStorage.setItem('migratrak_legal_banner_dismissed', 'true') } catch (_) {}
+    try { localStorage.setItem('migratrak_legal_banner_dismissed', 'true') } catch {}
     setLegalBannerDismissed(true)
   }
 
@@ -262,7 +254,7 @@ export default function J1Dashboard() {
       localStorage.removeItem('migratrak_visa')
       localStorage.removeItem('migratrak_destination')
       localStorage.removeItem('migratrak_legal_banner_dismissed')
-    } catch (_) {}
+    } catch {}
     await supabase.auth.signOut()
     navigate('/')
   }
@@ -314,7 +306,7 @@ export default function J1Dashboard() {
             setShowPasswordPrompt(true)
           }
         }
-      } catch (e) {
+      } catch {
         // attorney display is non-critical, fail silently
       }
 
@@ -390,7 +382,7 @@ export default function J1Dashboard() {
       const saved = localStorage.getItem('migratrak_answers')
       if (!saved) return true
       return JSON.parse(saved)?.country === 'Canada'
-    } catch (_) { return true }
+    } catch { return true }
   })()
 
   const [menuOpen, setMenuOpen] = useState(false)

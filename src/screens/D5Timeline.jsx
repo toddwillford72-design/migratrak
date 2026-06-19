@@ -318,7 +318,7 @@ export default function D5Timeline() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const rawVisa = state?.visa ?? (() => {
-    try { return localStorage.getItem('migratrak_visa') ?? '' } catch (_) { return '' }
+    try { return localStorage.getItem('migratrak_visa') ?? '' } catch { return '' }
   })()
   const visaKey = resolveVisa(rawVisa)
   const visaData = TIMELINES[visaKey]

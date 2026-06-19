@@ -694,7 +694,6 @@ const CITY_ALIASES = {
   'plano':           'Dallas / Fort Worth, TX',
   'frisco':          'Dallas / Fort Worth, TX',
   'mckinney':        'Dallas / Fort Worth, TX',
-  'arlington':       'Dallas / Fort Worth, TX',
   'fort worth':      'Dallas / Fort Worth, TX',
   'irving':          'Dallas / Fort Worth, TX',
   'garland':         'Dallas / Fort Worth, TX',
@@ -765,7 +764,6 @@ const CITY_ALIASES = {
   // Illinois
   'evanston':        'Chicago, IL',
   'naperville':      'Chicago, IL',
-  'aurora':          'Chicago, IL',
   // Washington State
   'bellevue':        'Seattle, WA',
   'redmond':         'Seattle, WA',
@@ -1102,7 +1100,7 @@ function ResultsScreen({ d5answers, d2answers, matches, onBack, onContinue, isKn
       const saved = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
       saved.destination = city
       localStorage.setItem('migratrak_answers', JSON.stringify(saved))
-    } catch (_) {}
+    } catch {}
   }
 
   if (confirmed) {
@@ -1361,7 +1359,7 @@ export default function D5Destination() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const d2answers = state?.answers ?? (() => {
-    try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} }
+    try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch { return {} }
   })()
 
   const isBusiness = d2answers.motivation === 'Buying or starting a business'
@@ -1399,8 +1397,6 @@ export default function D5Destination() {
     // Budget question — options depend on rentbuy
     const isBuy  = (rentbuyAnswer ?? '').startsWith('🏠')
     const isRent = (rentbuyAnswer ?? '').startsWith('🔑')
-    const isUnsure = !isBuy && !isRent
-
     if (isBuy) {
       qs.push({
         id: 'budget', text: 'What is your approximate purchase budget?',
@@ -1448,8 +1444,6 @@ export default function D5Destination() {
   function handleKnownConfirm(dest) {
     // They know where — go straight to housing questions then results
     setAnswers({ knownDest: dest })
-    const qs = buildLinear('known', null)
-    // Filter to rentbuy + budget + business only
     setLinStep(0)
     setPhase('linear-known')
   }

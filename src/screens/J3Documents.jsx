@@ -504,7 +504,7 @@ export default function J3Documents() {
       setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, file_url: path, status: 'uploaded', updateError: null } : d))
     } catch (err) {
       console.error('Document upload failed:', err)
-      throw new Error(err.message || 'Upload failed')
+      throw new Error(err.message || 'Upload failed', { cause: err })
     }
   }
 

@@ -572,7 +572,7 @@ export default function J2Expenses() {
       if (error) throw error
       return (data || []).map(dbRowToExpense)
     } catch (err) {
-      throw new Error(err.message || 'Failed to load expenses')
+      throw new Error(err.message || 'Failed to load expenses', { cause: err })
     }
   }
 

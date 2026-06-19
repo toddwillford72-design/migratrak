@@ -61,7 +61,7 @@ export default async function handler(req, res) {
           }),
         })
         webhookFired = zapRes.ok
-      } catch (_) { webhookFired = false }
+      } catch { webhookFired = false }
     }
 
     return res.status(200).json({ success: true, clientId, clientLinked: !!clientId, webhookFired, prospectId })

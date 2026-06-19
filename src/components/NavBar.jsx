@@ -14,7 +14,7 @@ export default function NavBar({ onAICoach }) {
       localStorage.removeItem('migratrak_visa')
       localStorage.removeItem('migratrak_destination')
       localStorage.removeItem('migratrak_legal_banner_dismissed')
-    } catch (_) {}
+    } catch {}
     await supabase.auth.signOut()
     setHelpOpen(false)
     navigate('/')

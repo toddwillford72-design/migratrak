@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -44,11 +44,6 @@ export default function AuthScreen() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (prefill.mode === 'signup') setMode('signup')
-    if (prefill.visa_type) setVisaType(prefill.visa_type)
-  }, [])
 
   async function handleSignUp(e) {
     e.preventDefault()
@@ -106,7 +101,7 @@ export default function AuthScreen() {
               attorney_id: selectedAttorneyId,
             }),
           })
-        } catch (_) {
+        } catch {
           // Non-blocking — signup succeeds even if prospect scoring fails
         }
       }

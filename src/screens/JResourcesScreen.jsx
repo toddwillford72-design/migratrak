@@ -4,7 +4,7 @@ function loadDestination() {
   try {
     const a = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
     return a.destination || null
-  } catch (_) { return null }
+  } catch { return null }
 }
 
 export default function JResourcesScreen() {

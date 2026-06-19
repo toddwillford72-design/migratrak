@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
+let _uid = 0
+const uid = () => ++_uid
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', path: '/j1' },
@@ -198,12 +200,12 @@ export default function J4Coach() {
   async function fireQA(qa) {
     if (usedChips.has(qa.id) || typingId) return
     setUsedChips((prev) => new Set([...prev, qa.id]))
-    setMessages((prev) => [...prev, { type: 'user', text: qa.user, id: Date.now() }])
+    setMessages((prev) => [...prev, { type: 'user', text: qa.user, id: uid() }])
 
     const newHistory = [...apiHistory, { role: 'user', content: qa.user }]
     setApiHistory(newHistory)
 
-    const typId = qa.id + Date.now()
+    const typId = qa.id + uid()
     setTypingId(typId)
 
     try {
@@ -217,16 +219,16 @@ export default function J4Coach() {
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
-        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: Date.now() },
+        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: uid() },
       ])
       if (res.ok && data.text) {
         setApiHistory((prev) => [...prev, { role: 'assistant', content: data.text }])
       }
-    } catch (_) {
+    } catch {
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
-        { type: 'ai', paragraphs: ["I'm having trouble connecting right now. Please try again in a moment."], showDisclaimer: false, id: Date.now() },
+        { type: 'ai', paragraphs: ["I'm having trouble connecting right now. Please try again in a moment."], showDisclaimer: false, id: uid() },
       ])
     }
   }
@@ -235,7 +237,7 @@ export default function J4Coach() {
     const text = input.trim()
     if (!text || typingId) return
 
-    const userMsg = { type: 'user', text, id: Date.now() }
+    const userMsg = { type: 'user', text, id: uid() }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
     inputRef.current?.blur()
@@ -243,7 +245,7 @@ export default function J4Coach() {
     const newHistory = [...apiHistory, { role: 'user', content: text }]
     setApiHistory(newHistory)
 
-    const typId = 'live-' + Date.now()
+    const typId = 'live-' + uid()
     setTypingId(typId)
 
     try {
@@ -259,12 +261,12 @@ export default function J4Coach() {
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
-        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: Date.now() },
+        { type: 'ai', paragraphs: [reply], showDisclaimer: false, isLive: true, id: uid() },
       ])
       if (res.ok && data.text) {
         setApiHistory((prev) => [...prev, { role: 'assistant', content: data.text }])
       }
-    } catch (_) {
+    } catch {
       setTypingId(null)
       setMessages((prev) => [
         ...prev,
@@ -272,7 +274,7 @@ export default function J4Coach() {
           type: 'ai',
           paragraphs: ["I'm having trouble connecting right now. Please try again in a moment."],
           showDisclaimer: false,
-          id: Date.now(),
+          id: uid(),
         },
       ])
     }

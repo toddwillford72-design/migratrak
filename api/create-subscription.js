@@ -23,7 +23,6 @@ export default async function handler(req, res) {
       ? existing.data[0]
       : await stripe.customers.create({ email: attorneyEmail, name: attorneyName, metadata: { firmName: firmName || '', platform: 'migratrak' } })
     const perClientRate = perClientRateCents(activeClientCount)
-    const perClientTotal = activeClientCount * perClientRate
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       mode: 'subscription',

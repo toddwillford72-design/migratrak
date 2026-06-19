@@ -27,7 +27,7 @@ export default function ProtectedRoute({ children, allowedRole }) {
               return
             }
           }
-        } catch (_) {}
+        } catch {}
       }
 
       setChecking(false)

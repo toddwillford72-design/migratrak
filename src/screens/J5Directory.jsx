@@ -412,7 +412,7 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
   function handlePresignupSelect() {
     try {
       localStorage.setItem('migratrak_selected_attorney', pro.has_account ? (pro.supabase_id || '') : '')
-    } catch (_) {}
+    } catch {}
     navigate('/auth', {
       state: { mode: 'signup', visa_type: presignupVisa || '', destination_state: presignupDest || '' }
     })
@@ -426,7 +426,7 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
       // Always store the selection in localStorage for D-flow pre-signup path
       try {
         localStorage.setItem('migratrak_selected_attorney', pro.has_account ? (pro.supabase_id || '') : '')
-      } catch (_) {}
+      } catch {}
 
       // Check if user is currently logged in
       const { data: { user } } = await supabase.auth.getUser()
@@ -437,7 +437,7 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
 
         if (pro.has_account && pro.supabase_id) {
           // Attorney has a MigraTrak account — create prospect record linked to them
-          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} } })()
+          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch { return {} } })()
           await fetch('/api/score-prospect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -453,7 +453,7 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
           })
         } else {
           // Professional has no MigraTrak account — send intro email to hello@migratrak.app
-          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} } })()
+          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch { return {} } })()
           await fetch('/api/request-intro', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -472,7 +472,7 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
       }
       // If not logged in: localStorage already set above — handled by score-prospect after signup
       setRequested(true)
-    } catch (_) {
+    } catch {
       // Still mark as requested even if backend fails — don't block the user
       setRequested(true)
     } finally {

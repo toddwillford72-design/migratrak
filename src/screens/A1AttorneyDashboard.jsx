@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
+const NOW = NOW
+
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const VISA_OPTIONS = ['E-2', 'EB-5', 'L-1', 'TN', 'H-1B', 'Other']
@@ -283,7 +285,6 @@ function AlertCard({ borderColor, tintColor, name, summary, children, buttons })
       style={{
         backgroundColor: tintColor,
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        borderLeft: `3px solid ${borderColor}`,
         border: '1px solid #E2E8F0',
         borderLeft: `3px solid ${borderColor}`,
       }}
@@ -490,7 +491,7 @@ function ProspectCard({ prospect, onAction }) {
   const aiNote        = prospect.ai_consultation_note || prospect.aiNote || ''
   const score         = prospect.score ?? '—'
   const statusDisplay = prospect.status === 'pending' ? 'Consultation Requested' : prospect.status === 'approved' ? 'Approved' : prospect.status === 'declined' ? 'Declined' : prospect.status === 'info_requested' ? 'More Information Requested' : prospect.status === 'converted' ? 'Converted to Client' : prospect.status || 'Pending'
-  const submittedDays = prospect.created_at ? Math.floor((Date.now() - new Date(prospect.created_at).getTime()) / 86400000) : prospect.submittedDays ?? '—'
+  const submittedDays = prospect.created_at ? Math.floor((NOW - new Date(prospect.created_at).getTime()) / 86400000) : prospect.submittedDays ?? '—'
   const buttons = prospect.status === 'pending' ? ['Approve', 'Decline', 'More Info'] : prospect.status === 'info_requested' ? ['Follow Up', 'Decline'] : prospect.status === 'approved' ? ['Convert to Client'] : []
   async function handleBtn(btn) {
     const newStatus = btn === 'Approve' ? 'approved' : btn === 'Decline' ? 'declined' : btn === 'More Info' ? 'info_requested' : btn === 'Follow Up' ? 'info_requested' : btn === 'Convert to Client' ? 'converted' : null
@@ -575,7 +576,7 @@ function CheckinPreview({ client }) {
     ? `Case started ${new Date(client.case_start_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
     : ''
   const monthsIn = client.case_start_date
-    ? Math.max(1, Math.floor((Date.now() - new Date(client.case_start_date).getTime()) / (1000 * 60 * 60 * 24 * 30)))
+    ? Math.max(1, Math.floor((NOW - new Date(client.case_start_date).getTime()) / (1000 * 60 * 60 * 24 * 30)))
     : null
 
   return (
@@ -698,15 +699,17 @@ function ZapierSetup({ attorneyId, attorneyProfile, onSaved }) {
 function ConsultationQueue({ attorneyId, attorneyProfile }) {
   const [prospects, setProspects] = useState(null)
   const [error, setError]         = useState(null)
-  async function load() {
-    if (!attorneyId) return
-    try {
-      const { data, error: err } = await supabase.from('prospects').select('*').eq('attorney_id', attorneyId).order('created_at', { ascending: false })
-      if (err) throw err
-      setProspects(data || [])
-    } catch (err) { setError(err.message); setProspects([]) }
-  }
-  useEffect(() => { load() }, [attorneyId])
+  useEffect(() => {
+    async function fetch() {
+      if (!attorneyId) return
+      try {
+        const { data, error: err } = await supabase.from('prospects').select('*').eq('attorney_id', attorneyId).order('created_at', { ascending: false })
+        if (err) throw err
+        setProspects(data || [])
+      } catch (err) { setError(err.message); setProspects([]) }
+    }
+    fetch()
+  }, [attorneyId])
   async function handleAction(prospectId, newStatus, prospect) {
     try {
       const action = newStatus === 'approved' ? 'approve' : newStatus === 'declined' ? 'decline' : newStatus === 'info_requested' ? 'more_info' : null

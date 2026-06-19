@@ -45,7 +45,7 @@ function shouldSendCheckin(client, lastCheckin) {
   return null
 }
 
-async function generateMessage(client, attorney, triggerReason) {
+async function generateMessage(client, attorney) {
   const visaKey = (client.visa_type || '').toLowerCase().replace(/[-\s]/g, '')
   const benchmark = PROCESSING_BENCHMARKS[visaKey] || { min: 6, max: 24, unit: 'months', label: client.visa_type || 'visa' }
   const months = monthsSince(client.case_start_date) || 1
@@ -85,7 +85,7 @@ Respond with only the email body text. No subject line. No HTML.`
     if (!text || !text.trim()) return fallback
     const data = JSON.parse(text)
     return data.content?.[0]?.text?.trim() || fallback
-  } catch (_) {
+  } catch {
     return fallback
   }
 }
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
       if (!triggerReason) { results.skipped++; continue }
 
       try {
-        const messageBody = await generateMessage(client, attorney, triggerReason)
+        const messageBody = await generateMessage(client, attorney)
         if (!messageBody) { results.errors.push(`No message for ${client.email}`); continue }
 
         const firmName = attorney.firm_name || attorney.name + "'s office"

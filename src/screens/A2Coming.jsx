@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import NavFooter from '../components/NavFooter'
 
 const NEEDS_ATTENTION = [
@@ -92,7 +91,6 @@ function ClientRow({ client }) {
 }
 
 export default function A2Coming() {
-  const navigate = useNavigate()
   const [toast, setToast] = useState(null)
 
   function showToast(msg) {

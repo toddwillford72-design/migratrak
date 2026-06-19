@@ -309,13 +309,6 @@ function buildHeader(answers) {
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function Stars({ count }) {
-  return (
-    <span style={{ color: '#F0A500', letterSpacing: 1 }}>
-      {'★'.repeat(count)}{'☆'.repeat(5 - count)}
-    </span>
-  )
-}
 
 function AgeOutBanner({ onFindAttorney }) {
   return (
@@ -413,7 +406,7 @@ function DetailRow({ label, value, highlight }) {
   )
 }
 
-function VisaCard({ card, onCta, onCostEstimate }) {
+function VisaCard({ card, onCostEstimate }) {
   const [expanded, setExpanded] = useState(false)
   const borderColor = card.caution ? '#FCD34D' : card.lead ? '#1B5FA8' : '#E2E8F0'
   const headerBg    = card.caution ? '#FFFBEB' : card.lead ? '#0D2B4E' : '#F7F9FC'
@@ -535,7 +528,7 @@ export default function D3Results() {
   function goToJ5()    { navigate('/j5', { state: { filter: 'attorneys' } }) }
   function goToD4(visa) {
     const v = visa ?? leadVisa
-    try { localStorage.setItem('migratrak_visa', v) } catch (_) {}
+    try { localStorage.setItem('migratrak_visa', v) } catch {}
     navigate('/d4', { state: { visa: v, answers } })
   }
 

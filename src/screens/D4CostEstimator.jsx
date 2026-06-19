@@ -557,7 +557,7 @@ export default function D4CostEstimator() {
   )
 
   useEffect(() => {
-    try { localStorage.setItem('migratrak_visa', initialVisa) } catch (_) {}
+    try { localStorage.setItem('migratrak_visa', initialVisa) } catch {}
   }, [initialVisa])
 
   const data = VISA_DATA[activeVisa]

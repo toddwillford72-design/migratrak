@@ -170,12 +170,12 @@ export default function D2Assessment() {
     setAnswers(newAnswers)
 
     if (isLast) {
-      try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch (_) {}
+      try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch {}
       navigate('/d3', { state: { answers: newAnswers } })
     } else {
       const next = nextStep(step, newAnswers)
       if (next >= QUESTIONS.length) {
-        try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch (_) {}
+        try { localStorage.setItem('migratrak_answers', JSON.stringify(newAnswers)) } catch {}
         navigate('/d3', { state: { answers: newAnswers } })
       } else {
         setStep(next)

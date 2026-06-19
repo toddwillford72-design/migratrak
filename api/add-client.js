@@ -97,7 +97,7 @@ export default async function handler(req, res) {
             `,
           }),
         })
-      } catch (_) {
+      } catch {
         // invitation email failure is non-fatal
       }
     }

@@ -2,11 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const VISA_LABELS = {
-  eb5: 'EB-5 Investor', e2: 'E-2 Treaty Investor', tn: 'TN Visa',
-  l1: 'L-1 Transfer', h1b: 'H-1B', o1: 'O-1', k1: 'K-1 Fiancé(e)', eb2niw: 'EB-2 NIW',
-}
-
 // ─── Tab bar (no attorney link) ───────────────────────────────────────────────
 
 const TABS = [
@@ -22,7 +17,7 @@ const TABS = [
 // ─── Answer helpers ───────────────────────────────────────────────────────────
 
 function loadAnswers() {
-  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} }
+  try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch { return {} }
 }
 function hasChildren(a) {
   return a.household === 'Me, spouse, and children' || (typeof a.children === 'string' && a.children.startsWith('Yes'))
@@ -289,28 +284,22 @@ function Section({ title, subtitle, badge, open, onToggle, doneCount, totalCount
 export default function J6Essentials() {
   const navigate  = useNavigate()
   const [category, setCategory] = useState(null)
-  const [answers,  setAnswers]  = useState(() => loadAnswers())
-  const [profile,  setProfile]  = useState(null) // null = loading, false = no session (demo)
+  const [answers]  = useState(() => loadAnswers())
   const [completedIds, setCompletedIds] = useState(new Set())
   const [saveError, setSaveError] = useState(null)
   const onLearnMore = () => navigate('/j4')
-
-  useEffect(() => { setAnswers(loadAnswers()) }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
       if (!user) {
-        setProfile(false)
         setCompletedIds(new Set())
         return
       }
-      const [{ data: userRow }, { data: progressRows }] = await Promise.all([
+      const [, { data: progressRows }] = await Promise.all([
         supabase.from('users').select('name, visa_type').eq('id', user.id).single(),
         supabase.from('essentials_progress').select('item_id').eq('user_id', user.id).eq('completed', true),
       ])
-      const displayName = userRow?.name || user.user_metadata?.name || user.email
-      setProfile({ name: displayName, visa_type: userRow?.visa_type ?? null })
       setCompletedIds(new Set((progressRows || []).map((r) => r.item_id)))
     })
   }, [])

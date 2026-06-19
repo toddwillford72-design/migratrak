@@ -41,7 +41,7 @@ function scoreBudget(budgetRange, visaType) {
 }
 
 function scorePathway(answers, visaType) {
-  const { motivation, budget, professional_background, fund_readiness } = answers
+  const { motivation, budget, professional_background } = answers
 
   const isBusiness      = motivation === 'Buying or starting a business'
   const isTransfer      = motivation === 'My employer is transferring me'
@@ -207,7 +207,7 @@ One sentence only. Professional, factual tone. No legal advice.`
     if (!res.ok) return fallback
     const data = await res.json()
     return data.content?.[0]?.text?.trim() || fallback
-  } catch (_) {
+  } catch {
     return fallback
   }
 }
