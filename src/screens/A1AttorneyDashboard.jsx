@@ -1136,7 +1136,7 @@ export default function A1AttorneyDashboard() {
           {clients && clients.length > 0 && <CheckinPreview client={clients[0]} />}
 
           {/* Consultation Queue */}
-          <ConsultationQueue attorneyId={attorneyId} />
+          <ConsultationQueue attorneyId={attorneyId} attorneyProfile={attorneyProfile} />
           <ZapierSetup attorneyId={attorneyId} attorneyProfile={attorneyProfile} onSaved={(url) => setAttorneyProfile(p => ({ ...p, zapier_webhook_url: url }))} />
 
 

@@ -88,6 +88,29 @@ export default function AuthScreen() {
       if (signUpError) throw signUpError
 
       const role = data.user?.user_metadata?.role || 'client'
+
+      if (role === 'client') {
+        try {
+          const answers = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
+          const selectedAttorneyId = localStorage.getItem('migratrak_selected_attorney') || null
+          await fetch('/api/score-prospect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              email,
+              visa_type: visaType || answers.visa_type || null,
+              budget_range: answers.budget || null,
+              destination_state: destinationState || null,
+              assessment_answers: answers,
+              attorney_id: selectedAttorneyId,
+            }),
+          })
+        } catch (_) {
+          // Non-blocking — signup succeeds even if prospect scoring fails
+        }
+      }
+
       navigate(role === 'attorney' ? '/a1' : '/j1')
     } catch (err) {
       setError(err.message || 'Sign up failed. Please try again.')

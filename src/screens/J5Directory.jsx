@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', path: '/j1' },
@@ -37,6 +38,9 @@ const PROFESSIONALS = [
     reviews: null,
     expanded: true,
     primaryAction: 'Request Introduction',
+    has_account: true,
+    // TODO: set supabase_id to Mena's actual Supabase user UUID from the users table
+    supabase_id: null,
   },
   {
     id: 2,
@@ -58,6 +62,7 @@ const PROFESSIONALS = [
     reviews: 23,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 3,
@@ -79,6 +84,7 @@ const PROFESSIONALS = [
     reviews: 31,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 4,
@@ -100,6 +106,7 @@ const PROFESSIONALS = [
     reviews: 18,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 12,
@@ -121,6 +128,7 @@ const PROFESSIONALS = [
     reviews: 14,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 5,
@@ -142,6 +150,7 @@ const PROFESSIONALS = [
     reviews: 14,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 13,
@@ -163,6 +172,7 @@ const PROFESSIONALS = [
     reviews: 9,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 14,
@@ -184,6 +194,7 @@ const PROFESSIONALS = [
     reviews: 31,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 15,
@@ -205,6 +216,7 @@ const PROFESSIONALS = [
     reviews: 19,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 6,
@@ -226,6 +238,7 @@ const PROFESSIONALS = [
     reviews: 12,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 7,
@@ -247,6 +260,7 @@ const PROFESSIONALS = [
     reviews: 9,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 8,
@@ -268,6 +282,7 @@ const PROFESSIONALS = [
     reviews: 22,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
   {
     id: 9,
@@ -290,6 +305,7 @@ const PROFESSIONALS = [
     reviews: 24,
     expanded: false,
     primaryAction: 'Book appointment',
+    has_account: false,
   },
   {
     id: 10,
@@ -312,6 +328,7 @@ const PROFESSIONALS = [
     reviews: 19,
     expanded: false,
     primaryAction: 'Book appointment',
+    has_account: false,
   },
   {
     id: 11,
@@ -333,6 +350,7 @@ const PROFESSIONALS = [
     reviews: 14,
     expanded: false,
     primaryAction: 'Request Introduction',
+    has_account: false,
   },
 ]
 
@@ -389,6 +407,69 @@ function SpecialtyPill({ label }) {
 function ProfessionalCard({ pro, initialOpen }) {
   const [open, setOpen] = useState(initialOpen)
   const [requested, setRequested] = useState(false)
+  const [requesting, setRequesting] = useState(false)
+
+  async function handleRequest() {
+    if (requested || requesting) return
+    setRequesting(true)
+
+    try {
+      // Always store the selection in localStorage for D-flow pre-signup path
+      try {
+        localStorage.setItem('migratrak_selected_attorney', pro.has_account ? (pro.supabase_id || '') : '')
+      } catch (_) {}
+
+      // Check if user is currently logged in
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        // Fetch user profile for prospect data
+        const { data: profile } = await supabase.from('users').select('name, email, visa_type, role').eq('id', user.id).single()
+
+        if (pro.has_account && pro.supabase_id) {
+          // Attorney has a MigraTrak account — create prospect record linked to them
+          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} } })()
+          await fetch('/api/score-prospect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: profile?.name || user.email,
+              email: profile?.email || user.email,
+              visa_type: profile?.visa_type || answers.visa_type || null,
+              budget_range: answers.budget || null,
+              destination_state: null,
+              assessment_answers: answers,
+              attorney_id: pro.supabase_id,
+            }),
+          })
+        } else {
+          // Professional has no MigraTrak account — send intro email to hello@migratrak.app
+          const answers = (() => { try { return JSON.parse(localStorage.getItem('migratrak_answers') || '{}') } catch (_) { return {} } })()
+          await fetch('/api/request-intro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prospect_name: profile?.name || user.email,
+              prospect_email: profile?.email || user.email,
+              visa_type: profile?.visa_type || null,
+              budget_range: answers.budget || null,
+              ai_note: null,
+              professional_name: pro.name,
+              professional_firm: pro.firm || null,
+              professional_category: pro.category || null,
+            }),
+          })
+        }
+      }
+      // If not logged in: localStorage already set above — handled by score-prospect after signup
+      setRequested(true)
+    } catch (_) {
+      // Still mark as requested even if backend fails — don't block the user
+      setRequested(true)
+    } finally {
+      setRequesting(false)
+    }
+  }
 
   return (
     <div
@@ -546,14 +627,16 @@ function ProfessionalCard({ pro, initialOpen }) {
             </div>
             {/* Primary action */}
             <button
-              onClick={() => setRequested(true)}
+              onClick={handleRequest}
+              disabled={requesting}
               className="w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
               style={{
                 backgroundColor: requested ? '#D1FAE5' : '#F0A500',
                 color: requested ? '#1A7A4A' : '#0D2B4E',
+                opacity: requesting ? 0.7 : 1,
               }}
             >
-              {requested ? `✓ ${pro.primaryAction || 'Request Introduction'} confirmed` : `${pro.primaryAction || 'Request Introduction'} →`}
+              {requesting ? 'Sending…' : requested ? `✓ ${pro.primaryAction || 'Request Introduction'} confirmed` : `${pro.primaryAction || 'Request Introduction'} →`}
             </button>
           </div>
         </div>
@@ -563,14 +646,16 @@ function ProfessionalCard({ pro, initialOpen }) {
       {!open && (
         <div className="flex gap-2 px-5 pb-4">
           <button
-            onClick={() => setRequested(true)}
+            onClick={handleRequest}
+            disabled={requesting}
             className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
             style={{
               backgroundColor: requested ? '#D1FAE5' : '#F0A500',
               color: requested ? '#1A7A4A' : '#0D2B4E',
+              opacity: requesting ? 0.7 : 1,
             }}
           >
-            {requested ? '✓ Done' : (pro.primaryAction || 'Request Intro') + ' →'}
+            {requesting ? '…' : requested ? '✓ Done' : (pro.primaryAction || 'Request Intro') + ' →'}
           </button>
         </div>
       )}
