@@ -1608,15 +1608,13 @@ function IntroModal({ pro, prospect, introEmail, onClose }) {
             </div>
           )}
 
-          {prospect && (
-            <button
-              onClick={() => generateScorecardPDF(prospect, pro.name, pro.firm)}
-              className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
-              style={{ backgroundColor: '#F1F5F9', color: '#4A5568', border: '1px solid #E2E8F0' }}
-            >
-              📄 Download scorecard PDF
-            </button>
-          )}
+          <button
+            onClick={() => generateScorecardPDF(prospect, pro.name, pro.firm)}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+            style={{ backgroundColor: '#F1F5F9', color: '#4A5568', border: '1px solid #E2E8F0' }}
+          >
+            📄 Download scorecard PDF
+          </button>
         </div>
       </div>
     </div>
@@ -2046,15 +2044,6 @@ export default function J5Directory() {
           ))
         )}
 
-        {/* Footer note */}
-        <div
-          className="rounded-2xl px-4 py-4 text-center"
-          style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}
-        >
-          <p className="text-xs leading-relaxed" style={{ color: '#0D2B4E' }}>
-            All professionals listed have been reviewed by the MigraTrak team. MigraTrak may receive a referral fee. This does not affect the quality or independence of our recommendations.
-          </p>
-        </div>
       </div>
 
       <TabBar active="directory" />
