@@ -94,7 +94,7 @@ export default function PrivacyScreen() {
         <p className="text-xs text-center leading-relaxed" style={{ color: '#94A3B8' }}>
           © 2026 MigraTrak — FieldCore Holdings. All rights reserved.
         </p>
-        <button onClick={() => navigate(-1)} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
+        <button onClick={() => window.history.length <= 1 ? navigate('/') : navigate(-1)} className="text-sm text-center" style={{ color: '#A0AEC0' }}>
           ← Back
         </button>
       </div>
