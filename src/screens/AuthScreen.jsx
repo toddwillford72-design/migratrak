@@ -209,14 +209,18 @@ export default function AuthScreen() {
           {mode === 'signup' ? 'Create your account' : 'Welcome back'}
         </h1>
         <p className="text-sm mt-1" style={{ color: '#A0B4C8' }}>
-          {mode === 'signup' ? 'Start tracking your US immigration journey' : 'Sign in to MigraTrak'}
+          {mode === 'signin'
+            ? 'Sign in to MigraTrak'
+            : userType === 'attorney'
+              ? 'Manage your immigration practice'
+              : 'Start tracking your US immigration journey'}
         </p>
       </div>
 
-      {/* Attorney portal label */}
-      {isAttorneyPortal && (
+      {/* Attorney portal label — only shown when Immigration Professional is selected */}
+      {mode === 'signup' && userType === 'attorney' && (
         <p className="text-center mt-4 text-xs font-semibold tracking-widest uppercase" style={{ color: '#4A9FD4' }}>
-          Attorney Portal Login
+          Attorney Portal
         </p>
       )}
 
