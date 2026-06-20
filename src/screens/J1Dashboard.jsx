@@ -579,6 +579,23 @@ export default function J1Dashboard() {
                   </svg>
                   <span className="text-sm font-medium">Settings</span>
                 </button>
+                <div className="px-4 py-3 flex gap-3" style={{ borderBottom: '1px solid #E2E8F0' }}>
+                  <button
+                    onClick={() => { navigate('/terms'); setMenuOpen(false) }}
+                    className="text-xs underline"
+                    style={{ color: '#94A3B8' }}
+                  >
+                    Terms of Service
+                  </button>
+                  <span className="text-xs" style={{ color: '#E2E8F0' }}>|</span>
+                  <button
+                    onClick={() => { navigate('/privacy'); setMenuOpen(false) }}
+                    className="text-xs underline"
+                    style={{ color: '#94A3B8' }}
+                  >
+                    Privacy Policy
+                  </button>
+                </div>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-3 px-4 text-left transition-colors active:bg-gray-50 rounded-b-xl"

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 const VISA_OPTIONS = [
@@ -42,6 +42,7 @@ export default function AuthScreen() {
   // Attorney-only field
   const [firmName, setFirmName] = useState('')
 
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -51,6 +52,7 @@ export default function AuthScreen() {
     if (!name.trim()) { setError('Please enter your name.'); return }
     if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email.'); return }
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (!termsAccepted) { setError('Please accept the Terms of Service and Privacy Policy to continue.'); return }
 
     setLoading(true)
     try {
@@ -404,13 +406,30 @@ export default function AuthScreen() {
               </p>
             )}
 
-            <p className="text-xs leading-relaxed" style={{ color: '#718096' }}>
-              By creating an account you agree to our Terms of Service. MigraTrak provides educational information only — not legal advice.
-            </p>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={e => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 flex-shrink-0"
+                style={{ width: 18, height: 18, accentColor: '#1B5FA8' }}
+              />
+              <span className="text-xs leading-relaxed" style={{ color: '#718096' }}>
+                I have read and agree to the{' '}
+                <Link to="/terms" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: '#1B5FA8' }}>
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="underline font-semibold" style={{ color: '#1B5FA8' }}>
+                  Privacy Policy
+                </Link>
+                . MigraTrak provides educational information only — not legal advice.
+              </span>
+            </label>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !termsAccepted}
               className="w-full py-4 rounded-2xl text-base font-bold transition-all active:scale-95 disabled:opacity-60"
               style={{ backgroundColor: '#F0A500', color: '#0D2B4E' }}
             >

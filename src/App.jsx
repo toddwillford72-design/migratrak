@@ -23,6 +23,8 @@ import AttyClientEntry from './screens/AttyClientEntry'
 import NavBar from './components/NavBar'
 import AuthScreen from './screens/AuthScreen'
 import ProtectedRoute from './components/ProtectedRoute'
+import TermsScreen from './screens/TermsScreen'
+import PrivacyScreen from './screens/PrivacyScreen'
 import './index.css'
 
 function ScrollToTop() {
@@ -54,7 +56,8 @@ function Layout({ authReady, authedPath }) {
   const location = useLocation()
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
-  const isAuth = location.pathname === '/auth'
+  const isAuth    = location.pathname === '/auth'
+  const isLegal   = location.pathname === '/terms' || location.pathname === '/privacy'
 
   // Redirect / to dashboard when session exists
   useEffect(() => {
@@ -73,7 +76,7 @@ function Layout({ authReady, authedPath }) {
   return (
     <>
       <ScrollToTop />
-      {!isLanding && !isAuth && <NavBar onAICoach={() => navigate('/j4')} />}
+      {!isLanding && !isAuth && !isLegal && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
         <Route path="/"   element={<D1Landing />} />
         <Route path="/d2" element={<D2Assessment />} />
@@ -95,8 +98,10 @@ function Layout({ authReady, authedPath }) {
         <Route path="/a2" element={<ProtectedRoute allowedRole="attorney"><A2Coming /></ProtectedRoute>} />
         <Route path="/a3" element={<ProtectedRoute allowedRole="attorney"><A3Invite /></ProtectedRoute>} />
         <Route path="/attorney-client" element={<AttyClientEntry />} />
+        <Route path="/terms"   element={<TermsScreen />} />
+        <Route path="/privacy" element={<PrivacyScreen />} />
       </Routes>
-      <GlobalFooter />
+      {!isLegal && <GlobalFooter />}
     </>
   )
 }
