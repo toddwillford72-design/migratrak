@@ -13,6 +13,8 @@ const VISA_OPTIONS = [
   { value: 'eb2niw', label: 'EB-2 NIW (National Interest Waiver)' },
 ]
 
+const VISA_TYPES_HANDLED = ['E-2', 'EB-5', 'TN', 'L-1', 'H-1B', 'O-1', 'K-1', 'EB-2 NIW']
+
 export default function AuthScreen() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,12 +41,24 @@ export default function AuthScreen() {
   const [originCountry, setOriginCountry] = useState('Canada')
   const [destinationState, setDestinationState] = useState(prefill.destination_state || '')
 
-  // Attorney-only field
+  // Attorney-only fields
   const [firmName, setFirmName] = useState('')
+  const [officeAddress, setOfficeAddress] = useState('')
+  const [officeCity, setOfficeCity] = useState('')
+  const [officeState, setOfficeState] = useState('')
+  const [visaTypesHandled, setVisaTypesHandled] = useState([])
+  const [barNumber, setBarNumber] = useState('')
+  const [barState, setBarState] = useState('')
+  const [phone, setPhone] = useState('')
+  const [languagesSpoken, setLanguagesSpoken] = useState('')
 
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  function toggleVisaType(v) {
+    setVisaTypesHandled(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v])
+  }
 
   async function handleSignUp(e) {
     e.preventDefault()
@@ -56,37 +70,58 @@ export default function AuthScreen() {
 
     setLoading(true)
     try {
-      const signUpOptions = userType === 'client'
-        ? {
-            email, password,
-            options: {
-              data: {
-                role: 'client',
-                name,
-                visa_type: visaType || null,
-                origin_country: originCountry || 'Canada',
-                destination_state: destinationState || null,
-                family_size: null,
-              }
-            }
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: userType,
+            name,
           }
-        : {
-            email, password,
-            options: {
-              data: {
-                role: 'attorney',
-                name,
-                firm_name: firmName || null,
-              }
-            }
-          }
-
-      const { data, error: signUpError } = await supabase.auth.signUp(signUpOptions)
+        }
+      })
       if (signUpError) throw signUpError
 
-      const role = data.user?.user_metadata?.role || 'client'
+      // Explicitly insert the users row — there is no DB trigger for this.
+      // For clients, status = 'active'. For attorneys, status = 'pending_review'
+      // (attorney won't appear in public directory until manually approved).
+      const userId = data.user?.id
+      if (userId) {
+        const usersRow = userType === 'client'
+          ? {
+              id: userId,
+              email,
+              name,
+              role: 'client',
+              status: 'active',
+              visa_type: visaType || null,
+              origin_country: originCountry || 'Canada',
+              destination_state: destinationState || null,
+              family_size: null,
+            }
+          : {
+              id: userId,
+              email,
+              name,
+              role: 'attorney',
+              status: 'pending_review',
+              firm_name: firmName || null,
+              office_address: officeAddress || null,
+              office_city: officeCity || null,
+              office_state: officeState || null,
+              visa_types_handled: visaTypesHandled.length > 0 ? visaTypesHandled : null,
+              bar_number: barNumber || null,
+              bar_state: barState || null,
+              phone: phone || null,
+              languages_spoken: languagesSpoken || null,
+            }
+        const { error: profileError } = await supabase
+          .from('users')
+          .upsert(usersRow, { onConflict: 'id' })
+        if (profileError) console.error('Profile row insert failed:', profileError)
+      }
 
-      if (role === 'client') {
+      if (userType === 'client') {
         try {
           const answers = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
           const selectedAttorneyId = localStorage.getItem('migratrak_selected_attorney') || null
@@ -108,7 +143,7 @@ export default function AuthScreen() {
         }
       }
 
-      navigate(role === 'attorney' ? '/a1' : '/j1')
+      navigate(userType === 'attorney' ? '/a1' : '/j1')
     } catch (err) {
       setError(err.message || 'Sign up failed. Please try again.')
     } finally {
@@ -137,6 +172,30 @@ export default function AuthScreen() {
       setLoading(false)
     }
   }
+
+  const eyeOpen = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+    </svg>
+  )
+  const eyeOff = (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  )
+
+  const passwordToggle = (
+    <button
+      type="button"
+      onClick={() => setShowPassword(v => !v)}
+      style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0' }}
+      aria-label={showPassword ? 'Hide password' : 'Show password'}
+    >
+      {showPassword ? eyeOff : eyeOpen}
+    </button>
+  )
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F7F9FC' }}>
@@ -214,18 +273,7 @@ export default function AuthScreen() {
                   style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF', paddingRight: 44 }}
                   autoComplete="current-password"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0' }}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  )}
-                </button>
+                {passwordToggle}
               </div>
             </div>
 
@@ -245,7 +293,7 @@ export default function AuthScreen() {
             </button>
 
             <p className="text-center text-sm" style={{ color: '#4A5568' }}>
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <button type="button" onClick={() => { setMode('signup'); setError('') }} className="font-semibold" style={{ color: '#1B5FA8' }}>
                 Sign up free
               </button>
@@ -288,6 +336,7 @@ export default function AuthScreen() {
               </div>
             </div>
 
+            {/* Shared: name */}
             <div>
               <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Full name</label>
               <input
@@ -301,6 +350,7 @@ export default function AuthScreen() {
               />
             </div>
 
+            {/* Shared: email */}
             <div>
               <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Email</label>
               <input
@@ -314,6 +364,7 @@ export default function AuthScreen() {
               />
             </div>
 
+            {/* Shared: password */}
             <div>
               <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Password</label>
               <div style={{ position: 'relative' }}>
@@ -326,22 +377,11 @@ export default function AuthScreen() {
                   style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF', paddingRight: 44 }}
                   autoComplete="new-password"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: '#A0AEC0' }}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                  )}
-                </button>
+                {passwordToggle}
               </div>
             </div>
 
-            {/* Client-specific fields */}
+            {/* ── Client-specific fields ── */}
             {userType === 'client' && (
               <>
                 <div>
@@ -372,7 +412,7 @@ export default function AuthScreen() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Destination state (optional)</label>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Destination state <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
                   <input
                     type="text"
                     value={destinationState}
@@ -385,19 +425,147 @@ export default function AuthScreen() {
               </>
             )}
 
-            {/* Attorney-specific field */}
+            {/* ── Attorney-specific fields ── */}
             {userType === 'attorney' && (
-              <div>
-                <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Firm name</label>
-                <input
-                  type="text"
-                  value={firmName}
-                  onChange={e => setFirmName(e.target.value)}
-                  placeholder="Your law firm (optional)"
-                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
-                  style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
-                />
-              </div>
+              <>
+                {/* Practice name */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Practice / firm name</label>
+                  <input
+                    type="text"
+                    value={firmName}
+                    onChange={e => setFirmName(e.target.value)}
+                    placeholder="Your law firm or practice name"
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                    style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                  />
+                </div>
+
+                {/* Office address */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Office address <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
+                  <input
+                    type="text"
+                    value={officeAddress}
+                    onChange={e => setOfficeAddress(e.target.value)}
+                    placeholder="123 Main St, Suite 100"
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                    style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                  />
+                </div>
+
+                {/* City + State */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>City <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
+                    <input
+                      type="text"
+                      value={officeCity}
+                      onChange={e => setOfficeCity(e.target.value)}
+                      placeholder="Miami"
+                      className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                      style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                    />
+                  </div>
+                  <div style={{ width: 90 }}>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>State</label>
+                    <input
+                      type="text"
+                      value={officeState}
+                      onChange={e => setOfficeState(e.target.value)}
+                      placeholder="FL"
+                      maxLength={2}
+                      className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                      style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Visa types handled */}
+                <div>
+                  <label className="block text-xs font-semibold mb-2" style={{ color: '#0D2B4E' }}>Visa types handled <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(select all that apply)</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    {VISA_TYPES_HANDLED.map(v => {
+                      const selected = visaTypesHandled.includes(v)
+                      return (
+                        <button
+                          type="button"
+                          key={v}
+                          onClick={() => toggleVisaType(v)}
+                          className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95"
+                          style={{
+                            backgroundColor: selected ? '#1B5FA8' : '#F1F5F9',
+                            color: selected ? '#FFFFFF' : '#4A5568',
+                            border: '1px solid ' + (selected ? '#1B5FA8' : '#E2E8F0'),
+                          }}
+                        >
+                          {v}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Bar number + Bar state */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Bar number <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
+                    <input
+                      type="text"
+                      value={barNumber}
+                      onChange={e => setBarNumber(e.target.value)}
+                      placeholder="e.g. 123456"
+                      className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                      style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                    />
+                  </div>
+                  <div style={{ width: 90 }}>
+                    <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Bar state</label>
+                    <input
+                      type="text"
+                      value={barState}
+                      onChange={e => setBarState(e.target.value)}
+                      placeholder="FL"
+                      maxLength={2}
+                      className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                      style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Phone <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="(555) 000-0000"
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                    style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                  />
+                </div>
+
+                {/* Languages */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1" style={{ color: '#0D2B4E' }}>Languages spoken <span style={{ color: '#A0AEC0', fontWeight: 400 }}>(optional)</span></label>
+                  <input
+                    type="text"
+                    value={languagesSpoken}
+                    onChange={e => setLanguagesSpoken(e.target.value)}
+                    placeholder="e.g. English, Spanish, French"
+                    className="w-full px-4 py-3 rounded-xl border text-sm outline-none"
+                    style={{ borderColor: '#CBD5E0', backgroundColor: '#FFFFFF' }}
+                  />
+                </div>
+
+                {/* Pending review notice */}
+                <div className="rounded-xl px-4 py-3" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}>
+                  <p className="text-xs leading-relaxed" style={{ color: '#92400E' }}>
+                    <strong>Profile review:</strong> Your account will be active immediately. Your profile will appear in the public specialist directory after a brief manual review by the MigraTrak team.
+                  </p>
+                </div>
+              </>
             )}
 
             {error && (
