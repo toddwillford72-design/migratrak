@@ -319,13 +319,22 @@ function DocRow({ doc, isLast, onCycle, onView, onUploadClick, uploading, upload
             View
           </button>
         ) : showUpload ? (
-          <button
-            onClick={() => onUploadClick?.(doc.id)}
-            className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
-            style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
-          >
-            Upload
-          </button>
+          <div className="flex flex-col gap-1 items-end">
+            <button
+              onClick={() => onCycle?.(doc)}
+              className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
+              style={{ backgroundColor: '#F1F5F9', color: '#4A5568' }}
+            >
+              Mark ready
+            </button>
+            <button
+              onClick={() => onUploadClick?.(doc.id)}
+              className="text-xs font-bold px-2 py-1 rounded-full flex-shrink-0 transition-all active:scale-95"
+              style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8' }}
+            >
+              Upload file
+            </button>
+          </div>
         ) : null}
         <button
           onClick={() => onCycle?.(doc)}
@@ -603,6 +612,14 @@ export default function J3Documents() {
       </div>
 
       <div className="flex flex-col gap-4 px-4 pt-4 pb-40">
+
+        {/* Beta banner */}
+        <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D' }}>
+          <p className="text-xs font-bold mb-0.5" style={{ color: '#92400E' }}>Beta — document uploads are optional</p>
+          <p className="text-xs leading-relaxed" style={{ color: '#78350F' }}>
+            You can track checklist progress without uploading sensitive files. Tap "Mark ready" to record a document as complete, or "Upload file" when you're ready to attach it.
+          </p>
+        </div>
 
         {/* Load error */}
         {loadError && (

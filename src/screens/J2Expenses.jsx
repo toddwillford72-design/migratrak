@@ -113,6 +113,8 @@ function AddExpensePanel({ onClose, onSave, userId }) {
   const [uploading, setUploading]       = useState(false)
   const [receiptPreview, setReceiptPreview] = useState(null)
   const [receiptError, setReceiptError] = useState(null)
+  const [receiptSkipped, setReceiptSkipped] = useState(false)
+  const receiptFileInputRef             = useRef(null)
   const timerRef                        = useRef(null)
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
@@ -316,14 +318,47 @@ function AddExpensePanel({ onClose, onSave, userId }) {
               <label className="text-xs font-extrabold uppercase tracking-wider" style={{ color: '#4A5568' }}>
                 Attach Receipt <span className="font-normal normal-case" style={{ color: '#A0AEC0' }}>(optional)</span>
               </label>
+              {!form.receipt_path && !uploading && !receiptSkipped && (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => receiptFileInputRef.current?.click()}
+                    className="flex-1 py-3 rounded-xl text-xs font-bold transition-all active:scale-95"
+                    style={{ border: '2px dashed #CBD5E0', backgroundColor: '#F7F9FC', color: '#4A5568' }}
+                  >
+                    📎 Attach photo or PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReceiptSkipped(true)}
+                    className="flex-1 py-3 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                    style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#A0AEC0' }}
+                  >
+                    Skip — no receipt
+                  </button>
+                </div>
+              )}
+              {!form.receipt_path && !uploading && receiptSkipped && (
+                <div className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ backgroundColor: '#F7F9FC', border: '1px solid #E2E8F0' }}>
+                  <span className="text-xs" style={{ color: '#A0AEC0' }}>No receipt — logging without one</span>
+                  <button
+                    type="button"
+                    onClick={() => setReceiptSkipped(false)}
+                    className="text-xs font-semibold"
+                    style={{ color: '#1B5FA8' }}
+                  >
+                    Undo
+                  </button>
+                </div>
+              )}
               <input
+                ref={receiptFileInputRef}
                 type="file"
                 accept="image/*,application/pdf"
                 capture="environment"
                 onChange={handleReceiptChange}
                 disabled={uploading}
-                className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                style={{ border: '2px solid #E2E8F0', backgroundColor: '#F7F9FC', color: '#0D2B4E' }}
+                className="hidden"
               />
             </div>
 
