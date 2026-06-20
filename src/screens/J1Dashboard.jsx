@@ -70,6 +70,63 @@ function TabBar({ active }) {
   )
 }
 
+// ── Follow-up banner ──────────────────────────────────────────────────────────
+function FollowupBanner({ prospect, step, onContactMethod, onResponse, onDismiss }) {
+  const name = prospect.professional_name || 'the attorney'
+  if (step === 1) {
+    return (
+      <div className="rounded-2xl px-4 py-4 flex flex-col gap-3" style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}>
+        <div>
+          <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>Following up — {name}</p>
+          <p className="text-sm mt-1" style={{ color: '#1B5FA8' }}>How did you reach out to {name}?</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => onContactMethod('phone')}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+            style={{ backgroundColor: '#0D2B4E', color: '#FFFFFF' }}
+          >📞 Phone</button>
+          <button
+            onClick={() => onContactMethod('email')}
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+            style={{ backgroundColor: '#0D2B4E', color: '#FFFFFF' }}
+          >✉️ Email</button>
+        </div>
+        <button
+          onClick={onDismiss}
+          className="text-xs font-semibold py-1"
+          style={{ color: '#94A3B8' }}
+        >Not yet — remind me later</button>
+      </div>
+    )
+  }
+  return (
+    <div className="rounded-2xl px-4 py-4 flex flex-col gap-3" style={{ backgroundColor: '#EBF4FB', border: '1px solid #4A9FD4' }}>
+      <div>
+        <p className="text-sm font-extrabold" style={{ color: '#0D2B4E' }}>Did you connect with {name}?</p>
+        <p className="text-xs mt-0.5" style={{ color: '#4A5568' }}>Tap to update your intro status</p>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => onResponse('yes')}
+          className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#1A7A4A', color: '#FFFFFF' }}
+        >✓ Yes</button>
+        <button
+          onClick={() => onResponse('not_yet')}
+          className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#F1F5F9', color: '#4A5568' }}
+        >Not yet</button>
+        <button
+          onClick={() => onResponse('no')}
+          className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+          style={{ backgroundColor: '#FEE2E2', color: '#DC2626' }}
+        >No</button>
+      </div>
+    </div>
+  )
+}
+
 // ── Alert card ────────────────────────────────────────────────────────────────
 function AlertCard({ alert, onDismiss }) {
   if (alert.dismissed) return null
@@ -241,6 +298,9 @@ export default function J1Dashboard() {
   const [confirmModal, setConfirmModal] = useState(null) // { id, title }
   const [saving, setSaving] = useState(false)
   const [dismissedAlertIds, setDismissedAlertIds] = useState([])
+  const [staleProspect, setStaleProspect] = useState(null)
+  const [followupStep, setFollowupStep] = useState(1)
+  const [followupContact, setFollowupContact] = useState(null)
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -317,6 +377,18 @@ export default function J1Dashboard() {
       } else {
         setMilestones(mRows || [])
       }
+
+      // Check for stale intro-sent prospects (72h+ old, followup_count < 2)
+      try {
+        const queue = JSON.parse(localStorage.getItem('migratrak_intro_queue') || '[]')
+        const cutoff = Date.now() - 72 * 60 * 60 * 1000
+        const stale = queue.find(item =>
+          item.intro_sent_at &&
+          new Date(item.intro_sent_at).getTime() < cutoff &&
+          (item.followup_count || 0) < 2
+        )
+        if (stale) setStaleProspect(stale)
+      } catch {}
     })
   }, [])
 
@@ -470,6 +542,43 @@ export default function J1Dashboard() {
     setDismissedAlertIds((prev) => [...prev, id])
   }
 
+  function updateIntroQueue(prospectId, updates) {
+    try {
+      const queue = JSON.parse(localStorage.getItem('migratrak_intro_queue') || '[]')
+      localStorage.setItem('migratrak_intro_queue', JSON.stringify(
+        queue.map(item => item.id === prospectId ? { ...item, ...updates } : item)
+      ))
+    } catch {}
+  }
+
+  function handleFollowupContactMethod(method) {
+    setFollowupContact(method)
+    updateIntroQueue(staleProspect.id, { contact_method: method })
+    try { supabase.from('prospects').update({ contact_method: method }).eq('id', staleProspect.id) } catch {}
+    setFollowupStep(2)
+  }
+
+  function handleFollowupResponse(response) {
+    if (response === 'yes') {
+      updateIntroQueue(staleProspect.id, { status: 'consultation_confirmed' })
+      try { supabase.from('prospects').update({ intro_status: 'consultation_confirmed' }).eq('id', staleProspect.id) } catch {}
+    } else if (response === 'no') {
+      const newCount = (staleProspect.followup_count || 0) + 1
+      updateIntroQueue(staleProspect.id, { followup_count: newCount, status: newCount >= 2 ? 'no_response' : undefined })
+      try { supabase.from('prospects').update({ intro_status: 'no_response', followup_count: newCount }).eq('id', staleProspect.id) } catch {}
+    }
+    // 'not_yet' or after any final response — clear banner
+    setStaleProspect(null)
+    setFollowupStep(1)
+    setFollowupContact(null)
+  }
+
+  function handleFollowupDismiss() {
+    setStaleProspect(null)
+    setFollowupStep(1)
+    setFollowupContact(null)
+  }
+
   // Map DB row to display shape for MilestoneRow
   function rowToDisplay(m) {
     const statusMap = { complete: 'done', in_progress: 'active', upcoming: 'upcoming' }
@@ -498,6 +607,19 @@ export default function J1Dashboard() {
           >
             Got it
           </button>
+        </div>
+      )}
+
+      {/* Attorney intro follow-up banner */}
+      {staleProspect && (
+        <div className="px-4 pt-3">
+          <FollowupBanner
+            prospect={staleProspect}
+            step={followupStep}
+            onContactMethod={handleFollowupContactMethod}
+            onResponse={handleFollowupResponse}
+            onDismiss={handleFollowupDismiss}
+          />
         </div>
       )}
 

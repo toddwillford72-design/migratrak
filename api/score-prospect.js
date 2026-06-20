@@ -173,7 +173,45 @@ function hasAgeOutRisk(answers) {
   return answers.children === 'Yes — aged 18, 19, or 20'
 }
 
-// ── Anthropic note generation ─────────────────────────────────────────────────
+// ── Anthropic note + intro email generation ──────────────────────────────────
+
+async function generateIntroEmail(prospectName, visaType, score, fitRating, answers, attorneyName, attorneyFirm) {
+  if (!ANTHROPIC_API_KEY) return null
+  const budgetStr  = answers.budget || 'undisclosed'
+  const motivation = answers.motivation || 'not specified'
+  const firstName  = prospectName.split(' ')[0] || prospectName
+
+  const prompt = `Write a short professional email from ${prospectName} to immigration attorney ${attorneyName}${attorneyFirm ? ` at ${attorneyFirm}` : ''} requesting a consultation.
+
+Context:
+- Visa goal: ${(visaType || 'US immigration').toUpperCase()}
+- Readiness score: ${score}/100 (${fitRating} fit)
+- Budget context: ${budgetStr}
+- Situation: ${motivation}
+- Found attorney via MigraTrak (beta immigration planning tool)
+
+Format exactly: first line "Subject: [subject line]", blank line, then 3 sentences of body, signed with just "${firstName}". Warm but professional. Mention MigraTrak once. No legal advice.`
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 250, messages: [{ role: 'user', content: prompt }] }),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    const text = data.content?.[0]?.text?.trim() || ''
+    const lines = text.split('\n')
+    const subjectIdx = lines.findIndex(l => l.toLowerCase().startsWith('subject:'))
+    const subject = subjectIdx >= 0
+      ? lines[subjectIdx].replace(/^subject:\s*/i, '').trim()
+      : `Consultation Request — ${(visaType || 'Immigration').toUpperCase()}`
+    const body = lines.slice(subjectIdx + 1).join('\n').trim()
+    return { subject, body }
+  } catch {
+    return null
+  }
+}
 
 async function generateConsultationNote(name, visaType, score, fitRating, answers) {
   const fallback = `${name} is pursuing a ${visaType?.toUpperCase() || 'visa'} — readiness score ${score}/100 (${fitRating}).`
@@ -227,6 +265,7 @@ export default async function handler(req, res) {
     destination_state,
     assessment_answers,
     attorney_id,
+    professional_name,
   } = req.body
 
   if (!name || !email) {
@@ -252,8 +291,14 @@ export default async function handler(req, res) {
   const familySize = deriveFamilySize(answers)
   const ageOutRisk = hasAgeOutRisk(answers)
 
-  // ── AI consultation note ───────────────────────────────────────────────────
-  const aiNote = await generateConsultationNote(name, visa_type, totalScore, fitRating, answers)
+  // ── AI consultation note + intro email (parallel) ─────────────────────────
+  const attorneyDisplayName = professional_name || null
+  const [aiNote, introEmail] = await Promise.all([
+    generateConsultationNote(name, visa_type, totalScore, fitRating, answers),
+    attorneyDisplayName
+      ? generateIntroEmail(name, visa_type, totalScore, fitRating, answers, attorneyDisplayName, null)
+      : Promise.resolve(null),
+  ])
 
   // ── Insert prospect row ────────────────────────────────────────────────────
   const headers = {
@@ -277,6 +322,7 @@ export default async function handler(req, res) {
     ai_consultation_note:  aiNote,
     assessment_answers:    answers,
     attorney_id:           attorney_id || null,
+    professional_name:     professional_name || null,
     status:                'pending',
     age_out_risk:          ageOutRisk,
     score_breakdown: {
@@ -301,7 +347,7 @@ export default async function handler(req, res) {
     }
 
     const [prospect] = await insertRes.json()
-    return res.status(201).json({ success: true, prospect })
+    return res.status(201).json({ success: true, prospect, intro_email: introEmail })
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Failed to create prospect' })
   }
