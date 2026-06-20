@@ -49,8 +49,8 @@ const PROFESSIONALS = [
     title: 'Immigration Attorney',
     firm: 'HarrisLaw P.A.',
     location: 'Miami, FL',
-    address: null,
-    phones: [],
+    address: '25 SE 2nd Avenue, Suite 828, Miami, FL 33131',
+    phones: [{ label: 'Office', number: '(305) 792-8677' }],
     hours: null,
     specialties: [],
     languages: null,
@@ -64,6 +64,7 @@ const PROFESSIONALS = [
     expanded: false,
     primaryAction: 'Request Introduction',
     has_account: false,
+    email: 'info@harrislawpa.com',
   },
   {
     id: 55,
