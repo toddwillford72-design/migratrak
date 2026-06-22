@@ -322,7 +322,6 @@ export default async function handler(req, res) {
     ai_consultation_note:  aiNote,
     assessment_answers:    answers,
     attorney_id:           attorney_id || null,
-    professional_name:     professional_name || null,
     status:                'pending',
     age_out_risk:          ageOutRisk,
     score_breakdown: {
