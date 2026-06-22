@@ -342,6 +342,8 @@ export default async function handler(req, res) {
 
     if (!insertRes.ok) {
       const body = await insertRes.text()
+      console.error('[score-prospect] Supabase insert failed:', body)
+      console.error('[score-prospect] prospectRow keys:', Object.keys(prospectRow))
       return res.status(500).json({ error: `Failed to create prospect: ${body}` })
     }
 
