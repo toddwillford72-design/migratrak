@@ -76,6 +76,7 @@ export default function AdminDashboard() {
     setAuthed(false);
     setData(null);
     setPasscode('');
+    setError('');
   }
 
   if (!authed) {
