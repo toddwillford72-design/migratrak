@@ -5,7 +5,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || 'FieldCore2026!';
+const ADMIN_PASSCODE = 'FieldCore2026!';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
