@@ -1717,10 +1717,11 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
         }),
       })
       const data = res.ok ? await res.json() : null
-      if (data?.prospect && onIntroReady) {
-        onIntroReady(pro, data)
+      if (data && onIntroReady) {
+        onIntroReady(pro, data, () => setRequested(true))
+      } else {
+        setRequested(true)
       }
-      setRequested(true)
     } catch {
       setRequested(true)
     } finally {
@@ -1954,10 +1955,10 @@ export default function J5Directory() {
   const initialFilter = presignup ? 'Attorneys' : (filterMap[state?.filter] ?? 'All')
   const [activeFilter, setActiveFilter] = useState(initialFilter)
   const [activeState, setActiveState] = useState('All States')
-  const [introModal, setIntroModal] = useState(null) // { pro, prospect, introEmail }
+  const [introModal, setIntroModal] = useState(null) // { pro, prospect, introEmail, onDone }
 
-  function handleIntroReady(pro, data) {
-    setIntroModal({ pro, prospect: data.prospect, introEmail: data.intro_email })
+  function handleIntroReady(pro, data, onDone) {
+    setIntroModal({ pro, prospect: data.prospect, introEmail: data.intro_email, onDone })
   }
 
   const filtered = PROFESSIONALS.filter((p) => {
@@ -2080,7 +2081,7 @@ export default function J5Directory() {
           pro={introModal.pro}
           prospect={introModal.prospect}
           introEmail={introModal.introEmail}
-          onClose={() => setIntroModal(null)}
+          onClose={() => { introModal.onDone?.(); setIntroModal(null) }}
         />
       )}
     </div>
