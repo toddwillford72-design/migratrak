@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'mt_admin_auth';
+const CODE_KEY = 'mt_admin_code';
 
 function StatCard({ label, value, sub }) {
   return (
@@ -28,7 +29,7 @@ function fmtMoney(n) {
 }
 
 export default function AdminDashboard() {
-  const [authed, setAuthed]     = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true');
+  const [authed, setAuthed]     = useState(false);
   const [passcode, setPasscode] = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
@@ -36,49 +37,15 @@ export default function AdminDashboard() {
   const [filter, setFilter]     = useState('all');
 
   useEffect(() => {
-    if (authed) {
-      const code = sessionStorage.getItem('mt_admin_code');
-      if (!code) { handleLogout(); return; }
-      fetch('/api/admin-stats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode: code }),
-      })
-        .then(r => r.json())
-        .then(json => setData(json))
-        .catch(() => handleLogout());
+    const storedCode = sessionStorage.getItem(CODE_KEY);
+    if (storedCode) {
+      fetchStats(storedCode);
     }
-  }, [authed]);
+  }, []);
 
-  async function handleLogin() {
+  async function fetchStats(code) {
+    setLoading(true);
     setError('');
-    setLoading(true);
-    try {
-      const res  = await fetch('/api/admin-stats', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ passcode }),
-      });
-      const json = await res.json();
-      if (!res.ok) { setError('Incorrect passcode.'); return; }
-      sessionStorage.setItem(STORAGE_KEY, 'true');
-      setAuthed(true);
-      setData(json);
-    } catch {
-      setError('Connection error. Try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function refresh() {
-    setLoading(true);
-    const stored = sessionStorage.getItem(STORAGE_KEY);
-    if (!stored) return;
-    // Re-fetch using the passcode from session — prompt if needed
-    // For simplicity we store the code in session too
-    const code = sessionStorage.getItem('mt_admin_code');
-    if (!code) { handleLogout(); return; }
     try {
       const res  = await fetch('/api/admin-stats', {
         method:  'POST',
@@ -86,24 +53,14 @@ export default function AdminDashboard() {
         body:    JSON.stringify({ passcode: code }),
       });
       const json = await res.json();
-      if (res.ok) setData(json);
-    } catch {}
-    finally { setLoading(false); }
-  }
-
-  async function handleLoginAndStore() {
-    setError('');
-    setLoading(true);
-    try {
-      const res  = await fetch('/api/admin-stats', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ passcode }),
-      });
-      const json = await res.json();
-      if (!res.ok) { setError('Incorrect passcode.'); return; }
+      if (!res.ok) {
+        sessionStorage.removeItem(CODE_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+        setError('Session expired. Please log in again.');
+        return;
+      }
       sessionStorage.setItem(STORAGE_KEY, 'true');
-      sessionStorage.setItem('mt_admin_code', passcode);
+      sessionStorage.setItem(CODE_KEY, code);
       setAuthed(true);
       setData(json);
     } catch {
@@ -115,13 +72,12 @@ export default function AdminDashboard() {
 
   function handleLogout() {
     sessionStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem('mt_admin_code');
+    sessionStorage.removeItem(CODE_KEY);
     setAuthed(false);
     setData(null);
     setPasscode('');
   }
 
-  // — Passcode gate —
   if (!authed) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -133,13 +89,14 @@ export default function AdminDashboard() {
             placeholder="Passcode"
             value={passcode}
             onChange={e => setPasscode(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLoginAndStore()}
+            onKeyDown={e => e.key === 'Enter' && fetchStats(passcode)}
             className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {error && <p className="text-red-500 text-xs mb-3">{error}</p>}
+          {loading && <p className="text-gray-400 text-xs mb-3">Checking...</p>}
           <button
-            onClick={handleLoginAndStore}
-            disabled={loading}
+            onClick={() => fetchStats(passcode)}
+            disabled={loading || !passcode}
             className="w-full bg-blue-600 text-white rounded-lg py-3 text-sm font-medium disabled:opacity-50"
           >
             {loading ? 'Checking…' : 'Enter'}
@@ -149,7 +106,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // — Loading state (first load, data not yet returned) —
   if (!data) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -168,14 +124,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-lg font-bold text-gray-900">MigraTrak Admin</h1>
           <p className="text-xs text-gray-400">Beta monitoring dashboard</p>
         </div>
         <div className="flex gap-3 items-center">
-          <button onClick={refresh} disabled={loading} className="text-xs text-blue-600 disabled:opacity-40">
+          <button
+            onClick={() => fetchStats(sessionStorage.getItem(CODE_KEY))}
+            disabled={loading}
+            className="text-xs text-blue-600 disabled:opacity-40"
+          >
             {loading ? 'Refreshing…' : 'Refresh'}
           </button>
           <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-gray-600">
@@ -185,8 +144,6 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-
-        {/* Stat cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard label="Total Users"    value={stats.totalUsers}    sub={`${stats.totalClients} clients · ${stats.totalAttorneys} attorneys`} />
           <StatCard label="Active (14d)"   value={stats.activeUsers}   sub="Logged in last 14 days" />
@@ -195,13 +152,12 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Expenses Logged"  value={stats.totalExpenseCount}  sub={fmtMoney(stats.totalExpenseAmount) + ' total'} />
-          <StatCard label="Docs Uploaded"    value={stats.docsUploaded}       sub={`${stats.docsPending} pending`} />
-          <StatCard label="Milestones Done"  value={stats.milestonesCompleted} sub={`of ${stats.milestonesTotal} total`} />
+          <StatCard label="Expenses Logged"   value={stats.totalExpenseCount}   sub={fmtMoney(stats.totalExpenseAmount) + ' total'} />
+          <StatCard label="Docs Uploaded"     value={stats.docsUploaded}        sub={`${stats.docsPending} pending`} />
+          <StatCard label="Milestones Done"   value={stats.milestonesCompleted} sub={`of ${stats.milestonesTotal} total`} />
           <StatCard label="Prospects Intro'd" value={stats.prospectsByStatus?.intro_sent || 0} sub={`${stats.prospectsByStatus?.none || 0} not contacted`} />
         </div>
 
-        {/* User table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900 text-sm">All Users</h2>
