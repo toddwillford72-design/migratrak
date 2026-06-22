@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'mt_admin_auth';
 
@@ -34,6 +34,21 @@ export default function AdminDashboard() {
   const [error, setError]       = useState('');
   const [data, setData]         = useState(null);
   const [filter, setFilter]     = useState('all');
+
+  useEffect(() => {
+    if (authed) {
+      const code = sessionStorage.getItem('mt_admin_code');
+      if (!code) { handleLogout(); return; }
+      fetch('/api/admin-stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code }),
+      })
+        .then(r => r.json())
+        .then(json => setData(json))
+        .catch(() => handleLogout());
+    }
+  }, [authed]);
 
   async function handleLogin() {
     setError('');
