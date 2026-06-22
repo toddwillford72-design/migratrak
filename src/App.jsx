@@ -58,7 +58,7 @@ function Layout({ authReady, authedPath }) {
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
   const isAuth    = location.pathname === '/auth'
-  const isLegal   = location.pathname === '/terms' || location.pathname === '/privacy'
+  const isLegal   = location.pathname === '/terms' || location.pathname === '/privacy' || location.pathname === '/admin'
 
   // Redirect / to dashboard when session exists
   useEffect(() => {
