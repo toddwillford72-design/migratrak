@@ -25,6 +25,7 @@ import AuthScreen from './screens/AuthScreen'
 import ProtectedRoute from './components/ProtectedRoute'
 import TermsScreen from './screens/TermsScreen'
 import PrivacyScreen from './screens/PrivacyScreen'
+import AdminDashboard from './screens/AdminDashboard'
 import './index.css'
 
 function ScrollToTop() {
@@ -100,6 +101,7 @@ function Layout({ authReady, authedPath }) {
         <Route path="/attorney-client" element={<AttyClientEntry />} />
         <Route path="/terms"   element={<TermsScreen />} />
         <Route path="/privacy" element={<PrivacyScreen />} />
+        <Route path="/admin"   element={<AdminDashboard />} />
       </Routes>
       {!isLegal && <GlobalFooter />}
     </>
