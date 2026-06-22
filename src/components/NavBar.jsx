@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
@@ -7,6 +7,13 @@ const USCIS_URL = 'https://egov.uscis.gov/casestatus/landing.do'
 export default function NavBar({ onAICoach }) {
   const navigate = useNavigate()
   const [helpOpen, setHelpOpen] = useState(false)
+  const [userEmail, setUserEmail] = useState(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserEmail(session?.user?.email ?? null)
+    })
+  }, [])
 
   async function handleSignOut() {
     try {
@@ -110,6 +117,16 @@ export default function NavBar({ onAICoach }) {
 
             {/* Divider */}
             <div style={{ borderTop: '1px solid #E2E8F0' }} />
+
+            {/* Admin link */}
+            {userEmail === 'toddwillford72@gmail.com' && (
+              <button
+                onClick={() => { setHelpOpen(false); navigate('/admin') }}
+                className="text-xs text-gray-400 hover:text-gray-600 text-left"
+              >
+                Admin
+              </button>
+            )}
 
             {/* Sign Out */}
             <button

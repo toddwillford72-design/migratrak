@@ -59,7 +59,8 @@ function Layout({ authReady, authedPath }) {
   const navigate = useNavigate()
   const isLanding = location.pathname === '/'
   const isAuth    = location.pathname === '/auth'
-  const isLegal   = location.pathname === '/terms' || location.pathname === '/privacy' || location.pathname === '/admin'
+  const isAdmin  = location.pathname === '/admin'
+  const isLegal  = location.pathname === '/terms' || location.pathname === '/privacy'
 
   // Redirect / to dashboard when session exists
   useEffect(() => {
@@ -69,7 +70,7 @@ function Layout({ authReady, authedPath }) {
   }, [authReady, authedPath, location.pathname])
 
   // Show blank while we figure out where the user should go from /
-  if (!authReady) return (
+  if (!authReady && !isAdmin) return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F7F9FC' }}>
       <div className="text-sm" style={{ color: '#4A5568' }}>Loading…</div>
     </div>
@@ -78,7 +79,7 @@ function Layout({ authReady, authedPath }) {
   return (
     <>
       <ScrollToTop />
-      {!isLanding && !isAuth && !isLegal && <NavBar onAICoach={() => navigate('/j4')} />}
+      {!isLanding && !isAuth && !isLegal && !isAdmin && <NavBar onAICoach={() => navigate('/j4')} />}
       <Routes>
         <Route path="/"   element={<D1Landing />} />
         <Route path="/d2" element={<D2Assessment />} />
@@ -104,7 +105,7 @@ function Layout({ authReady, authedPath }) {
         <Route path="/privacy" element={<PrivacyScreen />} />
         <Route path="/admin"   element={<AdminDashboard />} />
       </Routes>
-      {!isLegal && <GlobalFooter />}
+      {!isLegal && !isAdmin && <GlobalFooter />}
     </>
   )
 }
