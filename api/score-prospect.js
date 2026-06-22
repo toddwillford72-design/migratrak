@@ -157,9 +157,9 @@ function deriveComplexity(answers, visaType) {
   const highComplexityVisas   = ['eb5', 'eb2niw']
   const mediumComplexityVisas = ['e2', 'l1', 'h1b', 'o1', 'k1']
 
-  if (familyTotal >= 4 || highComplexityVisas.includes(visaType)) return 'High'
-  if (familyTotal >= 3 || mediumComplexityVisas.includes(visaType)) return 'Medium'
-  return 'Low'
+  if (familyTotal >= 4 || highComplexityVisas.includes(visaType)) return 'high'
+  if (familyTotal >= 3 || mediumComplexityVisas.includes(visaType)) return 'medium'
+  return 'low'
 }
 
 function deriveFamilySize(answers) {
@@ -286,7 +286,7 @@ export default async function handler(req, res) {
 
   const totalScore = budgetScore + pathwayScore + completenessScore + timelineScore + flagsScore
 
-  const fitRating = totalScore >= 75 ? 'Strong' : totalScore >= 50 ? 'Possible' : 'Unlikely'
+  const fitRating = totalScore >= 75 ? 'strong' : totalScore >= 50 ? 'possible' : 'unlikely'
   const complexity = deriveComplexity(answers, visa_type)
   const familySize = deriveFamilySize(answers)
   const ageOutRisk = hasAgeOutRisk(answers)

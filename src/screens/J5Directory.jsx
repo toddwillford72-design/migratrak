@@ -1441,7 +1441,7 @@ function generateScorecardPDF(prospect, proName, proFirm) {
     doc.text(proFirm, 14, 52)
   }
 
-  const fitColor = prospect.fit_rating === 'Strong' ? [26,122,74] : prospect.fit_rating === 'Possible' ? [200,120,0] : [200,40,40]
+  const fitColor = prospect.fit_rating === 'strong' ? [26,122,74] : prospect.fit_rating === 'possible' ? [200,120,0] : [200,40,40]
   doc.setDrawColor(...fitColor)
   doc.setLineWidth(0.5)
   doc.rect(14, 60, W - 28, 24)
@@ -1455,7 +1455,7 @@ function generateScorecardPDF(prospect, proName, proFirm) {
   doc.setFontSize(11)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(...fitColor)
-  doc.text(`${prospect.fit_rating} Fit`, 60, 72)
+  doc.text(`${prospect.fit_rating ? prospect.fit_rating.charAt(0).toUpperCase() + prospect.fit_rating.slice(1) : ''} Fit`, 60, 72)
   doc.setTextColor(75, 85, 99)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
@@ -1533,7 +1533,7 @@ function IntroModal({ pro, prospect, introEmail, onClose }) {
     ? `mailto:${pro.email}?subject=${encodeURIComponent(introEmail.subject)}&body=${encodeURIComponent(introEmail.body)}`
     : null
 
-  const fitColor = prospect?.fit_rating === 'Strong' ? '#1A7A4A' : prospect?.fit_rating === 'Possible' ? '#C87800' : '#DC2626'
+  const fitColor = prospect?.fit_rating === 'strong' ? '#1A7A4A' : prospect?.fit_rating === 'possible' ? '#C87800' : '#DC2626'
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} onClick={onClose}>
@@ -1564,7 +1564,7 @@ function IntroModal({ pro, prospect, introEmail, onClose }) {
             </div>
             <div className="w-px self-stretch" style={{ backgroundColor: '#E2E8F0' }} />
             <div className="text-center">
-              <p className="text-sm font-bold" style={{ color: fitColor }}>{prospect.fit_rating}</p>
+              <p className="text-sm font-bold" style={{ color: fitColor }}>{prospect.fit_rating ? prospect.fit_rating.charAt(0).toUpperCase() + prospect.fit_rating.slice(1) : ''}</p>
               <p className="text-xs" style={{ color: '#4A5568' }}>fit</p>
             </div>
             <div className="w-px self-stretch" style={{ backgroundColor: '#E2E8F0' }} />
