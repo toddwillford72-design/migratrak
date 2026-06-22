@@ -997,45 +997,6 @@ export default function A1AttorneyDashboard() {
   const [attorneyId, setAttorneyId]       = useState(null)
   const [attorneyProfile, setAttorneyProfile] = useState(null)
   const [toast, setToast] = useState(null)
-  const [user, setUser] = useState(null)
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
-  const [adminData, setAdminData] = useState(null)
-  const [adminLoading, setAdminLoading] = useState(false)
-  const [tapCount, setTapCount] = useState(0)
-  const [tapTimer, setTapTimer] = useState(null)
-
-  function handleAdminTap() {
-    if (tapTimer) clearTimeout(tapTimer)
-    const newCount = tapCount + 1
-    setTapCount(newCount)
-    if (newCount >= 3) {
-      setTapCount(0)
-      loadAdminStats()
-    } else {
-      const t = setTimeout(() => setTapCount(0), 800)
-      setTapTimer(t)
-    }
-  }
-
-  async function loadAdminStats() {
-    if (user?.email !== 'toddwillford72@gmail.com') return
-    setAdminLoading(true)
-    try {
-      const res = await fetch('/api/admin-stats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode: 'FieldCore2026!' }),
-      })
-      const json = await res.json()
-      setAdminData(json)
-      setShowAdminPanel(true)
-    } catch (e) {
-      console.error('Admin stats error:', e)
-    } finally {
-      setAdminLoading(false)
-    }
-  }
-
   function showCommunicationToast() {
     setToast('Communication queued — no actual email sent in demo mode.')
     setTimeout(() => setToast(null), 3000)
@@ -1044,7 +1005,6 @@ export default function A1AttorneyDashboard() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
-      setUser(session.user)
       setAttorneyId(session.user.id)
       fetch('/api/get-clients', {
         method: 'POST',
@@ -1064,75 +1024,6 @@ export default function A1AttorneyDashboard() {
 
   return (
     <>
-      {showAdminPanel && adminData && (
-        <div className="fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4">
-          <div className="bg-white rounded-2xl max-w-4xl mx-auto my-6 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-gray-900">Admin — Beta Stats</h2>
-              <button onClick={() => setShowAdminPanel(false)} className="text-gray-400 hover:text-gray-600 text-sm">Close</button>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {[
-                { label: 'Total Users', value: adminData.stats.totalUsers, sub: `${adminData.stats.totalClients} clients · ${adminData.stats.totalAttorneys} attorneys` },
-                { label: 'Active (14d)', value: adminData.stats.activeUsers, sub: 'Logged in last 14 days' },
-                { label: 'New 7d / 30d', value: `${adminData.stats.newSignups7} / ${adminData.stats.newSignups30}`, sub: 'Signups' },
-                { label: 'Prospects', value: adminData.stats.prospectsTotal, sub: `Avg score ${adminData.stats.avgProspectScore}` },
-                { label: 'Expenses', value: adminData.stats.totalExpenseCount, sub: `$${Number(adminData.stats.totalExpenseAmount).toLocaleString()} total` },
-                { label: 'Docs Uploaded', value: adminData.stats.docsUploaded, sub: `${adminData.stats.docsPending} pending` },
-                { label: 'Milestones Done', value: adminData.stats.milestonesCompleted, sub: `of ${adminData.stats.milestonesTotal} total` },
-                { label: "Prospects Intro'd", value: adminData.stats.prospectsByStatus?.intro_sent || 0, sub: `${adminData.stats.prospectsByStatus?.none || 0} not contacted` },
-              ].map(({ label, value, sub }) => (
-                <div key={label} className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-                  <p className="text-xl font-bold text-gray-900">{value}</p>
-                  {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-                </div>
-              ))}
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-50 text-gray-500 uppercase">
-                    <th className="text-left px-3 py-2">Name</th>
-                    <th className="text-left px-3 py-2">Role / Visa</th>
-                    <th className="text-left px-3 py-2">Last Login</th>
-                    <th className="text-left px-3 py-2">Joined</th>
-                    <th className="text-right px-3 py-2">Expenses</th>
-                    <th className="text-right px-3 py-2">Milestones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {adminData.users.map(u => (
-                    <tr key={u.id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2">
-                        <p className="font-medium text-gray-900">{u.name || '—'}</p>
-                        <p className="text-gray-400">{u.email}</p>
-                      </td>
-                      <td className="px-3 py-2">
-                        <p className="capitalize text-gray-700">{u.role}</p>
-                        <p className="text-gray-400">{u.visa_type || '—'}</p>
-                      </td>
-                      <td className="px-3 py-2 text-gray-600">
-                        {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) : '—'}
-                      </td>
-                      <td className="px-3 py-2 text-gray-600">
-                        {new Date(u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
-                      </td>
-                      <td className="px-3 py-2 text-right text-gray-700">
-                        {u.role === 'client' ? `${u.expense_count} · $${Number(u.expense_total).toLocaleString()}` : '—'}
-                      </td>
-                      <td className="px-3 py-2 text-right text-gray-700">
-                        {u.role === 'client' ? `${u.milestones_completed}/${u.milestones_total}` : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
       {showModal && <AddClientModal onClose={() => setShowModal(false)} attorneyProfile={attorneyProfile} />}
 
       {toast && (
@@ -1153,7 +1044,7 @@ export default function A1AttorneyDashboard() {
               <p className="font-extrabold uppercase mb-1" style={{ fontSize: 11, color: '#4A9FD4', letterSpacing: '0.14em' }}>
                 ATTORNEY PORTAL
               </p>
-              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2, cursor: 'default' }} onClick={handleAdminTap}>{attorneyProfile?.firm_name || 'Attorney Portal'}</h1>
+              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }}>{attorneyProfile?.firm_name || 'Attorney Portal'}</h1>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="font-bold px-2.5 py-0.5 rounded-full" style={{ fontSize: 12, backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
                   Active clients: {clients ? clients.length : 0}
