@@ -1526,6 +1526,7 @@ function IntroModal({ pro, prospect, introEmail, onClose }) {
     markIntroSent()
   }
 
+  console.log('[DBG] IntroModal rendering, pro:', pro.name, 'hasEmail:', !!pro.email, 'introEmailBody:', !!introEmail?.body, 'hasPhone:', !!(pro.phones?.length))
   const hasEmail = !!pro.email && !!introEmail?.body
   const hasPhone = pro.phones && pro.phones.length > 0
   const mailtoLink = hasEmail
@@ -1717,9 +1718,12 @@ function ProfessionalCard({ pro, initialOpen, presignup, presignupVisa, presignu
         }),
       })
       const data = res.ok ? await res.json() : null
+      console.log('[DBG] score-prospect response ok:', res.ok, 'data:', data)
       if (data && onIntroReady) {
+        console.log('[DBG] calling onIntroReady for', pro.name)
         onIntroReady(pro, data, () => setRequested(true))
       } else {
+        console.log('[DBG] skipping modal — data:', data, 'onIntroReady:', !!onIntroReady)
         setRequested(true)
       }
     } catch {
@@ -1958,6 +1962,7 @@ export default function J5Directory() {
   const [introModal, setIntroModal] = useState(null) // { pro, prospect, introEmail, onDone }
 
   function handleIntroReady(pro, data, onDone) {
+    console.log('[DBG] handleIntroReady called, pro:', pro.name, 'prospect:', data.prospect, 'introEmail:', data.intro_email)
     setIntroModal({ pro, prospect: data.prospect, introEmail: data.intro_email, onDone })
   }
 
@@ -2076,6 +2081,7 @@ export default function J5Directory() {
 
       <TabBar active="directory" />
 
+      {introModal && console.log('[DBG] introModal state is set, rendering IntroModal')}
       {introModal && (
         <IntroModal
           pro={introModal.pro}
