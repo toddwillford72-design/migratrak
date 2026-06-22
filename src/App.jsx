@@ -1,3 +1,4 @@
+// admin route fix
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
