@@ -1001,6 +1001,21 @@ export default function A1AttorneyDashboard() {
   const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [adminData, setAdminData] = useState(null)
   const [adminLoading, setAdminLoading] = useState(false)
+  const [tapCount, setTapCount] = useState(0)
+  const [tapTimer, setTapTimer] = useState(null)
+
+  function handleAdminTap() {
+    if (tapTimer) clearTimeout(tapTimer)
+    const newCount = tapCount + 1
+    setTapCount(newCount)
+    if (newCount >= 3) {
+      setTapCount(0)
+      loadAdminStats()
+    } else {
+      const t = setTimeout(() => setTapCount(0), 800)
+      setTapTimer(t)
+    }
+  }
 
   async function loadAdminStats() {
     if (user?.email !== 'toddwillford72@gmail.com') return
@@ -1138,7 +1153,7 @@ export default function A1AttorneyDashboard() {
               <p className="font-extrabold uppercase mb-1" style={{ fontSize: 11, color: '#4A9FD4', letterSpacing: '0.14em' }}>
                 ATTORNEY PORTAL
               </p>
-              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2 }} onDoubleClick={() => user?.email === 'toddwillford72@gmail.com' && loadAdminStats()}>{attorneyProfile?.firm_name || 'Attorney Portal'}</h1>
+              <h1 className="font-extrabold" style={{ fontSize: 22, color: '#FFFFFF', lineHeight: 1.2, cursor: 'default' }} onClick={handleAdminTap}>{attorneyProfile?.firm_name || 'Attorney Portal'}</h1>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <span className="font-bold px-2.5 py-0.5 rounded-full" style={{ fontSize: 12, backgroundColor: 'rgba(240,165,0,0.2)', color: '#F0A500' }}>
                   Active clients: {clients ? clients.length : 0}
