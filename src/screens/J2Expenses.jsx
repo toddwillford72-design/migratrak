@@ -583,7 +583,17 @@ function InvestmentPassport({ userName, onToast }) {
   )
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Demo data (shown when no session) ────────────────────────────────────────
+const CHEN_DEMO_EXPENSES = [
+  { id: 'demo-1', category: 'Legal Fees',            amount: 12500, label: 'Maimone Law — retainer',     date: '2024-11-15', isNew: false, receipt_url: null },
+  { id: 'demo-2', category: 'Filing Fees',           amount: 3675,  label: 'I-526E filing fee',          date: '2024-11-20', isNew: false, receipt_url: null },
+  { id: 'demo-3', category: 'Business / Investment', amount: 800000,label: 'EB-5 regional center wire',  date: '2024-12-01', isNew: false, receipt_url: null },
+  { id: 'demo-4', category: 'Regional Center Fee',   amount: 60000, label: 'Administrative fee',         date: '2024-12-01', isNew: false, receipt_url: null },
+  { id: 'demo-5', category: 'Travel & Hotels',       amount: 4200,  label: 'NYC site visit — flights + hotel', date: '2025-01-10', isNew: false, receipt_url: null },
+  { id: 'demo-6', category: 'Medical Exams',         amount: 3800,  label: 'I-693 medical exams — family of 4', date: '2025-02-05', isNew: false, receipt_url: null },
+]
+
+
 function dbRowToExpense(row) {
   return {
     id:       row.id,
@@ -625,11 +635,12 @@ export default function J2Expenses() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
       if (!user) {
-        setExpenses([])
+        setExpenses(CHEN_DEMO_EXPENSES)
+        setUserName('Chen Family')
         return
       }
       setUserId(user.id)
-      supabase.from('users').select('name').eq('id', user.id).single().then(({ data }) => {
+      supabase.from('users').select('name').eq('id', user.id).maybeSingle().then(({ data }) => {
         if (data?.name) setUserName(data.name)
       })
       try {
@@ -943,14 +954,14 @@ export default function J2Expenses() {
         {/* Export buttons */}
         <div className="flex gap-3">
           <button
-            onClick={handleExportPDF}
+            onClick={() => { setToast('Coming soon'); setTimeout(() => setToast(null), 2500) }}
             className="flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
             style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}
           >
             <span>📋</span> Export PDF for attorney
           </button>
           <button
-            onClick={handleExportPDF}
+            onClick={() => { setToast('Coming soon'); setTimeout(() => setToast(null), 2500) }}
             className="flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
             style={{ backgroundColor: '#EBF4FB', color: '#1B5FA8', border: '1px solid #4A9FD4' }}
           >
