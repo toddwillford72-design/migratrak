@@ -53,10 +53,10 @@ export default function AdminDashboard() {
         body:    JSON.stringify({ passcode: code }),
       });
       const json = await res.json();
-      if (!res.ok) {
+      if (json.error) {
+        setError('Incorrect passcode.');
         sessionStorage.removeItem(CODE_KEY);
         sessionStorage.removeItem(STORAGE_KEY);
-        setError('Session expired. Please log in again.');
         return;
       }
       sessionStorage.setItem(STORAGE_KEY, 'true');
