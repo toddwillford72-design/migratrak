@@ -77,6 +77,7 @@ export default function AuthScreen() {
           data: {
             role: userType,
             name,
+            visa_type: visaType,
           }
         }
       })
