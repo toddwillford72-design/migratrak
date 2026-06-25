@@ -122,6 +122,14 @@ export default function AuthScreen() {
         if (profileError) console.error('Profile row insert failed:', profileError)
       }
 
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session && userType === 'client' && visaType) {
+        await supabase.rpc('seed_milestones_for_user', {
+          p_user_id: session.user.id,
+          p_visa_type: visaType
+        })
+      }
+
       if (userType === 'client') {
         try {
           const answers = JSON.parse(localStorage.getItem('migratrak_answers') || '{}')
