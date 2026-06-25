@@ -116,10 +116,17 @@ export default function AuthScreen() {
               phone: phone || null,
               languages_spoken: languagesSpoken || null,
             }
+        await new Promise(resolve => setTimeout(resolve, 1500))
+
         const { error: profileError } = await supabase
           .from('users')
           .upsert(usersRow, { onConflict: 'id' })
-        if (profileError) console.error('Profile row insert failed:', profileError)
+
+        if (profileError) {
+          console.error('Profile insert failed:', profileError)
+          setError('Account setup failed. Please try again.')
+          return
+        }
       }
 
       const { data: { session } } = await supabase.auth.getSession()
