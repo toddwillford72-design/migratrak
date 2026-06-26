@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  // ── create-profile action ─────────────────────────────────────────────────
+  // -- create-profile action ---------------------------------------------------
   if (req.body.action === 'create-profile') {
     const { usersRow, visaType } = req.body
     try {
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // ── add-client action (existing logic) ────────────────────────────────────
+  // -- add-client action (existing logic) -------------------------------------
   const {
     email, name, visaType, familySize, caseStartDate, dependentAges,
     attorneyId, attorneyName, firmName,
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     })
     if (linkErr) throw linkErr
 
-    // 4. Send invitation email via Resend REST API (best-effort — non-fatal)
+    // 4. Send invitation email via Resend REST API (best-effort - non-fatal)
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     if (RESEND_API_KEY) {
       try {
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
                 <p>${displayAttorney} at ${displayFirm} has set up your MigraTrak account
                 to help guide you through your immigration journey.</p>
                 <p>MigraTrak will help you track your milestones, manage documents,
-                log expenses, and get answers from an AI coach — all in one place.</p>
+                log expenses, and get answers from an AI coach - all in one place.</p>
                 <p>To access your account, click the link below to set your password:</p>
                 <a href="https://migratrak.vercel.app/auth"
                    style="background:#1B5FA8;color:white;padding:12px 24px;
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
                   Please change your password after first login.
                 </p>
                 <p>If you have any questions, contact your attorney directly.</p>
-                <p>— The MigraTrak Team</p>
+                <p>- The MigraTrak Team</p>
               </div>
             `,
           }),
