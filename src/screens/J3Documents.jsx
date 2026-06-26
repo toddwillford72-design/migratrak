@@ -147,6 +147,21 @@ const SEED_DOCS = {
   ],
 }
 
+// Demo documents shown when no session (Chen Family EB-5 scenario)
+const DEMO_DOCS = [
+  { id: 'd1', name: 'Passport',                              phase: 1, status: 'uploaded', user_id: null },
+  { id: 'd2', name: 'Birth certificate',                     phase: 1, status: 'uploaded', user_id: null },
+  { id: 'd3', name: 'Marriage certificate (if applicable)',  phase: 1, status: 'uploaded', user_id: null },
+  { id: 'd4', name: 'Source of funds documentation',         phase: 1, status: 'pending',  user_id: null },
+  { id: 'd5', name: 'Bank statements - 6 months',            phase: 1, status: 'required', user_id: null },
+  { id: 'd6', name: 'Tax returns - 5 years (source of funds)', phase: 1, status: 'required', user_id: null },
+  { id: 'd7', name: 'I-526E petition',                       phase: 2, status: 'required', user_id: null },
+  { id: 'd8', name: 'Regional center offering documents (PPM)', phase: 2, status: 'pending', user_id: null },
+  { id: 'd9', name: 'Investment wire transfer confirmation',  phase: 2, status: 'required', user_id: null },
+  { id: 'd10', name: 'Medical examination (I-693)',           phase: 3, status: 'required', user_id: null },
+  { id: 'd11', name: 'Biometrics appointment confirmation',   phase: 3, status: 'required', user_id: null },
+]
+
 const PHASE_TITLES = {
   1: 'Phase 1 — Identity & Credentials',
   2: 'Phase 2 — Application & Filings',
@@ -430,7 +445,8 @@ export default function J3Documents() {
       .eq('user_id', uid)
       .order('phase', { ascending: true })
     if (error) throw new Error(error.message)
-    return data || []
+    const sorted = [...(data || [])].sort((a, b) => a.phase - b.phase || new Date(a.created_at) - new Date(b.created_at))
+    return sorted
   }
 
   async function seedDocs(uid, visaType) {
@@ -453,7 +469,7 @@ export default function J3Documents() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const user = session?.user ?? null
       if (!user) {
-        setDocs([])
+        setDocs(DEMO_DOCS)
         return
       }
       setUserId(user.id)
@@ -485,6 +501,7 @@ export default function J3Documents() {
       .from('documents')
       .update({ status: newStatus })
       .eq('id', doc.id)
+      .eq('user_id', doc.user_id)
     if (error) {
       // Revert + show inline error
       setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, status: doc.status, updateError: 'Update failed — tap to retry' } : d))
@@ -645,6 +662,13 @@ export default function J3Documents() {
               <ExpiryCard key={doc.id} doc={doc} />
             ))}
           </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && phases.length === 0 && !loadError && (
+          <p className="text-sm px-1" style={{ color: '#A0AEC0' }}>
+            No documents yet. Your document checklist will appear here.
+          </p>
         )}
 
         {/* Phase sections */}
