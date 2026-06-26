@@ -26,11 +26,17 @@ export default async function handler(req, res) {
       if (profileError) throw profileError
 
       if (visaType && usersRow.role === 'client') {
-        const { error: seedError } = await supabase.rpc('seed_milestones_for_user', {
+        const { error: seedMilestonesError } = await supabase.rpc('seed_milestones_for_user', {
           p_user_id: usersRow.id,
           p_visa_type: visaType,
         })
-        if (seedError) console.error('Milestone seed error:', seedError)
+        if (seedMilestonesError) console.error('Milestone seed error:', seedMilestonesError)
+
+        const { error: seedDocsError } = await supabase.rpc('seed_documents_for_user', {
+          p_user_id: usersRow.id,
+          p_visa_type: visaType,
+        })
+        if (seedDocsError) console.error('Document seed error:', seedDocsError)
       }
 
       return res.status(200).json({ success: true })
