@@ -372,10 +372,11 @@ export default function J1Dashboard() {
 
       if ((mRows || []).length === 0 && userRow?.visa_type) {
         const seeded = await seedMilestones(userId, userRow.visa_type)
-        const sorted = [...seeded].sort((a, b) => a.phase - b.phase)
+        const sorted = [...seeded].sort((a, b) => a.phase - b.phase || new Date(a.created_at) - new Date(b.created_at))
         setMilestones(sorted)
       } else {
-        setMilestones(mRows || [])
+        const sorted = [...(mRows || [])].sort((a, b) => a.phase - b.phase || new Date(a.created_at) - new Date(b.created_at))
+        setMilestones(sorted)
       }
 
       // Check for stale intro-sent prospects (72h+ old, followup_count < 2)
