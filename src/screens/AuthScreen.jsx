@@ -83,7 +83,7 @@ export default function AuthScreen() {
       })
       if (signUpError) throw signUpError
 
-      // Explicitly insert the users row — there is no DB trigger for this.
+      // Explicitly insert the users row via service-role API to bypass RLS timing issues.
       // For clients, status = 'active'. For attorneys, status = 'pending_review'
       // (attorney won't appear in public directory until manually approved).
       const userId = data.user?.id
@@ -116,25 +116,20 @@ export default function AuthScreen() {
               phone: phone || null,
               languages_spoken: languagesSpoken || null,
             }
-        await new Promise(resolve => setTimeout(resolve, 1500))
 
-        const { error: profileError } = await supabase
-          .from('users')
-          .upsert(usersRow, { onConflict: 'id' })
-
-        if (profileError) {
-          console.error('Profile insert failed:', profileError)
+        const profileRes = await fetch('/api/add-client', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create-profile',
+            usersRow,
+            visaType,
+          })
+        })
+        if (!profileRes.ok) {
           setError('Account setup failed. Please try again.')
           return
         }
-      }
-
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session && userType === 'client' && visaType) {
-        await supabase.rpc('seed_milestones_for_user', {
-          p_user_id: session.user.id,
-          p_visa_type: visaType
-        })
       }
 
       if (userType === 'client') {

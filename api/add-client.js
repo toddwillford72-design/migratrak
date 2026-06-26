@@ -5,15 +5,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const {
-    email, name, visaType, familySize, caseStartDate, dependentAges,
-    attorneyId, attorneyName, firmName,
-  } = req.body
-
-  if (!email || !name || !attorneyId) {
-    return res.status(400).json({ error: 'Missing required fields: email, name, attorneyId' })
-  }
-
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 
@@ -24,6 +15,40 @@ export default async function handler(req, res) {
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
+
+  // ── create-profile action ─────────────────────────────────────────────────
+  if (req.body.action === 'create-profile') {
+    const { usersRow, visaType } = req.body
+    try {
+      const { error: profileError } = await supabase
+        .from('users')
+        .upsert(usersRow, { onConflict: 'id' })
+      if (profileError) throw profileError
+
+      if (visaType && usersRow.role === 'client') {
+        const { error: seedError } = await supabase.rpc('seed_milestones_for_user', {
+          p_user_id: usersRow.id,
+          p_visa_type: visaType,
+        })
+        if (seedError) console.error('Milestone seed error:', seedError)
+      }
+
+      return res.status(200).json({ success: true })
+    } catch (err) {
+      console.error('create-profile error:', err)
+      return res.status(500).json({ error: err.message })
+    }
+  }
+
+  // ── add-client action (existing logic) ────────────────────────────────────
+  const {
+    email, name, visaType, familySize, caseStartDate, dependentAges,
+    attorneyId, attorneyName, firmName,
+  } = req.body
+
+  if (!email || !name || !attorneyId) {
+    return res.status(400).json({ error: 'Missing required fields: email, name, attorneyId' })
+  }
 
   try {
     // 1. Create auth user with temporary password
